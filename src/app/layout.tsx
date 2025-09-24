@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import '@mantine/core/styles.css';
 import { MantineProvider } from '@mantine/core';
+import { FooterCentered } from '../components/ui/Footer';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,6 +32,7 @@ export default function RootLayout({
       >
         <MantineProvider>
           {children}
+          <FooterCentered />
         </MantineProvider>
       </body>
     </html>
