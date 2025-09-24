@@ -619,10 +619,33 @@ yarn test Button       # Run specific tests
 yarn test:coverage     # With coverage
 
 # E2E tests
-yarn cypress:open      # Interactive mode
-yarn cypress:run       # Headless mode
-yarn cypress:run --spec="cypress/e2e/auth.cy.ts"  # Specific test
+yarn cypress:open      # Interactive mode (requires running dev server)
+yarn cypress:run       # Headless mode (requires running dev server)
+yarn test:e2e:ci       # Automated: starts dev server, runs tests, stops server
+yarn test:e2e:prod     # Production: builds app, starts prod server, runs tests
+
+# E2E tests with manual server management
+yarn dev               # Start dev server in one terminal
+yarn cypress:run       # Run tests in another terminal
 ```
+
+### **Automated E2E Testing**
+
+We use `start-server-and-test` for automated server management:
+
+```json
+// package.json scripts
+{
+  "test:e2e:ci": "start-server-and-test dev http://localhost:3000 cypress:run",
+  "test:e2e:prod": "yarn build && start-server-and-test start http://localhost:3000 cypress:run"
+}
+```
+
+**Benefits:**
+- ✅ **No manual server management** - automatically starts/stops server
+- ✅ **CI-friendly** - works reliably in GitHub Actions
+- ✅ **Fast feedback** - waits for server to be ready before running tests
+- ✅ **Clean teardown** - properly stops server after tests complete
 
 ### **CI Integration**
 ```yaml

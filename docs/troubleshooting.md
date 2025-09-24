@@ -484,7 +484,29 @@ module.exports = {
 }
 ```
 
-### **Build Failures in Production**
+**❌ Problem:** Cypress binary missing in CI
+```bash
+The cypress npm package is installed, but the Cypress binary is missing.
+We expected the binary to be installed here: /home/runner/.cache/Cypress/13.17.0/Cypress/Cypress
+```
+
+**✅ Solution:**
+```yaml
+# Add Cypress binary caching and installation
+- name: Cache Cypress binary
+  uses: actions/cache@v4
+  with:
+    path: ~/.cache/Cypress
+    key: cypress-${{ runner.os }}-${{ hashFiles('yarn.lock') }}
+    restore-keys: |
+      cypress-${{ runner.os }}-
+
+- name: Install Cypress binary
+  run: npx cypress install
+
+- name: Verify Cypress installation
+  run: npx cypress verify
+```### **Build Failures in Production**
 
 **❌ Problem:** Different behavior in production build
 ```bash
