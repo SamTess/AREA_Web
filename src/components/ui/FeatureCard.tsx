@@ -1,10 +1,8 @@
 "use client";
 import { IconGauge, IconUser , IconAutomation } from '@tabler/icons-react';
 import {
-  Badge,
   Card,
   Container,
-  Group,
   SimpleGrid,
   Text,
   Title,

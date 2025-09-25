@@ -7,6 +7,7 @@ import {
   IconListDetails
 } from '@tabler/icons-react';
 import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core';
+import Image from 'next/image';
 
 import { useRouter } from 'next/navigation';
 import { UserMenu } from './UserMenu';
@@ -50,7 +51,7 @@ const dataCenter = [
 export function NavbarMinimal() {
   const [active, setActive] = useState(0);
   const router = useRouter();
-  const [isConnected, setIsConnected] = useState(false);
+  const [isConnected] = useState(false);
 
   const links = dataCenter.map((link, index) => (
     <NavbarLink
@@ -68,7 +69,7 @@ export function NavbarMinimal() {
   return (
     <nav className={classes.navbar}>
       <Center>
-        <img src="/A1.png" alt="Logo" className={classes.logo}  />
+        <Image src="/A1.png" alt="Logo" width={40} height={40} />
       </Center>
 
       <div className={classes.navbarMain}>

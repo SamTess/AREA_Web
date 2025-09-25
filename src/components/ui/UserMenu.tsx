@@ -5,7 +5,7 @@ import {
   IconSettings,
   IconSwitchHorizontal,
 } from '@tabler/icons-react';
-import { Avatar, Group, Menu, Text, useMantineTheme } from '@mantine/core';
+import { Avatar, Group, Menu, Text } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 
 
@@ -16,7 +16,6 @@ interface UserContent {
 }
 
 export function UserMenu({ user }: { user: UserContent }) {
-  const theme = useMantineTheme();
   const router = useRouter();
 
   return (

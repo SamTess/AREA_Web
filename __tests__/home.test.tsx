@@ -9,17 +9,16 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
 describe('Home', () => {
   it('renders without crashing', () => {
     render(<Home />, { wrapper: AllTheProviders })
-    // Add your assertions here - checking for the title text instead of main role
-    expect(screen.getByText('Base page')).toBeInTheDocument()
+    expect(screen.getByText('Welcome to AREA')).toBeInTheDocument()
   })
 
   it('renders the area logo', () => {
     render(<Home />, { wrapper: AllTheProviders })
-    expect(screen.getByAltText('area logo')).toBeInTheDocument()
+    expect(screen.getAllByAltText('logo')).toHaveLength(9)
   })
 
   it('renders the base button', () => {
     render(<Home />, { wrapper: AllTheProviders })
-    expect(screen.getByText('Base button')).toBeInTheDocument()
+    expect(screen.getByText('Get Started')).toBeInTheDocument()
   })
 })

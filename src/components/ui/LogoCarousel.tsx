@@ -1,9 +1,10 @@
 "use client";
 import '@mantine/carousel/styles.css';
 import { Carousel } from '@mantine/carousel';
-import { Paper, Title, useMantineTheme } from '@mantine/core';
+import { Paper, Title } from '@mantine/core';
 import classes from './CardsCarousel.module.css';
 import Autoplay from 'embla-carousel-autoplay';
+import Image from 'next/image';
 
 interface CardProps {
   image: string;
@@ -16,8 +17,9 @@ function Card({ image }: CardProps) {
       p="md"
       radius="md"
       className={classes.card}
+      style={{ position: 'relative' }}
     >
-      <img src={image} alt="logo" className={classes.logo} />
+      <Image src={image} alt="logo" fill style={{ objectFit: 'contain' }} />
     </Paper>
   );
 }
