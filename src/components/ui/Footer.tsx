@@ -1,6 +1,5 @@
 'use client';
 import { Image, Anchor, Group, Container, Flex } from '@mantine/core';
-import { IconBorderBottom } from '@tabler/icons-react';
 import './Footer.css';
 
 const links = [
