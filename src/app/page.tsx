@@ -1,6 +1,15 @@
-
+import { HeroBanner } from '@/components/ui/HeroBanner';
+import { LogoCarousel } from '@/components/ui/LogoCarousel';
+import { FeaturesCards } from '@/components/ui/FeatureCard';
 export default function Home() {
   return (
-      <h1>Welcome to AREA Web Application</h1>
+    <>
+      <HeroBanner />
+      <div style={{ height: '40px' }}></div>
+
+      <LogoCarousel />
+      <div style={{ height: '80px' }}></div>
+      <FeaturesCards />
+    </>
   );
 }
