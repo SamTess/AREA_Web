@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import Home from '@/app/page'
 
@@ -20,5 +20,11 @@ describe('Home', () => {
   it('renders the base button', () => {
     render(<Home />, { wrapper: AllTheProviders })
     expect(screen.getByText('Get Started')).toBeInTheDocument()
+  })
+
+  it('clicks the Get Started button', () => {
+    render(<Home />, { wrapper: AllTheProviders })
+    const button = screen.getByText('Get Started')
+    fireEvent.click(button)
   })
 })

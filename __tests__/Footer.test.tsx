@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import { Footer } from '@/components/ui/Footer'
 
@@ -29,5 +29,12 @@ describe('Footer', () => {
     links.forEach(link => {
       expect(link).toHaveAttribute('href', '#')
     })
+  })
+
+  it('prevents default on link clicks', () => {
+    render(<Footer />, { wrapper: AllTheProviders })
+    const contactLink = screen.getByText('Contact')
+    const clickEvent = fireEvent.click(contactLink)
+    expect(clickEvent).toBe(false)
   })
 })

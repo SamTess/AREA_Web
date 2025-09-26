@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import { NavbarMinimal } from '@/components/ui/NavBar'
 
@@ -24,5 +24,11 @@ describe('NavbarMinimal', () => {
     render(<NavbarMinimal />, { wrapper: AllTheProviders })
     const buttons = screen.getAllByRole('button')
     expect(buttons[3]).toBeInTheDocument()
+  })
+
+  it('clicks navigation buttons without error', () => {
+    render(<NavbarMinimal />, { wrapper: AllTheProviders })
+    const buttons = screen.getAllByRole('button')
+    fireEvent.click(buttons[0])
   })
 })
