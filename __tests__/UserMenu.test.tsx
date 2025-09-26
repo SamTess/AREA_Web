@@ -49,4 +49,34 @@ describe('UserMenu', () => {
       fireEvent.click(settingsItem)
     })
   })
+
+  it('clicks profile section without error', async () => {
+    render(<UserMenu user={mockUser} />, { wrapper: AllTheProviders })
+    const avatar = screen.getByRole('img')
+    fireEvent.click(avatar)
+    await waitFor(() => {
+      const profileGroup = screen.getByText(mockUser.name).closest('div')
+      fireEvent.click(profileGroup!)
+    })
+  })
+
+  it('clicks change account menu item without error', async () => {
+    render(<UserMenu user={mockUser} />, { wrapper: AllTheProviders })
+    const avatar = screen.getByRole('img')
+    fireEvent.click(avatar)
+    await waitFor(() => {
+      const changeAccountItem = screen.getByText('Change account')
+      fireEvent.click(changeAccountItem)
+    })
+  })
+
+  it('clicks logout menu item without error', async () => {
+    render(<UserMenu user={mockUser} />, { wrapper: AllTheProviders })
+    const avatar = screen.getByRole('img')
+    fireEvent.click(avatar)
+    await waitFor(() => {
+      const logoutItem = screen.getByText('Logout')
+      fireEvent.click(logoutItem)
+    })
+  })
 })

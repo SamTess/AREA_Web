@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import { NavbarMinimal } from '@/components/ui/NavBar'
+import React from 'react'
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return <MantineProvider>{children}</MantineProvider>
