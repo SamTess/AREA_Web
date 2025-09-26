@@ -83,7 +83,7 @@ export function NavbarMinimal() {
         {isConnected ? (
           <UserMenu user={user} />
         ) : (
-          <NavbarLink icon={IconLogin} label="Login" />
+          <NavbarLink icon={IconLogin} label="Login" onClick={() => router.push('/login')} />
         )}
       </Stack>
     </nav>
