@@ -1,5 +1,6 @@
 "use client";
 import { useState } from 'react';
+import Image from 'next/image';
 import {
   Anchor,
   Button,
@@ -51,7 +52,7 @@ export function AuthenticationForm(props: PaperProps) {
             <>
             <Stack mb="md" mt="md">
                 {data.map((item) => (
-              <Button variant="default" key={item.label} radius="xl" leftSection={<img src={item.iconPath} alt={item.label} style={{ width: 20, height: 20 }} />}>
+              <Button variant="default" key={item.label} radius="xl" leftSection={<Image src={item.iconPath} alt={item.label} width={20} height={20} />}>
                 {item.label}
               </Button>
                 ))}
