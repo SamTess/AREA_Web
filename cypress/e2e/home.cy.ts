@@ -1,17 +1,25 @@
 describe('Home page', () => {
   it('should load the home page', () => {
-    cy.visit('/')
-    cy.contains('Base page')
-    cy.contains('texte')
-  })
+    cy.visit('/');
+    cy.contains('Welcome to AREA').should('be.visible');
+  });
 
-  it('should display the area logo', () => {
-    cy.visit('/')
-    cy.get('img[alt="area logo"]').should('be.visible')
-  })
+  it('should display the hero banner with description and button', () => {
+    cy.visit('/');
+    cy.contains('Automate your tasks with custom applets').should('be.visible');
+    cy.contains('Get Started').should('be.visible');
+  });
 
-  it('should have the base button', () => {
-    cy.visit('/')
-    cy.contains('Base button').should('be.visible')
-  })
-})
+  it('should display the logo carousel with title', () => {
+    cy.visit('/');
+    cy.contains('Our services').should('be.visible');
+    cy.get('img[alt="logo"]').should('have.length.greaterThan', 0);
+  });
+
+  it('should display the features cards', () => {
+    cy.visit('/');
+    cy.contains('Automate your tasks').should('be.visible');
+    cy.contains('Privacy first').should('be.visible');
+    cy.contains('Seamless integration').should('be.visible');
+  });
+});
