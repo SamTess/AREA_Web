@@ -29,8 +29,13 @@ jest.mock('next/navigation', () => ({
 
 jest.mock('next/image', () => ({
   __esModule: true,
-  default: ({ src, alt, width, height, ...props }: any) =>
-    React.createElement('img', { src, alt, width, height, ...props }),
+  default: ({ src, alt, width, height }: {
+    src: string;
+    alt: string;
+    width?: number | string;
+    height?: number | string;
+  }) =>
+    React.createElement('img', { src, alt, width, height }),
 }))
 
 jest.mock('@mantine/carousel', () => ({
