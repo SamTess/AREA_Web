@@ -1,4 +1,4 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import ServiceFilter from '../src/components/ui/ServiceFilter'
 import { services as mockServices } from '../src/mocks/areas'

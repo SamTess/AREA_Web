@@ -1,9 +1,7 @@
 import { login, register, forgotPassword } from '../src/services/authService'
 
 jest.mock('axios')
-import axios from 'axios'
 
-const mockedAxios = axios as jest.Mocked<typeof axios>
 
 describe('authService', () => {
   beforeEach(() => {

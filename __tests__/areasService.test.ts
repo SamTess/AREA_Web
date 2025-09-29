@@ -2,9 +2,6 @@ import { getAreas, getServices } from '../src/services/areasService'
 import { services as mockServices, data as mockAreas } from '../src/mocks/areas'
 
 jest.mock('axios')
-import axios from 'axios'
-
-const mockedAxios = axios as jest.Mocked<typeof axios>
 
 describe('areasService', () => {
   beforeEach(() => {
