@@ -7,13 +7,7 @@ import {
 } from '@tabler/icons-react';
 import { Avatar, Group, Menu, Text } from '@mantine/core';
 import { useRouter } from 'next/navigation';
-
-
-interface UserContent {
-  name: string;
-  email: string;
-  avatarSrc: string;
-}
+import { UserContent } from '../../types';
 
 export function UserMenu({ user }: { user: UserContent }) {
   const router = useRouter();

@@ -5,10 +5,9 @@ import { Paper, Title } from '@mantine/core';
 import classes from './CardsCarousel.module.css';
 import Autoplay from 'embla-carousel-autoplay';
 import Image from 'next/image';
-
-interface CardProps {
-  image: string;
-}
+import { useState, useEffect } from 'react';
+import { getServices } from '../../services/areasService';
+import { Service, CardProps } from '../../types';
 
 function Card({ image }: CardProps) {
   return (
@@ -24,23 +23,20 @@ function Card({ image }: CardProps) {
   );
 }
 
-// ici il faudras aller voir la bd des services et prendre chaque logo
-const data = [
-  'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg',
-  'https://upload.wikimedia.org/wikipedia/commons/4/4e/Gmail_Icon.png',
-  'https://upload.wikimedia.org/wikipedia/commons/0/04/ChatGPT_logo.svg',
-  'https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg',
-  'https://upload.wikimedia.org/wikipedia/commons/2/2f/Google_2015_logo.svg',
-  'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg',
-  'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png',
-  'https://upload.wikimedia.org/wikipedia/commons/6/6c/Facebook_Logo_2023.png',
-  'https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg',
-];
-
 export function LogoCarousel() {
-  const slides = data.map((item) => (
-    <Carousel.Slide key={item}>
-      <Card image={item} />
+  const [services, setServices] = useState<Service[]>([]);
+
+  useEffect(() => {
+    const loadServices = async () => {
+      const servicesData = await getServices();
+      setServices(servicesData);
+    };
+    loadServices();
+  }, []);
+
+  const slides = services.map((service) => (
+    <Carousel.Slide key={service.id}>
+      <Card image={service.logo} />
     </Carousel.Slide>
   ));
 
