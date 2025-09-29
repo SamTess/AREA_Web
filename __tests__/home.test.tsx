@@ -1,6 +1,11 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import Home from '@/app/page'
+import { services as mockServices } from '../src/mocks/areas'
+
+jest.mock('../src/services/areasService', () => ({
+  getServices: jest.fn(() => Promise.resolve(mockServices)),
+}))
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return <MantineProvider>{children}</MantineProvider>
@@ -12,9 +17,11 @@ describe('Home', () => {
     expect(screen.getByText('Welcome to AREA')).toBeInTheDocument()
   })
 
-  it('renders the area logo', () => {
+  it('renders the area logo', async () => {
     render(<Home />, { wrapper: AllTheProviders })
-    expect(screen.getAllByAltText('logo')).toHaveLength(9)
+    await waitFor(() => {
+      expect(screen.getAllByAltText('logo')).toHaveLength(6)
+    })
   })
 
   it('renders the base button', () => {
