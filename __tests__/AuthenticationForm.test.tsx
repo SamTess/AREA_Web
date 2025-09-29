@@ -2,19 +2,31 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
 import { AuthenticationForm } from '@/components/ui/AuthenticationForm'
 
+const mockProviders = [
+  { iconPath: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png", label: 'Google' },
+  { iconPath: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg", label: 'Microsoft' },
+  { iconPath: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg", label: 'Github' },
+];
+
+jest.mock('../src/services/oauthService', () => ({
+  getOAuthProviders: jest.fn(() => Promise.resolve(mockProviders)),
+}))
+
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return <MantineProvider>{children}</MantineProvider>
 }
 
 describe('AuthenticationForm', () => {
-  it('renders login form by default', () => {
+  it('renders login form by default', async () => {
     render(<AuthenticationForm />, { wrapper: AllTheProviders })
     expect(screen.getByText('Welcome to Area, login with')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Area@Area.com')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Your password')).toBeInTheDocument()
-    expect(screen.getByText('Google')).toBeInTheDocument()
-    expect(screen.getByText('Microsoft')).toBeInTheDocument()
-    expect(screen.getByText('Github')).toBeInTheDocument()
+    await waitFor(() => {
+      expect(screen.getByText('Google')).toBeInTheDocument()
+      expect(screen.getByText('Microsoft')).toBeInTheDocument()
+      expect(screen.getByText('Github')).toBeInTheDocument()
+    })
   })
 
   it('switches to register mode', () => {

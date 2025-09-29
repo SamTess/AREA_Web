@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import {
   Anchor,
@@ -15,15 +15,22 @@ import {
 import { useForm } from '@mantine/form';
 import { upperFirst } from '@mantine/hooks';
 import { PasswordStrength } from './PasswordStrength';
-
-const data = [
-  { iconPath: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png", label: 'Google' },
-  { iconPath: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg", label: 'Microsoft' },
-  { iconPath: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg", label: 'Github' },
-];
+import { login, register, forgotPassword } from '../../services/authService';
+import { getOAuthProviders } from '../../services/oauthService';
+import { FormValues, OAuthProvider } from '../../types';
 
 export function AuthenticationForm(props: PaperProps) {
   const [type, setType] = useState<'login' | 'register' | 'forgotPassword'>('login');
+  const [data, setData] = useState<OAuthProvider[]>([]);
+
+  useEffect(() => {
+    const loadProviders = async () => {
+      const providers = await getOAuthProviders();
+      setData(providers);
+    };
+    loadProviders();
+  }, []);
+
   const form = useForm({
     initialValues: {
       email: '',
@@ -41,13 +48,27 @@ export function AuthenticationForm(props: PaperProps) {
     validateInputOnBlur: false,
   });
 
+  const handleSubmit = async (values: FormValues) => {
+    try {
+      if (type === 'login') {
+        await login({ email: values.email, password: values.password });
+      } else if (type === 'register') {
+        await register({ email: values.email, name: values.name, password: values.password });
+      } else if (type === 'forgotPassword') {
+        await forgotPassword(values.email);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <Paper radius="md" p="lg" withBorder w="40%" mx="auto" {...props}>
       <Text size="lg" fw={500}>
         Welcome to Area, {type} with
       </Text>
 
-      <form onSubmit={form.onSubmit(() => {})}>
+      <form onSubmit={form.onSubmit(handleSubmit)}>
         {type !== 'forgotPassword' && (
             <>
             <Stack mb="md" mt="md">

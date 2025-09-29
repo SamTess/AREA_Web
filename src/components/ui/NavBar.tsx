@@ -12,19 +12,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { UserMenu } from './UserMenu';
 import classes from './NavBarMinimal.module.css';
-
-interface NavbarLinkProps {
-  icon: typeof IconHome2;
-  label: string;
-  active?: boolean;
-  onClick?: () => void;
-}
-
-interface UserContent {
-  name: string;
-  email: string;
-  avatarSrc: string;
-}
+import { NavbarLinkProps, UserContent } from '../../types';
 
 const user: UserContent = {
   name: "Test User",
