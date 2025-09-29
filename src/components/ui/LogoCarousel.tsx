@@ -24,6 +24,7 @@ function Card({ image }: CardProps) {
   );
 }
 
+// ici il faudras aller voir la bd des services et prendre chaque logo
 const data = [
   'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg',
   'https://upload.wikimedia.org/wikipedia/commons/4/4e/Gmail_Icon.png',
