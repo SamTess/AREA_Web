@@ -74,3 +74,15 @@ export interface AreaListCardProps {
   areas: Area[];
   services: Service[];
 }
+
+export interface ServiceCardProps {
+  logo: string;
+  serviceName: string;
+  event: string;
+  state: boolean;
+  /** optional 1-based step index to display on the left */
+  index?: number;
+  onRemove?: () => void;
+  onConfigure?: () => void;
+}
+
