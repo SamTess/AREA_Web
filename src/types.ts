@@ -20,7 +20,8 @@ export interface LoginData {
 
 export interface RegisterData {
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   password: string;
 }
 
@@ -33,6 +34,15 @@ export interface UserContent {
   name: string;
   email: string;
   avatarSrc: string;
+  profileData: ProfileData;
+}
+
+export interface ProfileData {
+  email: string;
+  firstName: string;
+  lastName: string;
+  language: string;
+  password?: string;
 }
 
 export interface NavbarLinkProps {
@@ -54,7 +64,8 @@ export interface CardProps {
 
 export interface FormValues {
   email: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   password: string;
   confirmPassword: string;
 }

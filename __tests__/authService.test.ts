@@ -1,7 +1,6 @@
-import { login, register, forgotPassword } from '../src/services/authService'
+import { login, register, forgotPassword, updateProfile } from '../src/services/authService'
 
 jest.mock('axios')
-
 
 describe('authService', () => {
   beforeEach(() => {
@@ -27,7 +26,8 @@ describe('authService', () => {
     it('returns mock token when USE_MOCK_DATA is true', async () => {
       const registerData = {
         email: 'newuser@example.com',
-        name: 'New User',
+        firstName: 'New',
+        lastName: 'User',
         password: 'password123'
       }
       const result = await register(registerData)
@@ -37,7 +37,8 @@ describe('authService', () => {
     it('handles registration with complete user data', async () => {
       const registerData = {
         email: 'test@example.com',
-        name: 'Test User',
+        firstName: 'Test',
+        lastName: 'User',
         password: 'securepassword'
       }
       const result = await register(registerData)
@@ -55,6 +56,53 @@ describe('authService', () => {
     it('handles forgot password with valid email', async () => {
       const email = 'valid.email@test.com'
       await expect(forgotPassword(email)).resolves.toBeUndefined()
+    })
+  })
+
+  describe('updateProfile', () => {
+    it('resolves successfully when USE_MOCK_DATA is true', async () => {
+      const profileData = {
+        email: 'user@example.com',
+        firstName: 'John',
+        lastName: 'Doe',
+        language: 'English',
+        password: 'newpassword'
+      }
+      await expect(updateProfile(profileData)).resolves.toBeUndefined()
+    })
+
+    it('handles profile update with complete data', async () => {
+      const profileData = {
+        email: 'test@example.com',
+        firstName: 'Test',
+        lastName: 'User',
+        language: 'French'
+      }
+      await expect(updateProfile(profileData)).resolves.toBeUndefined()
+    })
+
+    it('handles profile update with optional password', async () => {
+      const profileData = {
+        email: 'test@example.com',
+        firstName: 'Test',
+        lastName: 'User',
+        language: 'Spanish',
+        password: 'optionalpassword'
+      }
+      await expect(updateProfile(profileData)).resolves.toBeUndefined()
+    })
+
+    it('handles profile update with different languages', async () => {
+      const languages = ['English', 'French', 'Spanish', 'German']
+      for (const language of languages) {
+        const profileData = {
+          email: 'test@example.com',
+          firstName: 'Test',
+          lastName: 'User',
+          language
+        }
+        await expect(updateProfile(profileData)).resolves.toBeUndefined()
+      }
     })
   })
 })

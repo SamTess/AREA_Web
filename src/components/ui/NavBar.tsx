@@ -17,7 +17,13 @@ import { NavbarLinkProps, UserContent } from '../../types';
 const user: UserContent = {
   name: "Test User",
   email: "testuser@example.com",
-  avatarSrc: "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-7.png"
+  avatarSrc: "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-7.png",
+  profileData: {
+    email: "testuser@example.com",
+    firstName: "Test",
+    lastName: "User",
+    language: "English",
+  },
 };
 
 function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {

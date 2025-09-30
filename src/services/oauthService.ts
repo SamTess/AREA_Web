@@ -11,9 +11,8 @@ const mockProviders: OAuthProvider[] = [
 ];
 
 export const getOAuthProviders = async (): Promise<OAuthProvider[]> => {
-  if (USE_MOCK_DATA) {
+  if (USE_MOCK_DATA)
     return Promise.resolve(mockProviders);
-  }
   const response = await axios.get('/api/auth/providers');
   return response.data;
 };

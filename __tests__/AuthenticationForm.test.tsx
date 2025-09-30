@@ -34,7 +34,8 @@ describe('AuthenticationForm', () => {
     const registerLink = screen.getByText("Don't have an account? Register")
     fireEvent.click(registerLink)
     expect(screen.getByText('Welcome to Area, register with')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Your name')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Your first name')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Your last name')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Confirm your password')).toBeInTheDocument()
   })
 

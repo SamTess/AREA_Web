@@ -9,7 +9,13 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
 const mockUser = {
   name: "Test User",
   email: "testuser@example.com",
-  avatarSrc: "https://example.com/avatar.png"
+  avatarSrc: "https://example.com/avatar.png",
+  profileData: {
+    email: "testuser@example.com",
+    firstName: "Test",
+    lastName: "User",
+    language: "English",
+  },
 }
 
 describe('UserMenu', () => {
