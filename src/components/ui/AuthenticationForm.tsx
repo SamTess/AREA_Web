@@ -34,7 +34,8 @@ export function AuthenticationForm(props: PaperProps) {
   const form = useForm({
     initialValues: {
       email: '',
-      name: '',
+      firstName: '',
+      lastName: '',
       password: '',
       confirmPassword: '',
     },
@@ -53,7 +54,7 @@ export function AuthenticationForm(props: PaperProps) {
       if (type === 'login') {
         await login({ email: values.email, password: values.password });
       } else if (type === 'register') {
-        await register({ email: values.email, name: values.name, password: values.password });
+        await register({ email: values.email, firstName: values.firstName, lastName: values.lastName, password: values.password });
       } else if (type === 'forgotPassword') {
         await forgotPassword(values.email);
       }
@@ -88,13 +89,22 @@ export function AuthenticationForm(props: PaperProps) {
         )}
         <Stack>
           {type === 'register' && (
-            <TextInput
-              label="Name"
-              placeholder="Your name"
-              value={form.values.name}
-              onChange={(event) => form.setFieldValue('name', event.currentTarget.value)}
-              radius="md"
-            />
+            <>
+              <TextInput
+                label="First Name"
+                placeholder="Your first name"
+                value={form.values.firstName}
+                onChange={(event) => form.setFieldValue('firstName', event.currentTarget.value)}
+                radius="md"
+              />
+              <TextInput
+                label="Last Name"
+                placeholder="Your last name"
+                value={form.values.lastName}
+                onChange={(event) => form.setFieldValue('lastName', event.currentTarget.value)}
+                radius="md"
+              />
+            </>
           )}
 
           <TextInput
