@@ -31,6 +31,7 @@ export interface OAuthProvider {
 }
 
 export interface UserContent {
+  name: string;
   email: string;
   avatarSrc: string;
   profileData: ProfileData;
