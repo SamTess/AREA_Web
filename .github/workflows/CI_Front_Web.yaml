@@ -275,11 +275,19 @@ jobs:
       - name: Build Next.js application
         run: yarn build
 
+      - name: Verify build output
+        run: |
+          echo "Checking build output..."
+          ls -la .next/ || echo "❌ .next directory not found"
+          du -sh .next/ 2>/dev/null || echo "❌ Cannot check .next size"
+          find .next -type f -name "*.js" | head -5 || echo "❌ No JS files found in .next"
+
       - name: Upload build artifacts
+        if: success()
         uses: actions/upload-artifact@v4
         with:
           name: nextjs-build
-          path: .next/
+          path: .next
           retention-days: 1
 
   release:
