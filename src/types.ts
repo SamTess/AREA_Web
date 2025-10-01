@@ -4,6 +4,21 @@ export interface Service {
   logo: string;
 }
 
+export enum ServiceState {
+  Configuration = 'configuration',
+  InProgress = 'in_progress',
+  Failed = 'failed',
+  Success = 'success'
+}
+
+export interface Action {
+  id: number;
+  serviceId: number;
+  name: string;
+  description: string;
+  fields?: Record<string, any>;
+}
+
 export interface Area {
   id: number;
   name: string;
@@ -99,11 +114,66 @@ export interface AreaListCardProps {
 export interface ServiceCardProps {
   logo: string;
   serviceName: string;
+  cardName: string;
   event: string;
-  state: boolean;
-  /** optional 1-based step index to display on the left */
-  index?: number;
+  state: ServiceState;
   onRemove?: () => void;
   onConfigure?: () => void;
 }
 
+export interface AccountCardProps {
+  logo: string;
+  accountName: string;
+  email?: string;
+  isLoggedIn: boolean;
+  onView?: () => void;
+  onChange?: () => void;
+  onDelete?: () => void;
+  onConnect?: () => void;
+}
+
+export interface ServiceData {
+  id: string;
+  logo: string;
+  serviceName: string;
+  event: string;
+  cardName: string;
+  state: ServiceState;
+  actionId: number;
+  serviceId: number;
+  fields?: Record<string, any>;
+}
+
+export interface SetupStepProps {
+  service: ServiceData;
+  onRemove: () => void;
+  onServiceChange?: (newService: ServiceData) => void;
+}
+
+export interface ConfigureStepProps {
+  service: ServiceData;
+  onFieldsChange?: (fields: Record<string, any>) => void;
+}
+
+export interface FinishStepProps {
+  service: ServiceData;
+}
+
+export interface InfoServiceCardProps {
+  service: ServiceData;
+  onServiceChange?: (newService: ServiceData) => void;
+}
+
+export interface ModalServicesSelectionProps {
+  isOpen: boolean;
+  onClose: () => void;
+  onSelect: (service: Service) => void;
+}
+
+export interface FieldData {
+  name: string;
+  mandatory: boolean;
+  type: 'text' | 'number' | 'dropdown' | 'date';
+  placeholder?: string;
+  options?: string[];
+}
