@@ -11,7 +11,10 @@ describe('authService', () => {
     it('returns mock token when USE_MOCK_DATA is true', async () => {
       const loginData = { email: 'test@example.com', password: 'password123' }
       const result = await login(loginData)
-      expect(result).toEqual({ token: 'mock-token' })
+      expect(result).toHaveProperty('token', 'mock-token')
+      expect(result).toHaveProperty('message', 'Login successful')
+      expect(result).toHaveProperty('user')
+      expect(result).toHaveProperty('refreshToken')
     })
 
     it('handles login with valid credentials structure', async () => {
@@ -31,7 +34,10 @@ describe('authService', () => {
         password: 'password123'
       }
       const result = await register(registerData)
-      expect(result).toEqual({ token: 'mock-token' })
+      expect(result).toHaveProperty('token', 'mock-token')
+      expect(result).toHaveProperty('message', 'Registration successful')
+      expect(result).toHaveProperty('user')
+      expect(result).toHaveProperty('refreshToken')
     })
 
     it('handles registration with complete user data', async () => {
