@@ -310,17 +310,6 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
-
-      - name: Restore dependencies cache
-        uses: actions/cache@v4
-        with:
-          path: |
-            node_modules
-            ~/.cache/yarn
-          key: ${{ needs.install.outputs.deps-cache-key }}
-          restore-keys: |
-            deps-${{ runner.os }}-${{ env.NODE_VERSION }}-
 
       - name: Download build artifacts
         uses: actions/download-artifact@v4
