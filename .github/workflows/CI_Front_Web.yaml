@@ -296,62 +296,37 @@ jobs:
     name: Create Staging Release
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Generate release tag
-        id: tag
-        run: |
-          echo "tag=staging-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          release_name: Staging Release ${{ steps.tag.outputs.tag }}
-          body: |
-            🚀 **Staging Release**
-
-            This is an automated staging release created from the main branch.
-
-            **Build Details:**
-            - Commit: ${{ github.sha }}
-            - Branch: ${{ github.ref }}
-            - Build: ${{ github.run_number }}
-
-            **Changes:**
-            See commit history for details.
-          draft: false
-          prerelease: true
-
-  docs:
-    name: Generate Documentation
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
 
-      - name: Install dependencies for documentation
-        run: yarn install --frozen-lockfile --prefer-offline
+      - name: Restore dependencies cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/yarn
+          key: ${{ needs.install.outputs.deps-cache-key }}
+          restore-keys: |
+            deps-${{ runner.os }}-${{ env.NODE_VERSION }}-
 
-      - name: Install dependencies
-        run: yarn install --frozen-lockfile --prefer-offline
-
-      - name: Build application
-        run: |
-          yarn build
-          echo "Build completed successfully"
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nextjs-build
+          path: .next/
 
       - name: Generate staging release version
         id: version
