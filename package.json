@@ -15,7 +15,8 @@
     "test:e2e": "cypress run",
     "test:e2e:headed": "cypress run --headed",
     "test:e2e:ci": "start-server-and-test dev http://localhost:3000 cypress:run",
-    "test:e2e:prod": "yarn build && start-server-and-test start http://localhost:3000 cypress:run"
+    "test:e2e:prod": "yarn build && start-server-and-test start http://localhost:3000 cypress:run",
+    "setup-env": "./scripts/setup-env.sh"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
