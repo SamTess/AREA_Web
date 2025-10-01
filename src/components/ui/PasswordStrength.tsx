@@ -32,7 +32,7 @@ function getStrength(password: string) {
   return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 0);
 }
 
-export function PasswordStrength({ value, onChange }: { value?: string; onChange?: (value: string) => void }) {
+export function PasswordStrength({ value, onChange, onKeyDown }: { value?: string; onChange?: (value: string) => void; onKeyDown?: (event: React.KeyboardEvent) => void }) {
   const [internalValue, setInternalValue] = useInputState('');
   const currentValue = value !== undefined ? value : internalValue;
   const handleChange = onChange || setInternalValue;
@@ -59,6 +59,7 @@ export function PasswordStrength({ value, onChange }: { value?: string; onChange
       <PasswordInput
         value={currentValue}
         onChange={(event) => handleChange(event.currentTarget.value)}
+        onKeyDown={onKeyDown}
         placeholder="Your password"
         label="Password"
         required
