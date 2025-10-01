@@ -1,24 +1,32 @@
 
-import { ServiceCardProps } from '../../types';
-import { Card, Text, Menu, ActionIcon } from '@mantine/core';
+import { Card, Text, Menu, ActionIcon, Badge, Loader } from '@mantine/core';
 import Image from 'next/image';
 import styles from './ServiceCard.module.css';
-import { IconDotsVertical, IconClipboardCopy, IconCopy, IconEdit, IconTrash } from '@tabler/icons-react';
+import { IconDotsVertical, IconClipboardCopy, IconCopy, IconEdit, IconTrash, IconSettings, IconX, IconCheck } from '@tabler/icons-react';
+import { ServiceState, ServiceCardProps } from '../../types';
 
-export default function ServiceCard({ logo, serviceName, event, index, onRemove, onConfigure }: ServiceCardProps) {
+export default function ServiceCard({ logo, serviceName, cardName, event, state, onRemove }: ServiceCardProps) {
     return (
-            <Card radius="md" withBorder className={styles.card}>
+            <Card radius="md" withBorder className={styles.card} style={{ width: 300 }}>
                 <div className={styles.leftStripe} />
                 <div className={styles.content}>
                     <div className={styles.header}>
-                        <div className={styles.leading}>
-                            <div className={styles.index}>{index ?? ''}</div>
+                                                <div className={styles.leading}>
+                            {state === ServiceState.Configuration && <Badge color="orange" variant="light"><IconSettings size={14} /></Badge>}
+                            {state === ServiceState.Failed && <Badge color="red" variant="light"><IconX size={14} /></Badge>}
+                            {state === ServiceState.Success && <Badge color="green" variant="light"><IconCheck size={14} /></Badge>}
+                            {state === ServiceState.InProgress && (
+                                <Badge color="blue" variant="light" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                    <Loader color="blue" size={12} style={{ margin: 0, verticalAlign: 'middle' }} />
+                                </Badge>
+                            )}
+
                             <div className={styles.logoWrap}>
                                 <Image src={logo} alt={serviceName} width={36} height={36} className={styles.logo} />
                             </div>
                             <div className={styles.texts}>
-                                <Text fw={700} size="sm">{serviceName}</Text>
-                                {event ? <Text size="xs" color="dimmed">{event}</Text> : null}
+                                <Text fw={700} size="sm">{(cardName || serviceName).length > 15 ? (cardName || serviceName).slice(0, 15) + '...' : (cardName || serviceName)}</Text>
+                                {event ? <Text size="xs" color="dimmed">{event.length > 15 ? event.slice(0, 15) + '...' : event}</Text> : null}
                             </div>
                         </div>
 
@@ -30,8 +38,6 @@ export default function ServiceCard({ logo, serviceName, event, index, onRemove,
                             </Menu.Target>
                             <Menu.Dropdown>
                                 <Menu.Item leftSection={<IconClipboardCopy size={16} />}>Duplicate</Menu.Item>
-                                <Menu.Item leftSection={<IconCopy size={16} />}>Copy</Menu.Item>
-                                <Menu.Item leftSection={<IconEdit size={16} />} onClick={onConfigure}>Edit</Menu.Item>
                                 <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={onRemove}>Delete</Menu.Item>
                             </Menu.Dropdown>
                         </Menu>
