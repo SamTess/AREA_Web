@@ -295,7 +295,6 @@ jobs:
   release:
     name: Create Staging Release
     runs-on: ubuntu-latest
-    needs: build
     if: github.event_name == 'push'
     steps:
       - name: Checkout code
@@ -333,7 +332,6 @@ jobs:
   docs:
     name: Generate Documentation
     runs-on: ubuntu-latest
-    needs: build
     if: github.event_name == 'push'
     steps:
       - name: Checkout code
