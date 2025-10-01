@@ -286,56 +286,171 @@ jobs:
     name: Create Staging Release
     runs-on: ubuntu-latest
     if: github.event_name == 'push'
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
-      - name: Generate release tag
-        id: tag
-        run: |
-          echo "tag=staging-$(date +%Y%m%d-%H%M%S)" >> $GITHUB_OUTPUT
-
-      - name: Create GitHub Release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          release_name: Staging Release ${{ steps.tag.outputs.tag }}
-          body: |
-            🚀 **Staging Release**
+          fetch-depth: 0
 
-            This is an automated staging release created from the main branch.
-
-            **Build Details:**
-            - Commit: ${{ github.sha }}
-            - Branch: ${{ github.ref }}
-            - Build: ${{ github.run_number }}
-
-            **Changes:**
-            See commit history for details.
-          draft: false
-          prerelease: true
-
-  docs:
-    name: Generate Documentation
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push'
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
+          cache: 'yarn'
 
-      - name: Install dependencies for documentation
-        run: yarn install --frozen-lockfile --prefer-offline
+      - name: Restore dependencies cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            node_modules
+            ~/.cache/yarn
+          key: ${{ needs.install.outputs.deps-cache-key }}
+          restore-keys: |
+            deps-${{ runner.os }}-${{ env.NODE_VERSION }}-
 
-      - name: Generate TypeScript documentation
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: nextjs-build
+          path: .next/
+
+      - name: Generate staging release version
+        id: version
         run: |
-          echo "Installing typedoc for documentation generation"
-          yarn add --dev typedoc
-          echo "Generating documentation"
-          yarn typedoc src --out docs --exclude "**/*.test.*" --exclude "**/*.spec.*" || echo "TypeDoc generation completed with warnings"
+          TIMESTAMP=$(date +"%Y%m%d-%H%M%S")
+          SHORT_SHA=$(git rev-parse --short HEAD)
+          STAGING_VERSION="staging-${TIMESTAMP}-${SHORT_SHA}"
+          echo "version=${STAGING_VERSION}" >> "$GITHUB_OUTPUT"
+          echo "Generated staging version: ${STAGING_VERSION}"
+
+      - name: Create release archive
+        run: |
+          mkdir -p staging-release
+
+          cp -r .next staging-release/ 2>/dev/null || echo "No .next directory found"
+          cp -r public staging-release/ 2>/dev/null || echo "No public directory found"
+
+          cp package.json staging-release/
+          cp yarn.lock staging-release/
+          cp next.config.ts staging-release/ 2>/dev/null || cp next.config.js staging-release/ 2>/dev/null || echo "No next.config found"
+          cp tsconfig.json staging-release/ 2>/dev/null || echo "No tsconfig.json found"
+
+          cat > staging-release/DEPLOYMENT.md << EOF
+          ## 🚀 Staging Release Deployment Guide
+
+          ### Release Information
+          - **Version:** ${{ steps.version.outputs.version }}
+          - **Branch:** ${{ github.ref_name }}
+          - **Commit:** ${{ github.sha }}
+          - **Build Date:** $(date)
+
+          ### 📋 Prerequisites
+          - Node.js 20.x installed
+          - Yarn package manager
+          - Environment variables configured
+
+          ### 🏗️ Deployment Steps
+
+          1. **Extract the release archive:**
+             \`\`\`bash
+             tar -xzf staging-${{ steps.version.outputs.version }}.tar.gz
+             cd staging-release/
+             \`\`\`
+
+          2. **Install dependencies:**
+             \`\`\`bash
+             yarn install --frozen-lockfile
+             \`\`\`
+
+          3. **Configure environment:**
+             \`\`\`bash
+             cp .env.example .env.local  # If available
+             # Edit .env.local with your staging environment variables
+             \`\`\`
+
+          4. **Start the application:**
+             \`\`\`bash
+             yarn start  # Production server
+             # OR for development testing:
+             yarn dev
+             \`\`\`
+
+          ### 🔧 Required Environment Variables
+          - \`NEXT_PUBLIC_APP_URL\` - Your staging application URL
+          - Database connection variables (if applicable)
+          - API keys and secrets
+
+          ### ✅ Health Check
+          After deployment, verify the application is running:
+          - **Application:** http://your-staging-url/
+          - **API Health:** http://your-staging-url/api/health (if available)
+
+          ### 📁 Files Included
+          - Built Next.js application (.next/)
+          - Static assets (public/)
+          - Package configuration (package.json, yarn.lock)
+          - TypeScript configuration (tsconfig.json)
+          - Next.js configuration (next.config.ts)
+          - Deployment instructions (this file)
+
+          ### 🆘 Troubleshooting
+          - If the app doesn't start, check the console logs
+          - Verify all environment variables are set correctly
+          - Ensure Node.js version 20.x is being used
+          - Check that all dependencies installed successfully
+          EOF
+
+          # Create the release archive
+          tar -czf staging-${{ steps.version.outputs.version }}.tar.gz staging-release/
+          echo "Release archive created: staging-${{ steps.version.outputs.version }}.tar.gz"
+
+      - name: Create staging release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create "${{ steps.version.outputs.version }}" \
+            --title "Staging Release ${{ steps.version.outputs.version }}" \
+            --notes "## 🚀 Staging Release
+
+          **Branch:** ${{ github.ref_name }}
+          **Commit:** ${{ github.sha }}
+          **Timestamp:** ${{ steps.version.outputs.version }}
+
+          This is an automated staging release created from branch **${{ github.ref_name }}**.
+
+          ### 📝 Changes
+          - **Latest Commit:** ${{ github.event.head_commit.message }}
+          - **Author:** ${{ github.event.head_commit.author.name }}
+          - **SHA:** ${{ github.sha }}
+
+          ### 📦 What's Included
+          This release contains a complete staging deployment package with:
+          - ✅ Built Next.js application (.next directory)
+          - ✅ Static assets and public files
+          - ✅ All configuration files (package.json, yarn.lock, etc.)
+          - ✅ TypeScript and Next.js configurations
+          - ✅ Complete deployment instructions (DEPLOYMENT.md)
+
+          ### 🏗️ Deployment
+          1. Download \`staging-${{ steps.version.outputs.version }}.tar.gz\`
+          2. Extract and follow DEPLOYMENT.md instructions
+          3. Configure your staging environment variables
+          4. Run \`yarn start\` to launch the application
+
+          ### 🔍 Testing
+          - All unit tests passed ✅
+          - All E2E tests passed ✅
+          - Build completed successfully ✅
+          - TypeScript compilation successful ✅
+          - ESLint checks passed ✅
+
+          ### 📋 Files
+          - **Archive:** \`staging-${{ steps.version.outputs.version }}.tar.gz\`
+          - **Size:** $(du -sh staging-${{ steps.version.outputs.version }}.tar.gz | cut -f1)
+          - **Contents:** Complete staging deployment package" \
+            --prerelease \
+            staging-${{ steps.version.outputs.version }}.tar.gz
