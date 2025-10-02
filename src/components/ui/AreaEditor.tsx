@@ -1,6 +1,6 @@
 'use client';
 
-import {  Button, Drawer, Center } from '@mantine/core';
+import {  Button, Drawer, Center, TextInput, Group, Space } from '@mantine/core';
 import {
   closestCenter,
   DndContext,
@@ -18,13 +18,13 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { IconGripVertical, IconPlus } from '@tabler/icons-react';
+import { IconGripVertical, IconPlus, IconDeviceFloppy, IconPlayerPlay } from '@tabler/icons-react';
 import { TransformWrapper, TransformComponent } from 'react-zoom-pan-pinch';
 import { useState, useEffect } from 'react';
 import ServiceCard from './ServiceCard';
 import InfoServiceCard from './InfoServiceCard';
 import { ServiceState } from '../../types';
-import { getCardByAreaId } from '../../services/areasService';
+import { getCardByAreaId, getAreaById, updateArea, createArea } from '../../services/areasService';
 
 interface ServiceData {
   id: string;
@@ -120,6 +120,8 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
   const [selectedService, setSelectedService] = useState<ServiceData | null>(null);
   const [modalOpened, setModalOpened] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const [areaName, setAreaName] = useState('');
+  const [areaDescription, setAreaDescription] = useState('');
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -133,13 +135,18 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
   );
 
   useEffect(() => {
-    const loadCards = async () => {
+    const loadData = async () => {
       if (areaId !== undefined) {
+        const area = await getAreaById(areaId);
+        if (area) {
+          setAreaName(area.name);
+          setAreaDescription(area.description);
+        }
         const cards = await getCardByAreaId(areaId);
         setServicesState(cards);
       }
     };
-    loadCards();
+    loadData();
   }, [areaId]);
 
   const handleDragStart = () => {
@@ -159,6 +166,25 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
       const newIndex = services.findIndex((service) => service.id === over.id);
       return arrayMove(services, oldIndex, newIndex);
     });
+  };
+
+  const handleSave = async () => {
+    if (isNewArea) {
+      const newArea = await createArea({
+        name: areaName,
+        description: areaDescription,
+        lastRun: '',
+        services: servicesState.map(s => s.serviceId),
+        status: 'not started'
+      });
+      // navigation vers le home???
+    } else {
+      await updateArea(areaId!, {
+        name: areaName,
+        description: areaDescription,
+        services: servicesState.map(s => s.serviceId)
+      });
+    }
   };
 
   const addNewServiceBelow = () => {
@@ -194,6 +220,32 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
       backgroundPosition: 'center center',
       backgroundAttachment: 'fixed'
     }}>
+      <div style={{
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        height: '5%',
+        background: 'white',
+        borderBottom: '1px solid #ddd',
+        display: 'flex',
+        alignItems: 'center',
+        padding: '0 10px',
+        zIndex: 10
+      }}>
+        <Group style={{ flex: 1, justifyContent: 'space-between', width: '100%' }}>
+          <TextInput
+            placeholder="Nom de l'area"
+            value={areaName}
+            onChange={(e) => setAreaName(e.target.value)}
+            style={{ width: '300px', marginLeft: '3%' }}
+          />
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+            <Button onClick={handleSave}><IconDeviceFloppy /></Button>      {/* a lier/ faire le run */}
+            <Button onClick={addNewServiceBelow}><IconPlayerPlay /></Button> {/* a lier/ faire le run */}
+          </div>
+        </Group>
+      </div>
       <TransformWrapper
         initialScale={1}
         minScale={0.2}
@@ -235,7 +287,7 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
             alignItems: 'flex-start',
             justifyContent: 'center',
             padding: '40px',
-            paddingTop: '200px'
+            paddingTop: '100px'
           }}>
             <div style={{ width: '600px', maxWidth: '100%', position: 'relative' }}>
               <DndContext

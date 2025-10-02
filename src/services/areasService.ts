@@ -71,3 +71,25 @@ export const getCardByAreaId = async (areaId: number): Promise<any[]> => {
   const response = await axios.get(`/api/areas/${areaId}/cards`);
   return response.data;
 }
+
+export const getAreaById = async (areaId: number): Promise<Area | undefined> => {
+  if (USE_MOCK_DATA) {
+    const area = mockData.find(area => area.id === areaId);
+    return Promise.resolve(area);
+  }
+  const response = await axios.get(`/api/areas/${areaId}`);
+  return response.data;
+}
+
+export const updateArea = async (areaId: number, area: Partial<Area>): Promise<Area> => {
+  if (USE_MOCK_DATA) {
+    const index = mockData.findIndex(a => a.id === areaId);
+    if (index !== -1) {
+      mockData[index] = { ...mockData[index], ...area };
+      return Promise.resolve(mockData[index]);
+    }
+    throw new Error('Area not found');
+  }
+  const response = await axios.put(`/api/areas/${areaId}`, area);
+  return response.data;
+}
