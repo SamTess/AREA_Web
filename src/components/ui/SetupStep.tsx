@@ -48,8 +48,14 @@ export default function SetupStep({ service, onRemove, onServiceChange }: SetupS
                     onClick={() => setIsModalOpen(true)}
                     style={{ display: 'flex', alignItems: 'center', gap: 8 }}
                 >
-                    <img src={service.logo} alt={service.serviceName} style={{ width: 20, height: 20 }} />
-                    {service.serviceName}
+                { service.logo ? (
+                    <>
+                        <img src={service.logo} alt={service.serviceName} style={{ width: 20, height: 20 }} />
+                        {service.serviceName}
+                    </>
+                ) : (
+                    <span>Select a service</span>
+                )}
                 </Button>
                 <TextInput
                     label="Card name"
