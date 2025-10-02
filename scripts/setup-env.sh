@@ -1,33 +1,33 @@
 #!/bin/bash
 
-# Script de configuration rapide de l'environnement
+# Quick environment setup script
 
-echo "🚀 Configuration de l'environnement AREA Frontend"
+echo "🚀 Setting up AREA Frontend environment"
 echo "=================================================="
 
-# Vérifier si .env.local existe
+# Check if .env.local exists
 if [ -f ".env.local" ]; then
-    echo "⚠️  Le fichier .env.local existe déjà."
-    read -p "Voulez-vous le remplacer ? (y/N): " -n 1 -r
+    echo "⚠️  The .env.local file already exists."
+    read -p "Do you want to replace it? (y/N): " -n 1 -r
     echo
     if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-        echo "❌ Configuration annulée."
+        echo "❌ Setup cancelled."
         exit 1
     fi
 fi
 
-# Demander l'URL de l'API
+# Ask for API URL
 echo
-echo "Configuration de l'API:"
-read -p "URL de l'API backend (default: http://localhost:8080): " api_url
+echo "API configuration:"
+read -p "Backend API URL (default: http://localhost:8080): " api_url
 api_url=${api_url:-http://localhost:8080}
 
-# Demander le mode mock
+# Ask for mock mode
 echo
-echo "Mode de développement:"
-echo "1) Utiliser l'API réelle (recommandé)"
-echo "2) Utiliser les données mockées (développement frontend uniquement)"
-read -p "Choisissez une option (1-2, default: 1): " mock_choice
+echo "Development mode:"
+echo "1) Use real API (recommended)"
+echo "2) Use mocked data (frontend development only)"
+read -p "Choose an option (1-2, default: 1): " mock_choice
 mock_choice=${mock_choice:-1}
 
 if [ "$mock_choice" = "2" ]; then
@@ -36,13 +36,13 @@ else
     use_mock="false"
 fi
 
-# Demander l'environnement
+# Ask for environment
 echo
-echo "Environnement:"
+echo "Environment:"
 echo "1) development"
 echo "2) staging"  
 echo "3) production"
-read -p "Choisissez un environnement (1-3, default: 1): " env_choice
+read -p "Choose an environment (1-3, default: 1): " env_choice
 env_choice=${env_choice:-1}
 
 case $env_choice in
@@ -51,32 +51,32 @@ case $env_choice in
     *) environment="development";;
 esac
 
-# Créer le fichier .env.local
+# Create .env.local file
 cat > .env.local << EOF
-# Configuration générée automatiquement le $(date)
+# Configuration automatically generated on $(date)
 NEXT_PUBLIC_API_BASE_URL=$api_url
 NEXT_PUBLIC_USE_MOCK_DATA=$use_mock
 NEXT_PUBLIC_ENVIRONMENT=$environment
 
-# Configuration OAuth (à modifier selon vos besoins)
+# OAuth configuration (edit as needed)
 # NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
 # NEXT_PUBLIC_GITHUB_CLIENT_ID=your_github_client_id
 # NEXT_PUBLIC_MICROSOFT_CLIENT_ID=your_microsoft_client_id
 EOF
 
 echo
-echo "✅ Configuration terminée !"
-echo "📁 Fichier créé: .env.local"
+echo "✅ Setup complete!"
+echo "📁 File created: .env.local"
 echo
-echo "Configuration actuelle:"
+echo "Current configuration:"
 echo "  API URL: $api_url"
-echo "  Mode Mock: $use_mock"
-echo "  Environnement: $environment"
+echo "  Mock Mode: $use_mock"
+echo "  Environment: $environment"
 echo
-echo "💡 Conseils:"
-echo "  - Modifiez .env.local pour ajuster la configuration"
-echo "  - Consultez docs/API_CONFIGURATION.md pour plus d'informations"
-echo "  - Décommentez les variables OAuth si nécessaire"
+echo "💡 Tips:"
+echo "  - Edit .env.local to adjust configuration"
+echo "  - See docs/API_CONFIGURATION.md for more information"
+echo "  - Uncomment OAuth variables if needed"
 echo
-echo "🚀 Vous pouvez maintenant démarrer l'application avec:"
+echo "🚀 You can now start the application with:"
 echo "  npm run dev"

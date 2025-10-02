@@ -113,7 +113,7 @@ export function AuthenticationForm(props: PaperProps) {
         const response = await login({ email: values.email, password: values.password });
         const token = extractToken(response);
         if (token) {
-          setSecureToken(token, 24 * 60 * 60 * 1000); // 24 hours expiry
+          await setSecureToken(token, 24 * 60 * 60 * 1000);
           setSuccess('Login successful! Redirecting...');
           setTimeout(() => {
             router.push('/');
@@ -131,7 +131,7 @@ export function AuthenticationForm(props: PaperProps) {
         });
         const token = extractToken(response);
         if (token) {
-          setSecureToken(token, 24 * 60 * 60 * 1000); // 24 hours expiry
+          await setSecureToken(token, 24 * 60 * 60 * 1000);
           setSuccess('Registration successful! Redirecting...');
           setTimeout(() => {
             router.push('/');

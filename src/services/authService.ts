@@ -92,18 +92,12 @@ export const updateProfile = async (data: ProfileData): Promise<void> => {
 };
 
 export const logout = async (): Promise<void> => {
-  if (USE_MOCK_DATA) {
-    clearSecureToken();
-    return Promise.resolve();
-  }
-
   try {
     await axios.post(API_CONFIG.endpoints.auth.logout);
-    clearSecureToken();
   } catch (error) {
     console.error('Logout error:', error);
-    clearSecureToken();
-    throw error;
+  } finally {
+    await clearSecureToken();
   }
 };
 
