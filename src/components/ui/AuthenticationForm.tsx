@@ -24,6 +24,21 @@ import { getOAuthProviders, initiateOAuth } from '../../services/oauthService';
 import { FormValues, OAuthProvider } from '../../types';
 import { setSecureToken } from '../../utils/secureStorage';
 
+export const TIME_MS = {
+  SECOND: 1000, // 1 second = 1000 milliseconds
+  MINUTE: 60 * 1000,
+  HOUR: 60 * 60 * 1000,
+  DAY: 24 * 60 * 60 * 1000,
+  WEEK: 7 * 24 * 60 * 60 * 1000,
+} as const;
+
+export const TOKEN_EXPIRY = {
+  SHORT: TIME_MS.HOUR,           // 1 hour for sensitive operations
+  MEDIUM: TIME_MS.HOUR * 8,      // 8 hours for regular sessions
+  LONG: TIME_MS.DAY,             // 24 hours for extended sessions
+  REMEMBER_ME: TIME_MS.WEEK,     // 7 days for "remember me" option
+} as const;
+
 export function AuthenticationForm(props: PaperProps) {
   const [type, setType] = useState<'login' | 'register' | 'forgotPassword'>('login');
   const [data, setData] = useState<OAuthProvider[]>([]);
@@ -99,6 +114,60 @@ export function AuthenticationForm(props: PaperProps) {
     initiateOAuth(provider);
   };
 
+  const getErrorMessage = (error: unknown, type: 'login' | 'register' | 'forgotPassword'): string => {
+    if (error && typeof error === 'object' && 'response' in error) {
+      const axiosError = error as AxiosError<{ message?: string }>;
+      const status = axiosError.response?.status;
+      const data = axiosError.response?.data;
+      const statusHandlers: Record<number, (type: 'login' | 'register' | 'forgotPassword', data?: { message?: string }) => string> = {
+        400: (type: 'login' | 'register' | 'forgotPassword', data?: { message?: string }) => {
+          const messages = {
+            login: 'Invalid email or password. Please check your credentials and try again.',
+            register: data?.message || 'Registration failed. Please check your information and try again.',
+            forgotPassword: 'Invalid email address. Please enter a valid email.'
+          };
+          return messages[type] || 'Bad request. Please check your input.';
+        },
+        401: (type: 'login' | 'register' | 'forgotPassword') =>
+          type === 'login'
+            ? 'Invalid email or password. Please check your credentials.'
+            : 'Authentication failed. Please try again.',
+        403: () => 'Access denied. Your account may be suspended.',
+        409: (type: 'login' | 'register' | 'forgotPassword') =>
+          type === 'register'
+            ? 'An account with this email already exists. Please use a different email or try logging in.'
+            : 'Conflict error. Please try again.',
+        422: (type: 'login' | 'register' | 'forgotPassword', data?: { message?: string }) => data?.message || 'Invalid data provided. Please check your information.',
+        429: () => 'Too many attempts. Please wait a few minutes before trying again.',
+        500: () => 'Server error. Please try again later.',
+        503: () => 'Service temporarily unavailable. Please try again later.'
+      };
+
+      if (status && statusHandlers[status]) {
+        return statusHandlers[status](type, data);
+      }
+
+      return data?.message || 'An unexpected error occurred. Please try again.';
+    }
+
+    if (error instanceof Error) {
+      const networkErrors = ['Network Error', 'ERR_NETWORK'];
+      const timeoutErrors = ['timeout'];
+
+      if (networkErrors.some(err => error.message.includes(err))) {
+        return 'Network error. Please check your connection and try again.';
+      }
+
+      if (timeoutErrors.some(err => error.message.includes(err))) {
+        return 'Request timed out. Please try again.';
+      }
+
+      return error.message;
+    }
+
+    return 'An error occurred. Please try again.';
+  };
+
   const handleSubmit = async (values: FormValues) => {
     if (isSubmittingRef.current) { return; }
     if (loading) { return; }
@@ -113,7 +182,7 @@ export function AuthenticationForm(props: PaperProps) {
         const response = await login({ email: values.email, password: values.password });
         const token = extractToken(response);
         if (token) {
-          await setSecureToken(token, 24 * 60 * 60 * 1000);
+          await setSecureToken(token, TOKEN_EXPIRY.LONG);
           setSuccess('Login successful! Redirecting...');
           setTimeout(() => {
             router.push('/');
@@ -131,7 +200,7 @@ export function AuthenticationForm(props: PaperProps) {
         });
         const token = extractToken(response);
         if (token) {
-          await setSecureToken(token, 24 * 60 * 60 * 1000);
+          await setSecureToken(token, TOKEN_EXPIRY.LONG);
           setSuccess('Registration successful! Redirecting...');
           setTimeout(() => {
             router.push('/');
@@ -147,64 +216,7 @@ export function AuthenticationForm(props: PaperProps) {
       }
     } catch (error: unknown) {
       console.error('Authentication error caught:', error);
-      let errorMessage = 'An error occurred. Please try again.';
-
-      if (error && typeof error === 'object' && 'response' in error) {
-        const axiosError = error as AxiosError<{ message?: string }>;
-        const status = axiosError.response?.status;
-        const data = axiosError.response?.data;
-
-        switch (status) {
-          case 400:
-            if (type === 'login') {
-              errorMessage = 'Invalid email or password. Please check your credentials and try again.';
-            } else if (type === 'register') {
-              errorMessage = data?.message || 'Registration failed. Please check your information and try again.';
-            } else if (type === 'forgotPassword') {
-              errorMessage = 'Invalid email address. Please enter a valid email.';
-            }
-            break;
-          case 401:
-            if (type === 'login') {
-              errorMessage = 'Invalid email or password. Please check your credentials.';
-            } else {
-              errorMessage = 'Authentication failed. Please try again.';
-            }
-            break;
-          case 403:
-            errorMessage = 'Access denied. Your account may be suspended.';
-            break;
-          case 409:
-            if (type === 'register') {
-              errorMessage = 'An account with this email already exists. Please use a different email or try logging in.';
-            } else {
-              errorMessage = 'Conflict error. Please try again.';
-            }
-            break;
-          case 422:
-            errorMessage = data?.message || 'Invalid data provided. Please check your information.';
-            break;
-          case 429:
-            errorMessage = 'Too many attempts. Please wait a few minutes before trying again.';
-            break;
-          case 500:
-            errorMessage = 'Server error. Please try again later.';
-            break;
-          case 503:
-            errorMessage = 'Service temporarily unavailable. Please try again later.';
-            break;
-          default:
-            errorMessage = data?.message || 'An unexpected error occurred. Please try again.';
-        }
-      } else if (error instanceof Error) {
-        if (error.message.includes('Network Error') || error.message.includes('ERR_NETWORK')) {
-          errorMessage = 'Network error. Please check your connection and try again.';
-        } else if (error.message.includes('timeout')) {
-          errorMessage = 'Request timed out. Please try again.';
-        } else {
-          errorMessage = error.message;
-        }
-      }
+      const errorMessage = getErrorMessage(error, type);
       setError(errorMessage);
     } finally {
       setLoading(false);
