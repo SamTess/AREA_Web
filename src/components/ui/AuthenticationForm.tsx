@@ -224,14 +224,6 @@ export function AuthenticationForm(props: PaperProps) {
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !loading) {
-      e.preventDefault();
-      e.stopPropagation();
-      handleFormSubmit();
-    }
-  };
-
   const handleFormSubmit = async () => {
     const now = Date.now();
     if (now - lastSubmitTime < 1000) {
@@ -363,7 +355,6 @@ export function AuthenticationForm(props: PaperProps) {
                 form.setFieldValue('password', event.currentTarget.value);
                 clearMessages();
               }}
-              onKeyDown={handleKeyDown}
               error={form.errors.password && 'Password should include at least 6 characters'}
               radius="md"
             />
