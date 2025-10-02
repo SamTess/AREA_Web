@@ -22,6 +22,7 @@ import { PasswordStrength } from './PasswordStrength';
 import { login, register, forgotPassword, extractToken } from '../../services/authService';
 import { getOAuthProviders, initiateOAuth } from '../../services/oauthService';
 import { FormValues, OAuthProvider } from '../../types';
+import { setSecureToken } from '../../utils/secureStorage';
 
 export function AuthenticationForm(props: PaperProps) {
   const [type, setType] = useState<'login' | 'register' | 'forgotPassword'>('login');
@@ -112,7 +113,7 @@ export function AuthenticationForm(props: PaperProps) {
         const response = await login({ email: values.email, password: values.password });
         const token = extractToken(response);
         if (token) {
-          localStorage.setItem('authToken', token);
+          setSecureToken(token, 24 * 60 * 60 * 1000); // 24 hours expiry
           setSuccess('Login successful! Redirecting...');
           setTimeout(() => {
             router.push('/');
@@ -130,7 +131,7 @@ export function AuthenticationForm(props: PaperProps) {
         });
         const token = extractToken(response);
         if (token) {
-          localStorage.setItem('authToken', token);
+          setSecureToken(token, 24 * 60 * 60 * 1000); // 24 hours expiry
           setSuccess('Registration successful! Redirecting...');
           setTimeout(() => {
             router.push('/');

@@ -4,6 +4,7 @@ import { MantineProvider } from '@mantine/core'
 import { AuthenticationForm } from '@/components/ui/AuthenticationForm'
 import { initiateOAuth } from '../src/services/oauthService';
 import { login, register, forgotPassword, extractToken } from '../src/services/authService';
+import { setSecureToken } from '../src/utils/secureStorage';
 
 const mockProviders = [
   { iconPath: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png", label: 'Google' },
@@ -15,6 +16,7 @@ const mockLogin = login as jest.MockedFunction<typeof login>;
 const mockRegister = register as jest.MockedFunction<typeof register>;
 const mockForgotPassword = forgotPassword as jest.MockedFunction<typeof forgotPassword>;
 const mockExtractToken = extractToken as jest.MockedFunction<typeof extractToken>;
+const mockSetSecureToken = setSecureToken as jest.MockedFunction<typeof setSecureToken>;
 
 jest.mock('../src/services/oauthService', () => ({
   getOAuthProviders: jest.fn(() => Promise.resolve(mockProviders)),
@@ -26,6 +28,10 @@ jest.mock('../src/services/authService', () => ({
   register: jest.fn(),
   forgotPassword: jest.fn(),
   extractToken: jest.fn(),
+}))
+
+jest.mock('../src/utils/secureStorage', () => ({
+  setSecureToken: jest.fn(),
 }))
 
 const mockPush = jest.fn();
@@ -54,6 +60,7 @@ describe('AuthenticationForm', () => {
     jest.clearAllMocks();
     localStorageMock.setItem.mockClear();
     mockPush.mockClear();
+    mockSetSecureToken.mockClear();
   });
 
   it('renders login form by default', async () => {
@@ -187,7 +194,7 @@ describe('AuthenticationForm', () => {
         email: 'test@example.com',
         password: 'password123'
       });
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('authToken', mockToken);
+      expect(mockSetSecureToken).toHaveBeenCalledWith(mockToken, 24 * 60 * 60 * 1000);
     })
   })
 

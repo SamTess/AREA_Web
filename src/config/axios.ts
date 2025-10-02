@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG } from './api';
+import { hasSecureToken, clearSecureToken } from '../utils/secureStorage';
 
 interface RetryableRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -63,8 +64,7 @@ axios.interceptors.response.use(
           originalRequest.url?.includes('/forgot-password')) {
         return Promise.reject(error);
       }
-      const hasToken = localStorage.getItem('authToken');
-      if (!hasToken) { return Promise.reject(error); }
+      if (!hasSecureToken()) { return Promise.reject(error); }
 
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -86,7 +86,7 @@ axios.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError, null);
         console.warn('Token refresh failed');
-        localStorage.removeItem('authToken');
+        clearSecureToken();
         if (typeof window !== 'undefined' &&
             !window.location.pathname.includes('/login') &&
             !window.location.pathname.includes('/register')) {
