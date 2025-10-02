@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: __dirname,
   },
+  async rewrites() {
+    return [
+      {
+        source: '/client.apk',
+        destination: '/api/client.apk',
+      },
+    ];
+  },
 };
 
 export default nextConfig;
