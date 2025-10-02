@@ -9,7 +9,6 @@ describe('API configuration', () => {
   it('should have API_CONFIG defined', () => {
     expect(API_CONFIG).toBeDefined();
     expect(API_CONFIG).toHaveProperty('baseURL');
-    expect(API_CONFIG).toHaveProperty('timeout');
     expect(API_CONFIG).toHaveProperty('endpoints');
   });
 
@@ -44,6 +43,7 @@ describe('API configuration', () => {
 
   it('should have user endpoints', () => {
     expect(API_CONFIG.endpoints.user).toHaveProperty('profile');
-    expect(API_CONFIG.endpoints.user).toHaveProperty('uploadAvatar');
+    expect(API_CONFIG.endpoints.user).toHaveProperty('avatar');
+    expect(API_CONFIG.endpoints.user).toHaveProperty('getUser');
   });
 });

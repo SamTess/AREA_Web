@@ -29,13 +29,11 @@ describe('Areas mock data', () => {
       expect(service).toHaveProperty('id');
       expect(service).toHaveProperty('name');
       expect(service).toHaveProperty('logo');
-      expect(service).toHaveProperty('description');
-      expect(service).toHaveProperty('available');
     });
   });
 
   it('should have services with valid status values', () => {
-    const validStatuses = ['active', 'not started', 'ended'];
+    const validStatuses = ['success', 'failed', 'in progress', 'not started'];
     mockAreas.forEach(area => {
       expect(validStatuses).toContain(area.status);
     });

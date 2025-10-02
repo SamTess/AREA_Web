@@ -1,4 +1,3 @@
-import axios from 'axios';
 import { API_CONFIG } from '../../src/config/api';
 
 const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
@@ -29,14 +28,17 @@ delete (window as any).location;
 window.location = mockLocation as any;
 
 describe('axios configuration', () => {
-  beforeEach(() => {
+  let axios: typeof import('axios').default;
+
+  beforeEach(async () => {
     localStorageMock.clear();
     jest.clearAllMocks();
     mockLocation.pathname = '/test';
-    jest.isolateModules(() => {
-      // eslint-disable-next-line @typescript-eslint/no-require-imports
-      require('../../src/config/axios');
-    });
+    jest.resetModules();
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    axios = require('axios').default;
+    // eslint-disable-next-line @typescript-eslint/no-require-imports
+    require('../../src/config/axios');
   });
 
   afterAll(() => {
