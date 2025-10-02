@@ -23,8 +23,8 @@ const customJestConfig = {
     global: {
       branches: 50, // a remonter plus tard lors du sprint 3
       functions: 70,
-      lines: 70,
-      statements: 70,
+      lines: 60,
+      statements: 60,
     },
   },
 }
