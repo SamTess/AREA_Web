@@ -30,6 +30,9 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
     removeService,
     editService,
     updateService,
+    moveServiceUp,
+    moveServiceDown,
+    duplicateService,
   } = useAreaEditor(areaId);
 
   return (
@@ -48,6 +51,9 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
         onEditService={editService}
         isDragging={isDragging}
         setIsDragging={setIsDragging}
+        onMoveUp={moveServiceUp}
+        onMoveDown={moveServiceDown}
+        onDuplicate={duplicateService}
       />
       <Drawer opened={modalOpened} onClose={() => setModalOpened(false)} title="Action Details" position="right" size="35%">
         {selectedService && <InfoServiceCard service={selectedService} onServiceChange={updateService} />}

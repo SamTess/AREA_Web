@@ -11,10 +11,14 @@ interface ServiceCardItemProps {
   onClick?: () => void;
   onAdd?: () => void;
   isLast: boolean;
+  isFirst: boolean;
+  onUp?: () => void;
+  onDown?: () => void;
+  onDuplicate?: () => void;
   isDragging: boolean;
 }
 
-export default function ServiceCardItem({ service, onRemove, onClick, onAdd, isLast, isDragging }: ServiceCardItemProps) {
+export default function ServiceCardItem({ service, onRemove, onClick, onAdd, isLast, isFirst, isDragging, onUp, onDown, onDuplicate }: ServiceCardItemProps) {
   const {
     attributes,
     listeners,
@@ -66,6 +70,12 @@ export default function ServiceCardItem({ service, onRemove, onClick, onAdd, isL
           event={service.event}
           state={service.state}
           onRemove={onRemove}
+          onEdit={onClick}
+          onUp={onUp}
+          onDown={onDown}
+          onDuplicate={onDuplicate}
+          isFirst={isFirst}
+          isLast={isLast}
         />
       </div>
       { isLast && (

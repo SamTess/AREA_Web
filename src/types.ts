@@ -119,8 +119,13 @@ export interface ServiceCardProps {
   cardName: string;
   event: string;
   state: ServiceState;
+  isFirst: boolean;
+  isLast: boolean;
   onRemove?: () => void;
-  onConfigure?: () => void;
+  onEdit?: () => void;
+  onUp?: () => void;
+  onDown?: () => void;
+  onDuplicate?: () => void;
 }
 
 export interface AccountCardProps {

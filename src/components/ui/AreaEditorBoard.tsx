@@ -25,6 +25,10 @@ interface AreaEditorBoardProps {
   onEditService: (service: ServiceData) => void;
   isDragging: boolean;
   setIsDragging: (dragging: boolean) => void;
+  onMoveUp?: (id: string) => void;
+  onMoveDown?: (id: string) => void;
+  onDuplicate?: (id: string) => void;
+
 }
 
 export default function AreaEditorBoard({
@@ -34,7 +38,11 @@ export default function AreaEditorBoard({
   onRemoveService,
   onEditService,
   isDragging,
-  setIsDragging
+  setIsDragging,
+  onMoveUp,
+  onMoveDown,
+  onDuplicate
+
 }: AreaEditorBoardProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -121,7 +129,11 @@ export default function AreaEditorBoard({
                     onClick={() => onEditService(service)}
                     onAdd={onAddService}
                     isLast={index === services.length - 1}
+                    isFirst={index === 0}
                     isDragging={isDragging}
+                    onUp={onMoveUp ? () => onMoveUp(service.id) : undefined}
+                    onDown={onMoveDown ? () => onMoveDown(service.id) : undefined}
+                    onDuplicate={onDuplicate ? () => onDuplicate(service.id) : undefined}
                   />
                 ))}
               </SortableContext>

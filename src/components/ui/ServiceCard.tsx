@@ -1,10 +1,10 @@
 import { Card, Text, Menu, ActionIcon, Badge, Loader, Button, Center } from '@mantine/core';
 import Image from 'next/image';
 import styles from './ServiceCard.module.css';
-import { IconDotsVertical, IconClipboardCopy, IconTrash, IconSettings, IconX, IconCheck, IconPlus } from '@tabler/icons-react';
+import { IconDotsVertical, IconClipboardCopy, IconTrash, IconSettings, IconX, IconCheck, IconEdit, IconArrowBigUpLine, IconArrowBigDownLine } from '@tabler/icons-react';
 import { ServiceState, ServiceCardProps } from '../../types';
 
-export default function ServiceCard({ logo, serviceName, cardName, event, state, onRemove }: ServiceCardProps) {
+export default function ServiceCard({ logo, serviceName, cardName, event, state, onRemove, onEdit, onUp, onDown, onDuplicate, isFirst, isLast }: ServiceCardProps) {
     return (
         <Card radius="md" withBorder className={styles.card} style={{ width: 300 }}>
             <div className={styles.leftStripe} />
@@ -37,8 +37,11 @@ export default function ServiceCard({ logo, serviceName, cardName, event, state,
                             </ActionIcon>
                         </Menu.Target>
                         <Menu.Dropdown>
-                            <Menu.Item leftSection={<IconClipboardCopy size={16} />}>Duplicate</Menu.Item>
-                            <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={onRemove}>Delete</Menu.Item>
+                            { isFirst ? <Menu.Item leftSection={<IconArrowBigUpLine size={16} />} disabled>Move up</Menu.Item> : onUp && <Menu.Item leftSection={<IconArrowBigUpLine size={16} />} onClick={onUp}>Move up</Menu.Item>}
+                            {isLast ? <Menu.Item leftSection={<IconArrowBigDownLine size={16} />} disabled>Move down</Menu.Item> : onDown && <Menu.Item leftSection={<IconArrowBigDownLine size={16} />} onClick={onDown}>Move down</Menu.Item>}
+                            {onEdit && <Menu.Item leftSection={<IconEdit size={16} />} onClick={onEdit}>Edit</Menu.Item>}
+                            {onDuplicate && <Menu.Item leftSection={<IconClipboardCopy size={16} />} onClick={onDuplicate}>Duplicate</Menu.Item>}
+                            {onRemove && <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={onRemove}>Delete</Menu.Item>}
                         </Menu.Dropdown>
                     </Menu>
                 </div>
