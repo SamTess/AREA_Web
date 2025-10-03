@@ -1,10 +1,10 @@
 import { Button, Stack, TextInput, Input, InputBase, Combobox, useCombobox, Text } from '@mantine/core';
 import { useEffect, useState } from 'react';
 import AccountCardServices from './acountCardServices';
-import { getActionsByServiceId } from '../../services/areasService';
-import { Action, Service, ServiceState, ServiceData, SetupStepProps } from '../../types';
+import { getActionsByServiceId } from '../../../services/areasService';
+import { Action, Service, ServiceState, ServiceData, SetupStepProps } from '../../../types';
 import ModalServicesSelection from './ModalServicesSelection';
-import { mockUser } from '../../mocks/user';
+import { mockUser } from '../../../mocks/user';
 
 export default function SetupStep({ service, onRemove, onServiceChange }: SetupStepProps) {
 

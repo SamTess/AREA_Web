@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, useEffect, useMemo } from 'react';
-import AreaListCard from '../../components/ui/AreaListCard';
-import ServiceFilter from '../../components/ui/ServiceFilter';
+import AreaListCard from '../../components/ui/areaList/AreaListCard';
+import ServiceFilter from '../../components/ui/areaList/ServiceFilter';
 import { IconPlus } from '@tabler/icons-react';
 import { Title, TextInput, Select, Button, Group, Container, Stack, Divider, Pagination, Text } from '@mantine/core';
 import { useRouter } from 'next/navigation';

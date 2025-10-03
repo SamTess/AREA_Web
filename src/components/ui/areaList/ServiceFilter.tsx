@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { PillsInput, Pill, Combobox, CheckIcon, Group, useCombobox } from '@mantine/core';
 import Image from 'next/image';
-import { ServiceFilterProps } from '../../types';
+import { ServiceFilterProps } from '../../../types';
 
 export default function ServiceFilter({ services, value, onChange }: ServiceFilterProps) {
   const combobox = useCombobox({

@@ -15,7 +15,7 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import ServiceCardItem from './ServiceCardItem';
-import { ServiceData } from '../../types';
+import { ServiceData } from '../../../types';
 
 interface AreaEditorBoardProps {
   services: ServiceData[];

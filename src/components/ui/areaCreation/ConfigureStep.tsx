@@ -1,8 +1,8 @@
 import { TextInput, NumberInput, Select, Stack } from '@mantine/core';
 import { DatePickerInput } from '@mantine/dates';
 import { useState, useEffect, useRef } from 'react';
-import { ConfigureStepProps, FieldData } from '../../types';
-import { getActionFieldsByServiceAndActionId } from '../../services/areasService';
+import { ConfigureStepProps, FieldData } from '../../../types';
+import { getActionFieldsByServiceAndActionId } from '../../../services/areasService';
 
 export default function ConfigureStep({ service, onFieldsChange }: ConfigureStepProps) {
     const [formValues, setFormValues] = useState<Record<string, any>>({});

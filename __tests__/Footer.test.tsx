@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
-import { Footer } from '@/components/ui/Footer'
+import { Footer } from '@/components/ui/layout/Footer'
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return <MantineProvider>{children}</MantineProvider>

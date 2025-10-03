@@ -10,10 +10,10 @@ import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core';
 import Image from 'next/image';
 
 import { useRouter } from 'next/navigation';
-import { UserMenu } from './UserMenu';
+import { UserMenu } from '../user/UserMenu';
 import classes from './NavBarMinimal.module.css';
-import { NavbarLinkProps, UserContent } from '../../types';
-import { getUserInfo } from '../../services/userService';
+import { NavbarLinkProps, UserContent } from '../../../types';
+import { getUserInfo } from '../../../services/userService';
 
 
 function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {

@@ -2,7 +2,7 @@ import { Card, Text, Menu, ActionIcon, Badge, Loader, Button, Center } from '@ma
 import Image from 'next/image';
 import styles from './ServiceCard.module.css';
 import { IconDotsVertical, IconClipboardCopy, IconTrash, IconSettings, IconX, IconCheck, IconEdit, IconArrowBigUpLine, IconArrowBigDownLine } from '@tabler/icons-react';
-import { ServiceState, ServiceCardProps } from '../../types';
+import { ServiceState, ServiceCardProps } from '../../../types';
 
 export default function ServiceCard({ logo, serviceName, cardName, event, state, onRemove, onEdit, onUp, onDown, onDuplicate, isFirst, isLast }: ServiceCardProps) {
     return (

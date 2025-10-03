@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
-import ServiceFilter from '../src/components/ui/ServiceFilter'
+import ServiceFilter from '../src/components/ui/areaList/ServiceFilter'
 import { services as mockServices } from '../src/mocks/areas'
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {

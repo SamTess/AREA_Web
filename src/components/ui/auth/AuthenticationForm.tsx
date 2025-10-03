@@ -19,9 +19,9 @@ import { useForm } from '@mantine/form';
 import { upperFirst } from '@mantine/hooks';
 import { AxiosError } from 'axios';
 import { PasswordStrength } from './PasswordStrength';
-import { login, register, forgotPassword } from '../../services/authService';
-import { getOAuthProviders, initiateOAuth } from '../../services/oauthService';
-import { FormValues, OAuthProvider } from '../../types';
+import { login, register, forgotPassword } from '../../../services/authService';
+import { getOAuthProviders, initiateOAuth } from '../../../services/oauthService';
+import { FormValues, OAuthProvider } from '../../../types';
 
 export function AuthenticationForm(props: PaperProps) {
   const [type, setType] = useState<'login' | 'register' | 'forgotPassword'>('login');
