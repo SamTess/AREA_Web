@@ -5,7 +5,7 @@ import ServiceFilter from '../../components/ui/ServiceFilter';
 import { IconPlus } from '@tabler/icons-react';
 import { Title, TextInput, Select, Button, Group, Container, Stack, Divider, Pagination, Text } from '@mantine/core';
 import { useRouter } from 'next/navigation';
-import { getAreas, getServices } from '../../services/areasService';
+import { getAreas, getServices, deleteAreabyId, runAreaById } from '../../services/areasService';
 import { Area, Service } from '../../types';
 
 export default function AreaListPage() {
@@ -54,6 +54,17 @@ export default function AreaListPage() {
         setPage(1);
     };
 
+    const handleDelete = (id: string) => {
+        const areaId = Number(id);
+        deleteAreabyId(areaId).then(() => {
+            const updatedAreas = areas.filter(area => area.id !== areaId);
+            setAreas(updatedAreas);
+        });
+    };
+    const handleRun = (id: string) => {
+        const areaId = Number(id);
+        runAreaById(areaId);
+    };
     return (
         <Container size="lg" py="xl">
             <Stack gap="md">
@@ -89,7 +100,7 @@ export default function AreaListPage() {
                     </div>
                     <Button onClick={clearFilters} variant="outline">Clear Filters</Button>
                 </Group>
-                <AreaListCard areas={paginatedAreas} services={services} />
+                <AreaListCard areas={paginatedAreas} services={services} onDelete={handleDelete} onRun={handleRun} />
                 {filteredAreas.length === 0 && (
                     <Text ta="center" c="dimmed">No areas found.</Text>
                 )}

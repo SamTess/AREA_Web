@@ -4,11 +4,14 @@ import { Menu, ActionIcon } from '@mantine/core';
 import { IconDotsVertical, IconEdit, IconPlayerPlay, IconTrash } from '@tabler/icons-react';
 import Image from 'next/image';
 import { AreaListCardProps } from '../../types';
+import { useRouter } from 'next/navigation';
 
-export default function AreaListCard({ areas, services }: AreaListCardProps) {
+export default function AreaListCard({ areas, services, onDelete, onRun }: AreaListCardProps) {
   const servicesMap = useMemo(() => {
     return new Map(services.map(s => [s.id, s]));
   }, [services]);
+
+  const router = useRouter();
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -24,7 +27,7 @@ export default function AreaListCard({ areas, services }: AreaListCardProps) {
       {areas.map((area) => (
           <Card key={area.id} shadow="sm" padding="lg" radius="md" withBorder style={{ cursor: 'pointer' }}>
             <Group justify="space-between" mb="xs">
-              <Anchor href={`/areas/${area.id}`} style={{ textDecoration: 'none' }}> {/* a changer le liens quand ikl y aura la page*/}
+              <Anchor href={`/areas/${area.id}`} style={{ textDecoration: 'none' }}>
                 <Text fw={500}>{area.name}</Text>
               </Anchor>
               <Group>
@@ -46,13 +49,13 @@ export default function AreaListCard({ areas, services }: AreaListCardProps) {
                     </ActionIcon>
                   </Menu.Target>
                   <Menu.Dropdown>
-                    <Menu.Item leftSection={<IconPlayerPlay size={16} stroke={1.5} />} color='blue'>
+                    <Menu.Item leftSection={<IconPlayerPlay size={16} stroke={1.5} />} color='blue' onClick={() => onRun?.(area.id)}>
                       Run area
                     </Menu.Item>
-                    <Menu.Item leftSection={<IconEdit size={16} stroke={1.5} />}>
+                    <Menu.Item leftSection={<IconEdit size={16} stroke={1.5} />} onClick={() => router.push(`/areas/${area.id}`)}>
                       Edit area
                     </Menu.Item>
-                    <Menu.Item leftSection={<IconTrash size={16} stroke={1.5} />} color="red">
+                    <Menu.Item leftSection={<IconTrash size={16} stroke={1.5} />} color="red" onClick={() => onDelete?.(area.id)}>
                       Delete area
                     </Menu.Item>
                   </Menu.Dropdown>
@@ -66,19 +69,19 @@ export default function AreaListCard({ areas, services }: AreaListCardProps) {
 
             <Group justify="space-between">
               <Text size="sm">Last run: {area.lastRun}</Text>
-                <Group gap="xs">
-                    {area.services.map((serviceId) => {
-                        const service = servicesMap.get(serviceId);
-                        return service ? (
-                            <Badge key={service.id} color="blue" variant="light">
-                                <Group gap="xs" align="center">
-                                    {service.logo && <Image src={service.logo} alt={service.name} width={12} height={12} />}
-                                    {service.name}
-                                </Group>
-                            </Badge>
-                        ) : null;
-                    })}
-                </Group>
+              <Group gap="xs">
+                {area.services.map((serviceId) => {
+                  const service = servicesMap.get(serviceId);
+                  return service ? (
+                    <Badge key={service.id} color="blue" variant="light">
+                      <Group gap="xs" align="center">
+                        {service.logo && <Image src={service.logo} alt={service.name} width={12} height={12} />}
+                        {service.name}
+                      </Group>
+                    </Badge>
+                  ) : null;
+                })}
+              </Group>
             </Group>
           </Card>
       ))}

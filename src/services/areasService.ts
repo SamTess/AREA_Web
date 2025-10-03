@@ -93,3 +93,23 @@ export const updateArea = async (areaId: number, area: Partial<Area>): Promise<A
   const response = await axios.put(`/api/areas/${areaId}`, area);
   return response.data;
 }
+
+export const deleteAreabyId = async (areaId: number): Promise<void> => {
+  if (USE_MOCK_DATA) {
+    const index = mockData.findIndex(a => a.id === areaId);
+    if (index !== -1) {
+      mockData.splice(index, 1);
+      return Promise.resolve();
+    }
+    throw new Error('Area not found');
+  }
+  await axios.delete(`/api/areas/${areaId}`);
+}
+
+export const runAreaById = async (areaId: number): Promise<void> => {
+  if (USE_MOCK_DATA) {
+    console.log(`Running area with id ${areaId}`);
+    return Promise.resolve();
+  }
+  await axios.post(`/api/areas/${areaId}/run`);
+}
