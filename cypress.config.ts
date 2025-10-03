@@ -9,8 +9,13 @@ export default defineConfig({
     screenshotOnRunFailure: true,
     viewportWidth: 1280,
     viewportHeight: 720,
-    setupNodeEvents() {
-      // implement node event listeners here
+    env: {
+      NEXT_PUBLIC_USE_MOCK_DATA: 'true'
+    },
+    setupNodeEvents(on, config) {
+      // Set environment variables for the app
+      config.env.NEXT_PUBLIC_USE_MOCK_DATA = 'true'
+      return config
     },
   },
   component: {

@@ -1,9 +1,7 @@
-import axios from 'axios';
+import axios from '../config/axios';
 import { OAuthProvider } from '../types';
+import { API_CONFIG, USE_MOCK_DATA, buildApiUrl } from '../config/api';
 
-const USE_MOCK_DATA = true;
-
-{/** ou je sais pas si on met les Services ici */}
 const mockProviders: OAuthProvider[] = [
   { iconPath: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png", label: 'Google' },
   { iconPath: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg", label: 'Microsoft' },
@@ -13,6 +11,22 @@ const mockProviders: OAuthProvider[] = [
 export const getOAuthProviders = async (): Promise<OAuthProvider[]> => {
   if (USE_MOCK_DATA)
     return Promise.resolve(mockProviders);
-  const response = await axios.get('/api/auth/providers');
-  return response.data;
+
+  try {
+    const response = await axios.get(API_CONFIG.endpoints.auth.providers);
+    return response.data;
+  } catch (error) {
+    console.error('Get OAuth providers error:', error);
+    throw error;
+  }
+};
+
+export const initiateOAuth = (provider: string): void => {
+  if (USE_MOCK_DATA) {
+    console.log(`Mock OAuth initiation for ${provider}`);
+    return;
+  }
+
+  const oauthUrl = API_CONFIG.endpoints.auth.oauth + provider.toLowerCase();
+  window.location.href = oauthUrl;
 };

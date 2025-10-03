@@ -33,6 +33,22 @@ export interface LoginData {
   password: string;
 }
 
+export interface LoginResponse {
+  message: string;
+  user: {
+    id: string | number;
+    email: string;
+    isActive: boolean;
+    isAdmin: boolean;
+    createdAt: string;
+    confirmedAt?: string;
+    lastLoginAt?: string;
+    avatarUrl?: string;
+  };
+  token: string;
+  refreshToken: string;
+}
+
 export interface RegisterData {
   email: string;
   firstName: string;

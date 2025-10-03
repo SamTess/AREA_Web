@@ -1,21 +1,33 @@
-import axios from 'axios';
-import { Area, Service, Action } from '../types';
+import axios from '../config/axios';
+import { Area, Service, Action} from '../types';
 import { data as mockData, services as mockServices, actions as MockActions, labelsTextReaction1, whiteboardCards} from '../mocks/areas';
+import { API_CONFIG, USE_MOCK_DATA, buildApiUrl } from '../config/api';
 
-const USE_MOCK_DATA = true;
 
 export const getAreas = async (): Promise<Area[]> => {
   if (USE_MOCK_DATA)
     return Promise.resolve(mockData);
-  const response = await axios.get('/api/areas');
-  return response.data;
+
+  try {
+    const response = await axios.get(API_CONFIG.endpoints.areas.list);
+    return response.data;
+  } catch (error) {
+    console.error('Get areas error:', error);
+    throw error;
+  }
 };
 
 export const getServices = async (): Promise<Service[]> => {
   if (USE_MOCK_DATA)
     return Promise.resolve(mockServices);
-  const response = await axios.get('/api/services');
-  return response.data;
+
+  try {
+    const response = await axios.get(API_CONFIG.endpoints.services.list);
+    return response.data;
+  } catch (error) {
+    console.error('Get services error:', error);
+    throw error;
+  }
 };
 
 export const getServiceById = async (id: number): Promise<Service | undefined> => {
@@ -23,8 +35,14 @@ export const getServiceById = async (id: number): Promise<Service | undefined> =
     const service = mockServices.find(service => service.id === id);
     return Promise.resolve(service);
   }
-  const response = await axios.get(`/api/services/${id}`);
-  return response.data;
+
+  try {
+    const response = await axios.get(API_CONFIG.endpoints.services.getById + id);
+    return response.data;
+  } catch (error) {
+    console.error('Get service by id error:', error);
+    throw error;
+  }
 }
 
 export const getActionsByServiceId = async (serviceId: number): Promise<Action[]> => {
@@ -32,15 +50,27 @@ export const getActionsByServiceId = async (serviceId: number): Promise<Action[]
     const actions = MockActions.filter(action => action.serviceId === serviceId);
     return Promise.resolve(actions);
   }
-  const response = await axios.get(`/api/services/${serviceId}/actions`);
-  return response.data;
+
+  try {
+    const response = await axios.get(API_CONFIG.endpoints.services.actions + `${serviceId}/actions`);
+    return response.data;
+  } catch (error) {
+    console.error('Get actions by service id error:', error);
+    throw error;
+  }
 };
 
 export const getActionFieldsByServiceAndActionId = async (serviceId: number, actionId: number): Promise<any[]> => {
   if (USE_MOCK_DATA)
     return Promise.resolve(labelsTextReaction1);
-  const response = await axios.get(`/api/services/${serviceId}/actions/${actionId}/fields`);
-  return response.data;
+
+  try {
+    const response = await axios.get(API_CONFIG.endpoints.services.actionFields + `${serviceId}/actions/${actionId}/fields`);
+    return response.data;
+  } catch (error) {
+    console.error('Get action fields error:', error);
+    throw error;
+  }
 }
 
 export const createAction = async (action: Partial<Action>): Promise<Action> => {
@@ -49,8 +79,14 @@ export const createAction = async (action: Partial<Action>): Promise<Action> => 
     MockActions.push(newAction);
     return Promise.resolve(newAction);
   }
-  const response = await axios.post('/api/actions', action);
-  return response.data;
+
+  try {
+    const response = await axios.post(API_CONFIG.endpoints.actions.create, action);
+    return response.data;
+  } catch (error) {
+    console.error('Create action error:', error);
+    throw error;
+  }
 }
 
 export const createArea = async (area: Partial<Area>): Promise<Area> => {
@@ -59,8 +95,14 @@ export const createArea = async (area: Partial<Area>): Promise<Area> => {
     mockData.push(newArea);
     return Promise.resolve(newArea);
   }
-  const response = await axios.post('/api/areas', area);
-  return response.data;
+
+  try {
+    const response = await axios.post(API_CONFIG.endpoints.areas.create, area);
+    return response.data;
+  } catch (error) {
+    console.error('Create area error:', error);
+    throw error;
+  }
 }
 
 export const getCardByAreaId = async (areaId: number): Promise<any[]> => {
@@ -68,8 +110,14 @@ export const getCardByAreaId = async (areaId: number): Promise<any[]> => {
     return Promise.resolve([]);
   if (USE_MOCK_DATA)
     return Promise.resolve(whiteboardCards.filter(card => card.areaId === areaId));
-  const response = await axios.get(`/api/areas/${areaId}/cards`);
-  return response.data;
+
+  try {
+    const response = await axios.get(API_CONFIG.endpoints.areas.cards + `${areaId}/cards`);
+    return response.data;
+  } catch (error) {
+    console.error('Get cards by area id error:', error);
+    throw error;
+  }
 }
 
 export const getAreaById = async (areaId: number): Promise<Area | undefined> => {
@@ -77,8 +125,14 @@ export const getAreaById = async (areaId: number): Promise<Area | undefined> => 
     const area = mockData.find(area => area.id === areaId);
     return Promise.resolve(area);
   }
-  const response = await axios.get(`/api/areas/${areaId}`);
-  return response.data;
+
+  try {
+    const response = await axios.get(API_CONFIG.endpoints.areas.getById + areaId);
+    return response.data;
+  } catch (error) {
+    console.error('Get area by id error:', error);
+    throw error;
+  }
 }
 
 export const updateArea = async (areaId: number, area: Partial<Area>): Promise<Area> => {
@@ -90,8 +144,14 @@ export const updateArea = async (areaId: number, area: Partial<Area>): Promise<A
     }
     throw new Error('Area not found');
   }
-  const response = await axios.put(`/api/areas/${areaId}`, area);
-  return response.data;
+
+  try {
+    const response = await axios.put(API_CONFIG.endpoints.areas.update + areaId, area);
+    return response.data;
+  } catch (error) {
+    console.error('Update area error:', error);
+    throw error;
+  }
 }
 
 export const deleteAreabyId = async (areaId: number): Promise<void> => {
@@ -103,7 +163,13 @@ export const deleteAreabyId = async (areaId: number): Promise<void> => {
     }
     throw new Error('Area not found');
   }
-  await axios.delete(`/api/areas/${areaId}`);
+
+  try {
+    await axios.delete(API_CONFIG.endpoints.areas.delete + areaId);
+  } catch (error) {
+    console.error('Delete area error:', error);
+    throw error;
+  }
 }
 
 export const runAreaById = async (areaId: number): Promise<void> => {
@@ -111,5 +177,11 @@ export const runAreaById = async (areaId: number): Promise<void> => {
     console.log(`Running area with id ${areaId}`);
     return Promise.resolve();
   }
-  await axios.post(`/api/areas/${areaId}/run`);
+
+  try {
+    await axios.post(API_CONFIG.endpoints.areas.run + `${areaId}/run`);
+  } catch (error) {
+    console.error('Run area error:', error);
+    throw error;
+  }
 }

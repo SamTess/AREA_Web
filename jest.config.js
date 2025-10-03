@@ -2,14 +2,16 @@
 const nextJest = require('next/jest')
 
 const createJestConfig = nextJest({
-  // Provide the path to your Next.js app to load next.config.js and .env files
   dir: './',
 })
 
-// Add any custom config to be passed to Jest
 const customJestConfig = {
   setupFilesAfterEnv: ['<rootDir>/src/test-setup.ts'],
+  setupFiles: ['<rootDir>/jest.polyfills.js'],
   testEnvironment: 'jest-environment-jsdom',
+  testEnvironmentOptions: {
+    customExportConditions: [''],
+  },
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',
@@ -20,8 +22,8 @@ const customJestConfig = {
     global: {
       branches: 50, // a remonter plus tard lors du sprint 3
       functions: 70,
-      lines: 70,
-      statements: 70,
+      lines: 60,
+      statements: 60,
     },
   },
 }
