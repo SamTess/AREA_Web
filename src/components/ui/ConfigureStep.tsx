@@ -1,9 +1,8 @@
 import { TextInput, NumberInput, Select, Stack } from '@mantine/core';
-import { DateInput } from '@mantine/dates';
+import { DatePickerInput } from '@mantine/dates';
 import { useState, useEffect, useRef } from 'react';
 import { ConfigureStepProps, FieldData } from '../../types';
 import { getActionFieldsByServiceAndActionId } from '../../services/areasService';
-import { labelsTextReaction1 } from '../../mocks/areas';
 
 export default function ConfigureStep({ service, onFieldsChange }: ConfigureStepProps) {
     const [formValues, setFormValues] = useState<Record<string, any>>({});
@@ -74,12 +73,12 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
                         );
                     case 'date':
                         return (
-                            <DateInput
+                            <DatePickerInput
                                 key={index}
                                 {...commonProps}
                                 valueFormat="YYYY-MM-DD"
-                                value={formValues[field.name] || ''}
-                                onChange={(value) => handleChange(field.name, value || '')}
+                                value={formValues[field.name] ? new Date(formValues[field.name]) : null}
+                                onChange={(value) => handleChange(field.name, value)}
                             />
                         );
                     default:
