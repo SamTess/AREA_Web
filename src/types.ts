@@ -109,6 +109,8 @@ export interface FormValues {
 export interface AreaListCardProps {
   areas: Area[];
   services: Service[];
+  onDelete?: (id: number) => void;
+  onRun?: (id: number) => void;
 }
 
 export interface ServiceCardProps {
