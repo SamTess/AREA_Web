@@ -95,6 +95,43 @@ export function useAreaEditor(areaId?: number) {
     }
   };
 
+  const moveServiceUp = (id: string) => {
+    setServicesState(prev => {
+      const index = prev.findIndex(service => service.id === id);
+      if (index <= 0)
+        return prev;
+
+      return arrayMove(prev, index, index - 1);
+    });
+  };
+
+  const moveServiceDown = (id: string) => {
+    setServicesState(prev => {
+      const index = prev.findIndex(service => service.id === id);
+      if (index < 0 || index >= prev.length - 1)
+        return prev;
+
+      return arrayMove(prev, index, index + 1);
+    });
+  };
+
+  const duplicateService = (id: string) => {
+    setServicesState(prev => {
+      const serviceToDuplicate = prev.find(service => service.id === id);
+      if (!serviceToDuplicate)
+        return prev;
+      const newId = `new-${Date.now()}`;
+      const duplicatedService = {
+        ...serviceToDuplicate,
+        id: newId,
+      };
+      const index = prev.findIndex(service => service.id === id);
+      const newServices = [...prev];
+      newServices.splice(index + 1, 0, duplicatedService);
+      return newServices;
+    });
+  };
+
   return {
     servicesState,
     selectedService,
@@ -113,5 +150,8 @@ export function useAreaEditor(areaId?: number) {
     removeService,
     editService,
     updateService,
+    moveServiceUp,
+    moveServiceDown,
+    duplicateService,
   };
 }
