@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MantineProvider } from '@mantine/core'
-import { AuthenticationForm } from '@/components/ui/AuthenticationForm'
+import { AuthenticationForm } from '@/components/ui/auth/AuthenticationForm'
 import { initiateOAuth } from '../src/services/oauthService';
 import { login, register, forgotPassword, extractToken } from '../src/services/authService';
 import { setSecureToken } from '../src/utils/secureStorage';

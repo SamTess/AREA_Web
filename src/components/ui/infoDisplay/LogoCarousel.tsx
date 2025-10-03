@@ -6,8 +6,8 @@ import classes from './CardsCarousel.module.css';
 import Autoplay from 'embla-carousel-autoplay';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
-import { getServices } from '../../services/areasService';
-import { Service, CardProps } from '../../types';
+import { getServices } from '../../../services/areasService';
+import { Service, CardProps } from '../../../types';
 
 function Card({ image }: CardProps) {
   return (

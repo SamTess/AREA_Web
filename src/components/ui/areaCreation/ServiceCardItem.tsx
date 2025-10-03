@@ -3,7 +3,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { IconGripVertical, IconPlus } from '@tabler/icons-react';
 import { Button, Center } from '@mantine/core';
 import ServiceCard from './ServiceCard';
-import { ServiceData } from '../../types';
+import { ServiceData } from '../../../types';
 
 interface ServiceCardItemProps {
   service: ServiceData;

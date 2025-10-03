@@ -3,7 +3,7 @@ import { Card, Text, Badge, Group, Stack, Anchor } from '@mantine/core';
 import { Menu, ActionIcon } from '@mantine/core';
 import { IconDotsVertical, IconEdit, IconPlayerPlay, IconTrash } from '@tabler/icons-react';
 import Image from 'next/image';
-import { AreaListCardProps } from '../../types';
+import { AreaListCardProps } from '../../../types';
 import { useRouter } from 'next/navigation';
 
 export default function AreaListCard({ areas, services, onDelete, onRun }: AreaListCardProps) {

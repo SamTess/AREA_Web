@@ -19,11 +19,11 @@ import { useForm } from '@mantine/form';
 import { upperFirst } from '@mantine/hooks';
 import { AxiosError } from 'axios';
 import { PasswordStrength } from './PasswordStrength';
-import { login, register, forgotPassword, extractToken } from '../../services/authService';
-import { getOAuthProviders, initiateOAuth } from '../../services/oauthService';
-import { FormValues, OAuthProvider } from '../../types';
-import { setSecureToken } from '../../utils/secureStorage';
-import { TOKEN_EXPIRY } from '../../utils/constant';
+import { login, register, forgotPassword, extractToken } from '../../../services/authService';
+import { getOAuthProviders, initiateOAuth } from '../../../services/oauthService';
+import { FormValues, OAuthProvider } from '../../../types';
+import { setSecureToken } from '../../../utils/secureStorage';
+import { TOKEN_EXPIRY } from '../../../utils/constant';
 
 export function AuthenticationForm(props: PaperProps) {
   const [type, setType] = useState<'login' | 'register' | 'forgotPassword'>('login');

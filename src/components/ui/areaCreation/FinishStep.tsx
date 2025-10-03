@@ -1,6 +1,6 @@
 import { Text, Button } from '@mantine/core';
-import { ServiceState, ServiceData, FinishStepProps } from '../../types';
-import { createAction } from '../../services/areasService';
+import { ServiceState, ServiceData, FinishStepProps } from '../../../types';
+import { createAction } from '../../../services/areasService';
 
 export default function FinishStep({ service }: FinishStepProps) {
     const handleCreate = async () => {

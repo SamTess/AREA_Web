@@ -1,6 +1,6 @@
 import { Card, Text, Menu, ActionIcon, Flex, Avatar, Button, Stack } from '@mantine/core';
 import { IconDotsVertical, IconEye, IconEdit, IconTrash } from '@tabler/icons-react';
-import { AccountCardProps } from '../../types';
+import { AccountCardProps } from '../../../types';
 
 export default function AccountCardServices({ logo, accountName, email, isLoggedIn, onView, onChange, onDelete, onConnect }: AccountCardProps) {
   return (

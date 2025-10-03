@@ -2,7 +2,6 @@ import { Button, TextInput, Group, Popover, Textarea, Title, Space } from '@mant
 import { IconDeviceFloppy, IconPlayerPlay, IconFileText } from '@tabler/icons-react';
 import { useState } from 'react';
 import styles from './AreaEditor.module.css';
-import { Titan_One } from 'next/font/google';
 
 interface AreaEditorToolbarProps {
   areaName: string;

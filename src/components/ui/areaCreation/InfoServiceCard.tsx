@@ -4,7 +4,7 @@ import { useState, useCallback } from 'react';
 import SetupStep from './SetupStep';
 import ConfigureStep from './ConfigureStep';
 import FinishStep from './FinishStep';
-import { ServiceState, ServiceData, InfoServiceCardProps } from '../../types';
+import { InfoServiceCardProps } from '../../../types';
 
 export default function InfoServiceCard({ service, onServiceChange }: InfoServiceCardProps) {
     const [activeStep, setActiveStep] = useState(0);

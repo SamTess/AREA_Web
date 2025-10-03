@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
-import AreaListCard from '../src/components/ui/AreaListCard'
+import AreaListCard from '../src/components/ui/areaList/AreaListCard'
 import { services as mockServices, data as mockAreas } from '../src/mocks/areas'
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {

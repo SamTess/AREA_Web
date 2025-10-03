@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { getCardByAreaId, getAreaById, updateArea, createArea } from '../../services/areasService';
-import { ServiceState, ServiceData } from '../../types';
+import { getCardByAreaId, getAreaById, updateArea, createArea } from '../../../services/areasService';
+import { ServiceState, ServiceData } from '../../../types';
 
 export function useAreaEditor(areaId?: number) {
   const isNewArea = areaId === undefined;

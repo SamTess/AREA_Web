@@ -1,7 +1,7 @@
 import { Modal, Button } from '@mantine/core';
 import { useState, useEffect } from 'react';
-import { getServices } from '../../services/areasService';
-import { Service, ModalServicesSelectionProps } from '../../types';
+import { getServices } from '../../../services/areasService';
+import { Service, ModalServicesSelectionProps } from '../../../types';
 
 export default function ModalServicesSelection({ isOpen, onClose, onSelect }: ModalServicesSelectionProps) {
     const [services, setServices] = useState<Service[]>([]);

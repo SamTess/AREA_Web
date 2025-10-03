@@ -4,8 +4,8 @@ import "./globals.css";
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import { MantineProvider } from '@mantine/core';
-import { Footer } from '../components/ui/Footer';
-import { NavbarMinimal } from '../components/ui/NavBar';
+import { Footer } from '../components/ui/layout/Footer';
+import { NavbarMinimal } from '../components/ui/layout/NavBar';
 import { TokenMigration } from '../components/TokenMigration';
 const geistSans = Geist({
   variable: "--font-geist-sans",

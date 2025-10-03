@@ -45,4 +45,5 @@ export const buildApiUrl = (endpoint: string): string => {
   return `${API_CONFIG.baseURL}${endpoint}`;
 };
 
-export const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
+// export const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
+export const USE_MOCK_DATA = true;

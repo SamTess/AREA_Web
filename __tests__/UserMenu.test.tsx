@@ -1,6 +1,6 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
-import { UserMenu } from '@/components/ui/UserMenu'
+import { UserMenu } from '@/components/ui/user/UserMenu'
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return <MantineProvider>{children}</MantineProvider>
