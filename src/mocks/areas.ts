@@ -11,11 +11,12 @@ export const services: Service[] = [
 
 
 export const data: Area[] = [
-    { id: 1, name: 'GitHub PR Monitor', description: 'Monitors pull requests and sends notifications', lastRun: '2024-09-25', services: [1], status: 'success' },
-    { id: 2, name: 'Slack Channel Alert', description: 'Alerts users via Slack channels on events', lastRun: '2024-09-24', services: [6], status: 'failed' },
-    { id: 3, name: 'GitLab CI Pipeline', description: 'Triggers on GitLab CI pipeline failures', lastRun: '2024-09-23', services: [2], status: 'in progress' },
-    { id: 4, name: 'Bitbucket Repo Sync', description: 'Syncs repositories across Bitbucket instances', lastRun: '2024-09-22', services: [3], status: 'success' },
-    { id: 5, name: 'Azure DevOps Build', description: 'Monitors build statuses in Azure DevOps', lastRun: '2024-09-21', services: [4], status: 'success' },
+    { id: 1, name: 'GitHub PR Monitor', description: 'Monitors pull requests and sends notifications', lastRun: '2024-09-25', services: [1, 6], status: 'success' },
+    { id: 2, name: 'Slack Channel Alert', description: 'Alerts users via Slack channels on events', lastRun: '2024-09-24', services: [6, 2], status: 'failed' },
+    { id: 3, name: 'GitLab CI Pipeline', description: 'Triggers on GitLab CI pipeline failures', lastRun: '2024-09-23', services: [2, 3], status: 'in progress' },
+    { id: 4, name: 'Bitbucket Repo Sync', description: 'Syncs repositories across Bitbucket instances', lastRun: '2024-09-22', services: [3, 4], status: 'success' },
+    { id: 5, name: 'Azure DevOps Build', description: 'Monitors build statuses in Azure DevOps', lastRun: '2024-09-21', services: [4, 5], status: 'success' },
+    { id: 6, name: 'Jira Issue Tracker', description: 'Tracks issues in Jira and sends updates', lastRun: '2024-09-20', services: [5, 1], status: 'not started' },
 ];
 
 export const actions: Action[] = [
