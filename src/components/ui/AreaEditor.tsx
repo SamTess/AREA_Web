@@ -40,6 +40,8 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
       <AreaEditorToolbar
         areaName={areaName}
         onNameChange={setAreaName}
+        areaDescription={areaDescription}
+        onDescriptionChange={setAreaDescription}
         onSave={handleSave}
         onRun={handleRun}
       />
