@@ -70,7 +70,7 @@ export function NavbarMinimal() {
   ));
 
   return (
-    <nav className={classes.navbar}>
+    <nav className={classes.navbar} style={{ backgroundColor: 'var(--mantine-color-white)', width: '78px' }}> {/* la couleurs / le style a mettre ailleurs */}
       <Center>
         <Image src="/A1.png" alt="Logo" width={40} height={40} />
       </Center>
