@@ -16,7 +16,7 @@ export const API_CONFIG = {
     user: {
       profile: '/api/auth/profile',
       avatar: '/api/user/avatar',
-      getUser: '/api/user'
+      getUser: '/api/auth/me'
     },
     areas: {
       list: '/api/areas',

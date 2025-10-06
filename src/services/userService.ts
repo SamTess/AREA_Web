@@ -36,3 +36,16 @@ export const uploadAvatar = async (file: File): Promise<string> => {
     throw error;
   }
 };
+
+export const getUserInfo = async (): Promise<UserContent> => {
+  if (USE_MOCK_DATA)
+    return mockUser;
+
+  try {
+    const response = await axios.get(API_CONFIG.endpoints.user.getUser);
+    return response.data;
+  } catch (error) {
+    console.error('Get user info error:', error);
+    throw error;
+  }
+}

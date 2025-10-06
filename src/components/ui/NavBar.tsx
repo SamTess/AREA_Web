@@ -1,5 +1,5 @@
 "use client";
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   IconGauge,
   IconHome2,
@@ -13,18 +13,8 @@ import { useRouter } from 'next/navigation';
 import { UserMenu } from './UserMenu';
 import classes from './NavBarMinimal.module.css';
 import { NavbarLinkProps, UserContent } from '../../types';
+import { getUserInfo } from '../../services/userService';
 
-const user: UserContent = {
-  name: "Test User",
-  email: "testuser@example.com",
-  avatarSrc: "https://raw.githubusercontent.com/mantinedev/mantine/master/.demo/avatars/avatar-7.png",
-  profileData: {
-    email: "testuser@example.com",
-    firstName: "Test",
-    lastName: "User",
-    language: "English",
-  },
-};
 
 function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
   return (
@@ -45,7 +35,26 @@ const dataCenter = [
 export function NavbarMinimal() {
   const [active, setActive] = useState(0);
   const router = useRouter();
-  const [isConnected] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [user, setUser] = useState<UserContent | null>(null);
+
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        const userInfo = await getUserInfo();
+        if (userInfo && userInfo.email) {
+          setIsConnected(true);
+          setUser(userInfo);
+        } else {
+          setIsConnected(false);
+        }
+      } catch (error) {
+        setIsConnected(false);
+        console.error("Error fetching user info:", error);
+      }
+    };
+    checkAuthStatus();
+  }, []);
 
   const links = dataCenter.map((link, index) => (
     <NavbarLink
@@ -74,7 +83,7 @@ export function NavbarMinimal() {
 
 
       <Stack justify="center" gap={0}>
-        {isConnected ? (
+        {isConnected && user ? (
           <UserMenu user={user} />
         ) : (
           <NavbarLink icon={IconLogin} label="Login" onClick={() => router.push('/login')} />
