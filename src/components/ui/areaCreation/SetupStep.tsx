@@ -96,7 +96,7 @@ export default function SetupStep({ service, onRemove, onServiceChange }: SetupS
                     logo={mockUser.avatarSrc} // a appeler la route specifique je sais pas laquelle
                     accountName={mockUser.name}
                     email={mockUser.email}
-                    isLoggedIn={true}
+                    isLoggedIn={false}
                     onView={() => console.log('View account')} // a a changer par un action voulie pour l'instant rien
                     onChange={() => console.log('Change account')}
                     onDelete={() => console.log('Delete account')}

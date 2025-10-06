@@ -26,7 +26,7 @@ export function UserMenu({ user }: { user: UserContent }) {
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Item rightSection={<IconChevronRight size={16} stroke={1.5} />}>
-            <Group onClick={() => router.push("/profile")}>
+            <Group onClick={() => router.push("/profil")}>
               <Avatar
                 radius="xl"
                 src={user.avatarSrc}
@@ -44,12 +44,6 @@ export function UserMenu({ user }: { user: UserContent }) {
           <Menu.Divider />
 
           <Menu.Label>Settings</Menu.Label>
-          <Menu.Item leftSection={<IconSettings size={16} stroke={1.5} />} onClick={() => router.push("/settings")}>
-            Account settings
-          </Menu.Item>
-          <Menu.Item leftSection={<IconSwitchHorizontal size={16} stroke={1.5} />} onClick={() => router.push("/change-account")}>
-            Change account
-          </Menu.Item>
           <Menu.Item leftSection={<IconLogout size={16} stroke={1.5} />} onClick={() => router.push("/logout")}>
             Logout
           </Menu.Item>
