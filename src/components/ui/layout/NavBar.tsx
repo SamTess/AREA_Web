@@ -45,7 +45,7 @@ const dataCenter = [
 export function NavbarMinimal() {
   const [active, setActive] = useState(0);
   const router = useRouter();
-  const [isConnected] = useState(false);
+  const [isConnected] = useState(true);
 
   const links = dataCenter.map((link, index) => (
     <NavbarLink
