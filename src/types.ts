@@ -44,6 +44,11 @@ export interface RegisterData {
 export interface OAuthProvider {
   iconPath: string;
   label: string;
+  providerKey?: string;
+  providerLabel?: string;
+  providerLogoUrl?: string;
+  userAuthUrl?: string;
+  clientId?: string;
 }
 
 export interface UserContent {

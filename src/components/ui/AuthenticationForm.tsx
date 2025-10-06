@@ -19,11 +19,9 @@ import { useForm } from '@mantine/form';
 import { upperFirst } from '@mantine/hooks';
 import { AxiosError } from 'axios';
 import { PasswordStrength } from './PasswordStrength';
-import { login, register, forgotPassword, extractToken } from '../../services/authService';
+import { login, register, forgotPassword } from '../../services/authService';
 import { getOAuthProviders, initiateOAuth } from '../../services/oauthService';
 import { FormValues, OAuthProvider } from '../../types';
-import { setSecureToken } from '../../utils/secureStorage';
-import { TOKEN_EXPIRY } from '../../utils/constant';
 
 export function AuthenticationForm(props: PaperProps) {
   const [type, setType] = useState<'login' | 'register' | 'forgotPassword'>('login');
@@ -96,8 +94,10 @@ export function AuthenticationForm(props: PaperProps) {
     setSuccess(null);
   };
 
-  const handleOAuthClick = (provider: string) => {
-    initiateOAuth(provider);
+  const handleOAuthClick = (provider: OAuthProvider) => {
+    const providerKey = provider.providerKey || provider.label.toLowerCase();
+    const userAuthUrl = provider.userAuthUrl;
+    initiateOAuth(providerKey, userAuthUrl);
   };
 
   const getErrorMessage = (error: unknown, type: 'login' | 'register' | 'forgotPassword'): string => {
@@ -165,36 +165,22 @@ export function AuthenticationForm(props: PaperProps) {
 
     try {
       if (type === 'login') {
-        const response = await login({ email: values.email, password: values.password });
-        const token = extractToken(response);
-        if (token) {
-          await setSecureToken(token, TOKEN_EXPIRY.LONG);
-          setSuccess('Login successful! Redirecting...');
-          setTimeout(() => {
-            router.push('/');
-          }, 1500);
-        } else {
-          console.error('Login response:', response);
-          setError('Login failed. No authentication token received.');
-        }
+        await login({ email: values.email, password: values.password });
+        setSuccess('Login successful! Redirecting...');
+        setTimeout(() => {
+          router.push('/');
+        }, 1500);
       } else if (type === 'register') {
-        const response = await register({
+        await register({
           email: values.email,
           firstName: values.firstName,
           lastName: values.lastName,
           password: values.password
         });
-        const token = extractToken(response);
-        if (token) {
-          await setSecureToken(token, TOKEN_EXPIRY.LONG);
-          setSuccess('Registration successful! Redirecting...');
-          setTimeout(() => {
-            router.push('/');
-          }, 1500);
-        } else {
-          console.error('Register response:', response);
-          setError('Registration failed. No authentication token received.');
-        }
+        setSuccess('Registration successful! Redirecting...');
+        setTimeout(() => {
+          router.push('/');
+        }, 1500);
       } else if (type === 'forgotPassword') {
         await forgotPassword(values.email);
         setSuccess('Password reset email sent! Please check your inbox.');
@@ -256,7 +242,7 @@ export function AuthenticationForm(props: PaperProps) {
                 key={item.label}
                 radius="xl"
                 leftSection={<Image src={item.iconPath} alt={item.label} width={20} height={20} />}
-                onClick={() => handleOAuthClick(item.label)}
+                onClick={() => handleOAuthClick(item)}
               >
                 {item.label}
               </Button>

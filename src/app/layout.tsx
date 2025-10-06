@@ -5,7 +5,6 @@ import '@mantine/core/styles.css';
 import { MantineProvider } from '@mantine/core';
 import { Footer } from '../components/ui/Footer';
 import { NavbarMinimal } from '../components/ui/NavBar';
-import { TokenMigration } from '../components/TokenMigration';
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
@@ -31,7 +30,6 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <TokenMigration />
         <MantineProvider>
           <div>
         <NavbarMinimal />

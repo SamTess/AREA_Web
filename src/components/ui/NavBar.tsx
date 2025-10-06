@@ -4,7 +4,7 @@ import {
   IconGauge,
   IconHome2,
   IconLogin,
-  IconListDetails
+  IconListDetails,
 } from '@tabler/icons-react';
 import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core';
 import Image from 'next/image';

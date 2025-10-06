@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG } from './api';
-import { hasSecureToken, clearSecureToken } from '../utils/secureStorage';
+import { clearSecureToken } from '../utils/secureStorage';
 
 interface RetryableRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -9,12 +9,12 @@ interface RetryableRequestConfig extends InternalAxiosRequestConfig {
 let isRefreshing = false;
 let failedQueue: Array<{ resolve: (value?: unknown) => void; reject: (reason?: unknown) => void }> = [];
 
-const processQueue = (error: unknown, token: string | null = null) => {
+const processQueue = (error: unknown, success: boolean = false) => {
   failedQueue.forEach(({ resolve, reject }) => {
     if (error) {
       reject(error);
     } else {
-      resolve(token);
+      resolve(success);
     }
   });
   failedQueue = [];
@@ -64,7 +64,6 @@ axios.interceptors.response.use(
           originalRequest.url?.includes('/forgot-password')) {
         return Promise.reject(error);
       }
-      if (!hasSecureToken()) { return Promise.reject(error); }
 
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
@@ -81,12 +80,12 @@ axios.interceptors.response.use(
 
       try {
         await axios.post(API_CONFIG.endpoints.auth.refresh);
-        processQueue(null, 'refreshed');
+        processQueue(null, true);
         return axios(originalRequest);
       } catch (refreshError) {
-        processQueue(refreshError, null);
+        processQueue(refreshError, false);
         console.warn('Token refresh failed');
-        clearSecureToken();
+        await clearSecureToken();
         if (typeof window !== 'undefined' &&
             !window.location.pathname.includes('/login') &&
             !window.location.pathname.includes('/register')) {

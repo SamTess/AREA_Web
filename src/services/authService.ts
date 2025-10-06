@@ -3,11 +3,6 @@ import { LoginData, RegisterData, ProfileData, UserContent, LoginResponse } from
 import { API_CONFIG, USE_MOCK_DATA } from '../config/api';
 import { clearSecureToken } from '../utils/secureStorage';
 
-export const extractToken = (response: LoginResponse): string | null => {
-  if (response.token) { return response.token; }
-  return null;
-};
-
 export const login = async (data: LoginData): Promise<LoginResponse> => {
   if (USE_MOCK_DATA) {
     if (data.email !== 'test@test.com' || data.password !== 'password123') {

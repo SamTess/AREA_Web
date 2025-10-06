@@ -25,20 +25,79 @@ function Card({ image }: CardProps) {
 
 export function LogoCarousel() {
   const [services, setServices] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const loadServices = async () => {
-      const servicesData = await getServices();
-      setServices(servicesData);
+      try {
+        setLoading(true);
+        setError(null);
+        const servicesData = await getServices();
+        if (Array.isArray(servicesData)) {
+          setServices(servicesData);
+        } else {
+          console.error('Services data is not an array:', servicesData);
+          setError('Invalid services data format');
+          setServices([]);
+        }
+      } catch (err) {
+        console.error('Error loading services:', err);
+        setError('Failed to load services');
+        setServices([]);
+      } finally {
+        setLoading(false);
+      }
     };
     loadServices();
   }, []);
 
-  const slides = services.map((service) => (
+  const safeServices = Array.isArray(services) ? services : [];
+
+  const slides = safeServices.map((service) => (
     <Carousel.Slide key={service.id}>
       <Card image={service.logo} />
     </Carousel.Slide>
   ));
+
+  if (loading) {
+    return (
+      <div>
+        <Title order={2} ta="center" mt="xl" mb="md">
+          Our services
+        </Title>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          Loading services...
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div>
+        <Title order={2} ta="center" mt="xl" mb="md">
+          Our services
+        </Title>
+        <div style={{ textAlign: 'center', padding: '2rem', color: 'red' }}>
+          Error: {error}
+        </div>
+      </div>
+    );
+  }
+
+  if (safeServices.length === 0) {
+    return (
+      <div>
+        <Title order={2} ta="center" mt="xl" mb="md">
+          Our services
+        </Title>
+        <div style={{ textAlign: 'center', padding: '2rem' }}>
+          No services available
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
