@@ -1,6 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
   images: {
     remotePatterns: [
       {
@@ -41,6 +42,14 @@ const nextConfig: NextConfig = {
             value: 'camera=(), microphone=(), geolocation=()',
           },
         ],
+  turbopack: {
+    root: __dirname,
+  },
+  async rewrites() {
+    return [
+      {
+        source: '/client.apk',
+        destination: '/api/client.apk',
       },
     ];
   },
