@@ -42,9 +42,14 @@ const nextConfig: NextConfig = {
             value: 'camera=(), microphone=(), geolocation=()',
           },
         ],
+      },
+    ];
+  },
+
   turbopack: {
     root: __dirname,
   },
+
   async rewrites() {
     return [
       {
