@@ -1,6 +1,6 @@
 import axios from '../config/axios';
 import { OAuthProvider } from '../types';
-import { API_CONFIG, USE_MOCK_DATA } from '../config/api';
+import { API_CONFIG, USE_MOCK_DATA, buildApiUrl } from '../config/api';
 
 const mockProviders: OAuthProvider[] = [
   { iconPath: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png", label: 'Google' },
@@ -31,7 +31,7 @@ export const getOAuthProviders = async (): Promise<OAuthProvider[]> => {
     }));
   } catch (error) {
     console.error('Get OAuth providers error:', error);
-    return mockProviders;
+    throw error;
   }
 };
 

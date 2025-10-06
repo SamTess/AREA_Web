@@ -6,7 +6,6 @@ import '@mantine/dates/styles.css';
 import { MantineProvider } from '@mantine/core';
 import { Footer } from '../components/ui/layout/Footer';
 import { NavbarMinimal } from '../components/ui/layout/NavBar';
-
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

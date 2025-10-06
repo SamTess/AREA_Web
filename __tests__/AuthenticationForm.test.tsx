@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MantineProvider } from '@mantine/core'
-import { AuthenticationForm } from '@/components/ui/AuthenticationForm'
+import { AuthenticationForm } from '@/components/ui/auth/AuthenticationForm'
 import { login, register, forgotPassword } from '../src/services/authService';
 
 const mockProviders = [
