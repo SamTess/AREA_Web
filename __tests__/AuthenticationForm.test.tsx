@@ -2,7 +2,6 @@ import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MantineProvider } from '@mantine/core'
 import { AuthenticationForm } from '@/components/ui/AuthenticationForm'
-import { initiateOAuth } from '../src/services/oauthService';
 import { login, register, forgotPassword } from '../src/services/authService';
 
 const mockProviders = [
@@ -10,7 +9,6 @@ const mockProviders = [
   { iconPath: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg", label: 'Microsoft' },
   { iconPath: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg", label: 'Github' },
 ];
-const mockInitiateOAuth = initiateOAuth as jest.MockedFunction<typeof initiateOAuth>;
 const mockLogin = login as jest.MockedFunction<typeof login>;
 const mockRegister = register as jest.MockedFunction<typeof register>;
 const mockForgotPassword = forgotPassword as jest.MockedFunction<typeof forgotPassword>;

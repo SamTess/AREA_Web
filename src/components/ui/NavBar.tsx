@@ -5,7 +5,6 @@ import {
   IconHome2,
   IconLogin,
   IconListDetails,
-  IconBrandGithub
 } from '@tabler/icons-react';
 import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core';
 import Image from 'next/image';
