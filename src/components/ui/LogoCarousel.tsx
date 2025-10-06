@@ -52,7 +52,6 @@ export function LogoCarousel() {
     loadServices();
   }, []);
 
-  // Vérification de sécurité supplémentaire
   const safeServices = Array.isArray(services) ? services : [];
 
   const slides = safeServices.map((service) => (
