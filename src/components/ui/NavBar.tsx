@@ -4,7 +4,8 @@ import {
   IconGauge,
   IconHome2,
   IconLogin,
-  IconListDetails
+  IconListDetails,
+  IconBrandGithub
 } from '@tabler/icons-react';
 import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core';
 import Image from 'next/image';
@@ -40,6 +41,7 @@ const dataCenter = [
   { icon: IconHome2, label: 'Home', link: "/" },
   { icon: IconGauge, label: 'Dashboard', link: "/dashboard" },
   { icon: IconListDetails, label: 'Areas', link: "/areas" },
+  { icon: IconBrandGithub, label: 'GitHub Test', link: "/github-test" },
 ];
 
 export function NavbarMinimal() {

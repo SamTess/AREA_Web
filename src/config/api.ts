@@ -26,6 +26,7 @@ export const API_CONFIG = {
     },
     services: {
       list: '/api/services',
+      catalog: '/api/services/catalog',
       search: '/api/services/search'
     }
   }

@@ -21,7 +21,7 @@ export const getServices = async (): Promise<Service[]> => {
     return Promise.resolve(mockServices);
 
   try {
-    const response = await axios.get(API_CONFIG.endpoints.services.list);
+    const response = await axios.get(API_CONFIG.endpoints.services.catalog);
     return response.data;
   } catch (error) {
     console.error('Get services error:', error);
