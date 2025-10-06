@@ -1,5 +1,4 @@
 import {
-  extractToken,
   login,
   register,
   forgotPassword,
@@ -47,21 +46,6 @@ describe('authService', () => {
     jest.clearAllMocks();
     consoleErrorSpy.mockClear();
     mockClearSecureToken.mockClear();
-  });
-
-  describe('extractToken', () => {
-    it('should work with token extraction logic', () => {
-      const response = {
-        message: 'Success',
-        user: { id: 1, email: 'test@test.com', isActive: true, isAdmin: false, createdAt: '2023-01-01' },
-        token: 'test-token',
-        refreshToken: 'test-refresh-token'
-      };
-
-      const token = extractToken(response);
-      expect(token).toBeDefined();
-      expect(typeof token).toBe('string');
-    });
   });
 
   describe('login', () => {

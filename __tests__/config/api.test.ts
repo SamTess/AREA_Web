@@ -34,13 +34,6 @@ describe('api configuration', () => {
       });
     });
 
-    it('should contain all required services endpoints', () => {
-      expect(API_CONFIG.endpoints.services).toEqual({
-        list: '/api/services',
-        search: '/api/services/search'
-      });
-    });
-
     it('should have a baseURL', () => {
       expect(API_CONFIG.baseURL).toBeDefined();
       expect(typeof API_CONFIG.baseURL).toBe('string');

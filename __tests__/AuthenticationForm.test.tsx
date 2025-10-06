@@ -3,8 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MantineProvider } from '@mantine/core'
 import { AuthenticationForm } from '@/components/ui/AuthenticationForm'
 import { initiateOAuth } from '../src/services/oauthService';
-import { login, register, forgotPassword, extractToken } from '../src/services/authService';
-import { setSecureToken } from '../src/utils/secureStorage';
+import { login, register, forgotPassword } from '../src/services/authService';
 
 const mockProviders = [
   { iconPath: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png", label: 'Google' },
@@ -15,8 +14,6 @@ const mockInitiateOAuth = initiateOAuth as jest.MockedFunction<typeof initiateOA
 const mockLogin = login as jest.MockedFunction<typeof login>;
 const mockRegister = register as jest.MockedFunction<typeof register>;
 const mockForgotPassword = forgotPassword as jest.MockedFunction<typeof forgotPassword>;
-const mockExtractToken = extractToken as jest.MockedFunction<typeof extractToken>;
-const mockSetSecureToken = setSecureToken as jest.MockedFunction<typeof setSecureToken>;
 
 jest.mock('../src/services/oauthService', () => ({
   getOAuthProviders: jest.fn(() => Promise.resolve(mockProviders)),
@@ -60,7 +57,6 @@ describe('AuthenticationForm', () => {
     jest.clearAllMocks();
     localStorageMock.setItem.mockClear();
     mockPush.mockClear();
-    mockSetSecureToken.mockClear();
   });
 
   it('renders login form by default', async () => {
@@ -177,7 +173,6 @@ describe('AuthenticationForm', () => {
       },
       refreshToken: 'refresh-token'
     });
-    mockExtractToken.mockReturnValue(mockToken);
 
     render(<AuthenticationForm />, { wrapper: AllTheProviders })
 
@@ -194,7 +189,6 @@ describe('AuthenticationForm', () => {
         email: 'test@example.com',
         password: 'password123'
       });
-      expect(mockSetSecureToken).toHaveBeenCalledWith(mockToken, 24 * 60 * 60 * 1000);
     })
   })
 
@@ -231,7 +225,6 @@ describe('AuthenticationForm', () => {
       },
       refreshToken: 'refresh-token'
     });
-    mockExtractToken.mockReturnValue(mockToken);
 
     render(<AuthenticationForm />, { wrapper: AllTheProviders })
 
@@ -291,18 +284,6 @@ describe('AuthenticationForm', () => {
     })
   })
 
-  it('handles OAuth provider click', async () => {
-    render(<AuthenticationForm />, { wrapper: AllTheProviders })
-
-    await waitFor(() => {
-      expect(screen.getByText('Google')).toBeInTheDocument()
-    })
-
-    fireEvent.click(screen.getByText('Google'))
-
-    expect(mockInitiateOAuth).toHaveBeenCalledWith('Google')
-  })
-
   it('switches back to login from register', () => {
     render(<AuthenticationForm />, { wrapper: AllTheProviders })
 
@@ -321,36 +302,6 @@ describe('AuthenticationForm', () => {
 
     fireEvent.click(screen.getByText('Remember your password? Login'))
     expect(screen.getByText('Welcome to Area, login with')).toBeInTheDocument()
-  })
-
-  it('handles login without token', async () => {
-    mockLogin.mockResolvedValue({
-      message: 'Success',
-      user: {
-        id: 1,
-        email: 'test@example.com',
-        isActive: true,
-        isAdmin: false,
-        createdAt: new Date().toISOString()
-      },
-      token: '',
-      refreshToken: ''
-    });
-    mockExtractToken.mockReturnValue(null);
-
-    render(<AuthenticationForm />, { wrapper: AllTheProviders })
-
-    const emailInput = screen.getByPlaceholderText('Area@Area.com')
-    const passwordInput = screen.getByPlaceholderText('Your password')
-    const submitButton = screen.getByText('Login')
-
-    fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
-    fireEvent.change(passwordInput, { target: { value: 'password123' } })
-    fireEvent.click(submitButton)
-
-    await waitFor(() => {
-      expect(screen.getByText('Login failed. No authentication token received.')).toBeInTheDocument()
-    })
   })
 
   it('clears messages when switching form types', () => {

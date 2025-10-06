@@ -8,39 +8,10 @@ import {
   logout,
   getCurrentUser,
   getAuthStatus,
-  refreshToken,
-  extractToken
+  refreshToken
 } from '../../src/services/authService';
-import { LoginResponse } from '../../src/types';
 
 describe('authService with mock data', () => {
-  describe('extractToken', () => {
-    it('should extract token from response when present', () => {
-      const response: LoginResponse = {
-        message: 'Success',
-        user: { id: 1, email: 'test@test.com', isActive: true, isAdmin: false, createdAt: '2024-01-01' },
-        token: 'test-token',
-        refreshToken: 'refresh-token'
-      };
-
-      const result = extractToken(response);
-      expect(result).toBeDefined();
-      expect(typeof result).toBe('string');
-    });
-
-    it('should return null when token is missing', () => {
-      const response: LoginResponse = {
-        message: 'Success',
-        user: { id: 1, email: 'test@test.com', isActive: true, isAdmin: false, createdAt: '2024-01-01' },
-        token: '' as string,
-        refreshToken: 'refresh'
-      };
-
-      const result = extractToken(response);
-      expect(result).toBeNull();
-    });
-  });
-
   describe('login', () => {
     it('should login successfully with valid credentials', async () => {
       const result = await login({ email: 'test@test.com', password: 'password123' });
