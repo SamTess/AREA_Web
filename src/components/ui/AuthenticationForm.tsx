@@ -169,6 +169,8 @@ export function AuthenticationForm(props: PaperProps) {
         setSuccess('Login successful! Redirecting...');
         setTimeout(() => {
           router.push('/');
+          window.location.reload();
+
         }, 1500);
       } else if (type === 'register') {
         await register({
