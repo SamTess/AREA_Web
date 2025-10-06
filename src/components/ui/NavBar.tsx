@@ -41,7 +41,6 @@ const dataCenter = [
   { icon: IconHome2, label: 'Home', link: "/" },
   { icon: IconGauge, label: 'Dashboard', link: "/dashboard" },
   { icon: IconListDetails, label: 'Areas', link: "/areas" },
-  { icon: IconBrandGithub, label: 'GitHub Test', link: "/github-test" },
 ];
 
 export function NavbarMinimal() {

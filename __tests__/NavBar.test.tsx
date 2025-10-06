@@ -18,7 +18,7 @@ describe('NavbarMinimal', () => {
   it('renders navigation buttons', () => {
     render(<NavbarMinimal />, { wrapper: AllTheProviders })
     const buttons = screen.getAllByRole('button')
-    expect(buttons).toHaveLength(5)
+    expect(buttons).toHaveLength(4)
   })
 
   it('renders login button when not connected', () => {
