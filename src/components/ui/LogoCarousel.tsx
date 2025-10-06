@@ -34,19 +34,17 @@ export function LogoCarousel() {
         setLoading(true);
         setError(null);
         const servicesData = await getServices();
-        
-        // Vérifier que servicesData est bien un tableau
         if (Array.isArray(servicesData)) {
           setServices(servicesData);
         } else {
           console.error('Services data is not an array:', servicesData);
           setError('Invalid services data format');
-          setServices([]); // Fallback vers un tableau vide
+          setServices([]);
         }
       } catch (err) {
         console.error('Error loading services:', err);
         setError('Failed to load services');
-        setServices([]); // Fallback vers un tableau vide
+        setServices([]);
       } finally {
         setLoading(false);
       }
