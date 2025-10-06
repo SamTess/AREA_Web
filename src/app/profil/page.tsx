@@ -73,7 +73,7 @@ export default function ProfilPage() {
       }
     };
     loadUser();
-  }, [form]);
+  }, []);
 
   const handleSave = async () => {
     setLoading(true);
