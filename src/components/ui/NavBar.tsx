@@ -50,6 +50,7 @@ export function NavbarMinimal() {
         }
       } catch (error) {
         setIsConnected(false);
+        console.error("Error fetching user info:", error);
       }
     };
     checkAuthStatus();

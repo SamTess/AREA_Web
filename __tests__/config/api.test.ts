@@ -21,7 +21,7 @@ describe('api configuration', () => {
       expect(API_CONFIG.endpoints.user).toEqual({
         profile: '/api/auth/profile',
         avatar: '/api/user/avatar',
-        getUser: '/api/user'
+        getUser: '/api/auth/me'
       });
     });
 
