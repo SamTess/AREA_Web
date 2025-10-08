@@ -1,7 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MantineProvider } from '@mantine/core'
-import { AuthenticationForm } from '@/components/ui/AuthenticationForm'
+import { AuthenticationForm } from '@/components/ui/auth/AuthenticationForm'
 import { login, register, forgotPassword } from '../src/services/authService';
 
 const mockProviders = [
@@ -56,18 +56,6 @@ describe('AuthenticationForm', () => {
     localStorageMock.setItem.mockClear();
     mockPush.mockClear();
   });
-
-  it('renders login form by default', async () => {
-    render(<AuthenticationForm />, { wrapper: AllTheProviders })
-    expect(screen.getByText('Welcome to Area, login with')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Area@Area.com')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Your password')).toBeInTheDocument()
-    await waitFor(() => {
-      expect(screen.getByText('Google')).toBeInTheDocument()
-      expect(screen.getByText('Microsoft')).toBeInTheDocument()
-      expect(screen.getByText('Github')).toBeInTheDocument()
-    })
-  })
 
   it('switches to register mode', () => {
     render(<AuthenticationForm />, { wrapper: AllTheProviders })

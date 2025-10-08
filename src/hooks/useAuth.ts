@@ -35,7 +35,7 @@ export const useAuth = () => {
       const isAuthenticated = await hasSecureToken();
 
       if (isAuthenticated) {
-        const response = await fetch('/api/user/profile', {
+        const response = await fetch('/api/auth/me', {
           method: 'GET',
           credentials: 'include',
           headers: {
@@ -51,12 +51,20 @@ export const useAuth = () => {
             loading: false,
             error: null
           });
-        } else {
+        } else if (response.status === 401) {
+          console.warn('Authentication failed, user may need to login again');
           setAuthState({
             isAuthenticated: false,
             user: null,
             loading: false,
             error: null
+          });
+        } else {
+          setAuthState({
+            isAuthenticated: false,
+            user: null,
+            loading: false,
+            error: `Authentication check failed: ${response.status}`
           });
         }
       } else {
@@ -84,7 +92,18 @@ export const useAuth = () => {
 
   useEffect(() => {
     checkAuth();
-  }, [checkAuth]);
+    const interval = setInterval(() => {
+      if (authState.isAuthenticated) {
+        hasSecureToken().then((isAuth) => {
+          if (!isAuth && authState.isAuthenticated) {
+            checkAuth();
+          }
+        });
+      }
+    }, 5 * 60 * 1000);
+
+    return () => clearInterval(interval);
+  }, [checkAuth, authState.isAuthenticated]);
 
   return {
     ...authState,

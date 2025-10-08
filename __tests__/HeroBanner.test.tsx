@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
-import { HeroBanner } from '@/components/ui/HeroBanner'
+import { HeroBanner } from '@/components/ui/infoDisplay/HeroBanner'
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return <MantineProvider>{children}</MantineProvider>

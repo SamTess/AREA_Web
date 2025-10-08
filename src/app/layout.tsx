@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import '@mantine/core/styles.css';
+import '@mantine/dates/styles.css';
 import { MantineProvider } from '@mantine/core';
-import { Footer } from '../components/ui/Footer';
-import { NavbarMinimal } from '../components/ui/NavBar';
+import { Footer } from '../components/ui/layout/Footer';
+import { NavbarMinimal } from '../components/ui/layout/NavBar';
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],

@@ -11,9 +11,13 @@ function OAuthCallbackContent() {
   const { refreshAuth } = useAuth();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [message, setMessage] = useState<string>('');
+  const [hasProcessed, setHasProcessed] = useState(false);
 
   useEffect(() => {
     const processCallback = async () => {
+      if (hasProcessed) return;
+      setHasProcessed(true);
+
       const code = searchParams.get('code');
       const error = searchParams.get('error');
       const errorDescription = searchParams.get('error_description');
@@ -41,18 +45,34 @@ function OAuthCallbackContent() {
       try {
         setMessage('Exchanging authorization code...');
 
-        const response = await axios.post('/api/oauth/github/exchange', {
-          code: code
-        });
+        const isLinkMode = localStorage.getItem('oauth_link_mode') === 'true';
+
+        let response;
+        if (isLinkMode) {
+          response = await axios.post('/api/oauth-link/github/exchange', {
+            code: code
+          });
+        } else {
+          response = await axios.post('/api/oauth/github/exchange', {
+            code: code
+          });
+        }
+
+        console.log('OAuth exchange response:', response);
 
         if (response.status === 200) {
           setStatus('success');
-          setMessage('Authentication successful! Redirecting...');
+          localStorage.removeItem('oauth_link_mode');
+          const returnUrl = localStorage.getItem('oauth_return_url') || '/';
+          localStorage.removeItem('oauth_return_url');
 
-          await refreshAuth();
-
+          if (isLinkMode) {
+            setMessage('Account linked successfully! Redirecting...');
+          } else {
+            setMessage('Authentication successful! Redirecting...');
+          }
           setTimeout(() => {
-            router.push('/');
+            router.push(returnUrl);
           }, 2000);
         }
       } catch (error: unknown) {
@@ -61,8 +81,21 @@ function OAuthCallbackContent() {
 
         let errorMessage = 'Authentication failed';
         if (error && typeof error === 'object' && 'response' in error) {
-          const axiosError = error as { response: { status: number; data?: { message?: string } } };
-          if (axiosError.response?.status === 401) {
+          const axiosError = error as { response: { status: number; data?: { message?: string; error?: string; suggestion?: string } } };
+          console.error('OAuth error details:', axiosError.response);
+          if (axiosError.response?.status === 409) {
+            const data = axiosError.response.data;
+            errorMessage = data?.message || 'This account is already linked to another user';
+            if (data?.suggestion) {
+              errorMessage += '. ' + data.suggestion;
+            }
+          } else if (axiosError.response?.status === 400) {
+            const data = axiosError.response.data;
+            errorMessage = data?.message || 'Invalid request';
+            if (data?.suggestion) {
+              errorMessage += '. ' + data.suggestion;
+            }
+          } else if (axiosError.response?.status === 401) {
             errorMessage = 'Invalid or expired authorization code';
           } else if (axiosError.response?.status === 500) {
             errorMessage = 'Server error during authentication';
@@ -73,14 +106,20 @@ function OAuthCallbackContent() {
 
         setMessage(errorMessage);
 
-        setTimeout(() => {
-          router.push('/login?error=' + encodeURIComponent(errorMessage));
-        }, 3000);
+        const isLinkMode = localStorage.getItem('oauth_link_mode') === 'true';
+        localStorage.removeItem('oauth_link_mode');
+        if (isLinkMode) {
+          setTimeout(() => {
+            const returnUrl = localStorage.getItem('oauth_return_url') || '/';
+            localStorage.removeItem('oauth_return_url');
+            router.push(returnUrl);
+          }, 5000);
+        }
       }
     };
 
     processCallback();
-  }, [router, searchParams, refreshAuth]);
+  }, [router, searchParams, refreshAuth, hasProcessed]);
 
   return (
     <Container size="sm" py="xl">

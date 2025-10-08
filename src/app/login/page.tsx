@@ -1,6 +1,6 @@
 'use client';
 
-import { AuthenticationForm } from '@/components/ui/AuthenticationForm';
+import { AuthenticationForm } from '@/components/ui/auth/AuthenticationForm';
 
 export default function LoginPage() {
   return (

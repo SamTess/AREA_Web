@@ -1,0 +1,262 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  background-color: #f8f9fa;
+  position: relative;
+}
+
+.toolbar {
+  padding: 16px;
+  background-color: white;
+  border-bottom: 1px solid #e9ecef;
+  flex-shrink: 0;
+  z-index: 10;
+  position: relative;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.board {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background-color: #f8f9fa;
+  background-image: 
+    radial-gradient(circle, #dee2e6 1px, transparent 1px);
+  background-size: 20px 20px;
+  flex: 1;
+  overflow: hidden;
+  min-height: 600px;
+}
+
+.transformWrapper {
+  width: 100%;
+  height: 100%;
+}
+
+.transformComponent {
+  width: 100%;
+  height: 100%;
+}
+
+.boardInner {
+  position: relative;
+  width: 3000px;
+  height: 3000px;
+  background-color: #f8f9fa;
+  background-image: 
+    radial-gradient(circle, #dee2e6 1px, transparent 1px);
+  background-size: 20px 20px;
+}
+
+.connectionsOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.connections {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.connections circle,
+.connections text {
+  pointer-events: all;
+  cursor: pointer;
+}
+
+.connections .connection-group {
+  animation: connectionAppear 0.5s ease-out;
+}
+
+@keyframes connectionAppear {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.connections g:hover path {
+  stroke-width: 4 !important;
+  filter: drop-shadow(0 4px 8px rgba(0,0,0,0.2)) !important;
+}
+
+.connections g:hover circle {
+  transform: scale(1.2) !important;
+  fill: #FA5252 !important;
+}
+
+.connections g:hover text {
+  font-size: 16px !important;
+}
+
+.connections .connection-label {
+  pointer-events: none;
+  transition: all 0.2s ease;
+}
+
+@keyframes connectionRemove {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+.connections .removing {
+  animation: connectionRemove 0.3s ease-in forwards;
+}
+
+.removeButton {
+  cursor: pointer;
+  pointer-events: all;
+}
+
+.removeButtonText {
+  cursor: pointer;
+  user-select: none;
+  pointer-events: all;
+}
+
+.serviceWrapper {
+  position: absolute;
+  transition: none;
+  z-index: 3;
+  transform-origin: center;
+  user-select: none;
+}
+
+.serviceWrapper:hover {
+  transform: scale(1.02);
+  z-index: 4;
+}
+
+.serviceWrapper.dragging {
+  z-index: 6;
+  transform: scale(1.05);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  transition: none;
+}
+
+.serviceWrapper.linking {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.serviceWrapper.linking:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(77, 171, 247, 0.3);
+}
+
+.serviceWrapper.linkingSource {
+  border: 3px solid #4DABF7;
+  border-radius: 12px;
+  background-color: rgba(77, 171, 247, 0.1);
+  box-shadow: 0 0 20px rgba(77, 171, 247, 0.4);
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 20px rgba(77, 171, 247, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 30px rgba(77, 171, 247, 0.6);
+  }
+  100% {
+    box-shadow: 0 0 20px rgba(77, 171, 247, 0.4);
+  }
+}
+
+.linkingModeActive {
+  background-color: rgba(77, 171, 247, 0.05);
+}
+
+.linkingModeActive .serviceWrapper {
+  border: 2px dashed rgba(77, 171, 247, 0.3);
+}
+
+.linkingModeActive .serviceWrapper:hover {
+  border: 2px solid #4DABF7;
+  background-color: rgba(77, 171, 247, 0.1);
+}
+
+.serviceWrapper.selected {
+  transform: scale(1.05);
+  z-index: 10;
+  box-shadow: 0 0 0 3px #4dabf7;
+  border-radius: 8px;
+}
+
+.serviceWrapper.linkingMode {
+  cursor: pointer !important;
+}
+
+.serviceWrapper.linkingMode:hover {
+  transform: scale(1.08);
+  box-shadow: 0 0 0 2px #74c0fc;
+  border-radius: 8px;
+}
+
+.serviceWrapper.linkingMode::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  right: -4px;
+  bottom: -4px;
+  border: 2px dashed #4dabf7;
+  border-radius: 8px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.4;
+  }
+}
+
+.serviceWrapper.dragging {
+  z-index: 100;
+  transform: scale(1.05);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.serviceWrapper.notConfigured {
+  opacity: 0.5;
+  cursor: not-allowed !important;
+  filter: grayscale(50%);
+}
+
+.serviceWrapper.notConfigured:hover {
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.serviceWrapper.notConfigured::after {
+  display: none !important;
+}

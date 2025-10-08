@@ -1,0 +1,720 @@
+import { useState, useEffect, useCallback } from 'react';
+import { DragEndEvent } from '@dnd-kit/core';
+import { arrayMove } from '@dnd-kit/sortable';
+import { getAreaById, updateArea, createAreaWithActions, CreateAreaPayload, getServices, runAreaById, getActionDefinitionById } from '../../../services/areasService';
+import { ServiceState, ServiceData, BackendArea, BackendService, ConnectionData } from '../../../types';
+
+let servicesCache: BackendService[] | null = null;
+
+const transformBackendDataToServiceData = async (area: BackendArea): Promise<ServiceData[]> => {
+  const serviceData: ServiceData[] = [];
+  if (!servicesCache) {
+    try {
+      servicesCache = await getServices();
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      servicesCache = [];
+    }
+  }
+  const findServiceInfoByActionDefinitionId = async (actionDefinitionId: string) => {
+    try {
+      const actionDefinition = await getActionDefinitionById(actionDefinitionId);
+
+      if (actionDefinition && actionDefinition.serviceKey) {
+        const service = servicesCache?.find(s => s.key === actionDefinition.serviceKey);
+
+        if (service) {
+          return {
+            logo: service.iconLightUrl || service.iconDarkUrl || '/file.svg',
+            serviceName: service.name,
+            serviceKey: service.key,
+            serviceId: service.id,
+            actionDefinition
+          };
+        }
+
+        return {
+          logo: '/file.svg',
+          serviceName: actionDefinition.serviceName,
+          serviceKey: actionDefinition.serviceKey,
+          serviceId: actionDefinition.serviceId,
+          actionDefinition
+        };
+      }
+
+      if (!servicesCache || servicesCache.length === 0) {
+        console.warn('No services available for actionDefinitionId:', actionDefinitionId);
+        return {
+          logo: '/file.svg',
+          serviceName: 'Unknown Service',
+          serviceKey: 'unknown',
+          serviceId: 'unknown',
+          actionDefinition: null
+        };
+      }
+
+      const defaultService = servicesCache.find(s => s.key === 'github') || servicesCache[0];
+
+      if (defaultService) {
+        return {
+          logo: defaultService.iconLightUrl || defaultService.iconDarkUrl || '/file.svg',
+          serviceName: defaultService.name,
+          serviceKey: defaultService.key,
+          serviceId: defaultService.id,
+          actionDefinition: null
+        };
+      }
+
+      return {
+        logo: '/file.svg',
+        serviceName: 'Unknown Service',
+        serviceKey: 'unknown',
+        serviceId: 'unknown',
+        actionDefinition: null
+      };
+    } catch (error) {
+      console.error('Error finding service info for actionDefinitionId:', actionDefinitionId, error);
+
+      if (servicesCache && servicesCache.length > 0) {
+        const defaultService = servicesCache.find(s => s.key === 'github') || servicesCache[0];
+        if (defaultService) {
+          return {
+            logo: defaultService.iconLightUrl || defaultService.iconDarkUrl || '/file.svg',
+            serviceName: defaultService.name,
+            serviceKey: defaultService.key,
+            serviceId: defaultService.id,
+            actionDefinition: null
+          };
+        }
+      }
+
+      return {
+        logo: '/file.svg',
+        serviceName: 'Unknown Service',
+        serviceKey: 'unknown',
+        serviceId: 'unknown',
+        actionDefinition: null
+      };
+    }
+  };
+
+  const actionsArray = Array.isArray(area.actions) ? area.actions : [];
+
+  for (const [, action] of actionsArray.entries()) {
+
+
+    let actionDefinitionId = '';
+    let actionName = 'Unnamed Action';
+    let actionParameters = {};
+    let actionId = '';
+
+    if ('actionDefinitionId' in action && typeof action.actionDefinitionId === 'string') {
+      actionDefinitionId = action.actionDefinitionId;
+      actionName = action.name || 'Unnamed Action';
+      actionParameters = action.parameters || {};
+      actionId = action.id || `action-${Date.now()}-${Math.random()}`;
+    } else {
+      const rawAction = action as unknown as Record<string, unknown>;
+      actionDefinitionId = String(rawAction.actionDefinitionId || '');
+      actionName = String(rawAction.name || 'Unnamed Action');
+      actionParameters = (rawAction.parameters as Record<string, unknown>) || {};
+      actionId = String(rawAction.id || `action-${Date.now()}-${Math.random()}`);
+    }
+
+    if (actionDefinitionId) {
+      const serviceInfo = await findServiceInfoByActionDefinitionId(actionDefinitionId);
+
+      serviceData.push({
+        id: actionId,
+        logo: serviceInfo.logo,
+        serviceName: serviceInfo.serviceName,
+        serviceKey: serviceInfo.serviceKey,
+        event: actionName,
+        cardName: actionName,
+        state: ServiceState.Success,
+        actionId: 0,
+        serviceId: serviceInfo.serviceId,
+        actionDefinitionId: actionDefinitionId,
+        fields: actionParameters
+      });
+    } else {
+      console.warn(`DEBUG - No actionDefinitionId found for action:`, action);
+    }
+  }
+
+  const reactionsArray = Array.isArray(area.reactions) ? area.reactions : [];
+
+  for (const [, reaction] of reactionsArray.entries()) {
+    let actionDefinitionId = '';
+    let reactionName = 'Unnamed Reaction';
+    let reactionParameters = {};
+    let reactionId = '';
+
+    if ('actionDefinitionId' in reaction && typeof reaction.actionDefinitionId === 'string') {
+      actionDefinitionId = reaction.actionDefinitionId;
+      reactionName = reaction.name || 'Unnamed Reaction';
+      reactionParameters = reaction.parameters || {};
+      reactionId = reaction.id || `reaction-${Date.now()}-${Math.random()}`;
+    } else {
+      const rawReaction = reaction as unknown as Record<string, unknown>;
+      actionDefinitionId = String(rawReaction.actionDefinitionId || '');
+      reactionName = String(rawReaction.name || 'Unnamed Reaction');
+      reactionParameters = (rawReaction.parameters as Record<string, unknown>) || {};
+      reactionId = String(rawReaction.id || `reaction-${Date.now()}-${Math.random()}`);
+    }
+
+    if (actionDefinitionId) {
+      const serviceInfo = await findServiceInfoByActionDefinitionId(actionDefinitionId);
+
+      serviceData.push({
+        id: reactionId,
+        logo: serviceInfo.logo,
+        serviceName: serviceInfo.serviceName,
+        serviceKey: serviceInfo.serviceKey,
+        event: reactionName,
+        cardName: reactionName,
+        state: ServiceState.Success,
+        actionId: 0,
+        serviceId: serviceInfo.serviceId,
+        actionDefinitionId: actionDefinitionId,
+        fields: reactionParameters
+      });
+    } else {
+      console.warn(`DEBUG - No actionDefinitionId found for reaction:`, reaction);
+    }
+  }
+
+  return serviceData;
+};
+
+const transformServiceDataToPayload = async (services: ServiceData[], areaName: string, areaDescription: string, connections: ConnectionData[] = []): Promise<CreateAreaPayload> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const actions: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const reactions: any[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const links: any[] = [];
+
+  console.log('Starting transformation with services:', services);
+
+  services.forEach((service, index) => {
+    console.log(`Processing service ${index}:`, {
+      serviceName: service.serviceName,
+      actionDefinitionId: service.actionDefinitionId,
+      event: service.event
+    });
+
+    if (index === 0) {
+      actions.push({
+        actionDefinitionId: service.actionDefinitionId || '',
+        name: service.event || service.cardName || 'Unnamed Action',
+        description: `Action for ${service.serviceName}`,
+        parameters: service.fields || {},
+        activationConfig: service.activationConfig ? {
+          type: service.activationConfig.type,
+          ...(service.activationConfig.cron_expression && { cron_expression: service.activationConfig.cron_expression }),
+          ...(service.activationConfig.poll_interval && {
+            poll_interval: service.activationConfig.poll_interval,
+            interval_seconds: service.activationConfig.poll_interval
+          }),
+          ...(service.activationConfig.webhook_url && { webhook_url: service.activationConfig.webhook_url }),
+          ...(service.activationConfig.secret_token && { secret_token: service.activationConfig.secret_token }),
+        } : {
+          type: 'manual'
+        }
+      });
+    } else {
+      const reactionActivationConfig = service.activationConfig || {
+        type: 'cron',
+        cron_expression: '0 */30 * * * *'
+      };
+
+      reactions.push({
+        actionDefinitionId: service.actionDefinitionId || '',
+        name: service.event || service.cardName || 'Unnamed Reaction',
+        description: `Reaction for ${service.serviceName}`,
+        parameters: service.fields || {},
+        mapping: {},
+        condition: {},
+        order: index - 1,
+        activationConfig: reactionActivationConfig
+      });
+    }
+  });
+
+  connections.forEach(connection => {
+    const sourceService = services.find(s => s.id === connection.sourceId);
+    const targetService = services.find(s => s.id === connection.targetId);
+
+    if (sourceService && targetService) {
+      links.push({
+        sourceActionDefinitionId: sourceService.actionDefinitionId,
+        targetActionDefinitionId: targetService.actionDefinitionId,
+        mapping: connection.linkData?.mapping || {},
+        condition: connection.linkData?.condition || {},
+        order: connection.linkData?.order || 0
+      });
+    }
+  });
+
+  return {
+    name: areaName || 'Unnamed Area',
+    description: areaDescription,
+    actions,
+    reactions,
+    links
+  };
+};
+
+export function useAreaEditor(areaId?: string) {
+  const isNewArea = areaId === undefined;
+
+  const [servicesState, setServicesState] = useState<ServiceData[]>([]);
+  const [selectedService, setSelectedService] = useState<ServiceData | null>(null);
+  const [modalOpened, setModalOpened] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+  const [areaName, setAreaName] = useState('');
+  const [areaDescription, setAreaDescription] = useState('');
+
+  const [connections, setConnections] = useState<ConnectionData[]>([]);
+  const [layoutMode, setLayoutMode] = useState<'linear' | 'free'>('linear');
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (areaId !== undefined) {
+        try {
+          console.log('Loading area with ID:', areaId);
+          const area = await getAreaById(areaId);
+          console.log('Loaded area data:', area);
+
+          if (area) {
+            setAreaName(area.name);
+            setAreaDescription(area.description);
+
+            console.log('Raw actions from backend:', area.actions);
+            console.log('Raw reactions from backend:', area.reactions);
+
+            const transformedServices = await transformBackendDataToServiceData(area);
+            console.log('Transformed services:', transformedServices);
+            setServicesState(transformedServices);
+          }
+        } catch (error) {
+          console.error('Error loading area data:', error);
+        }
+      }
+    };
+    loadData();
+  }, [areaId]);
+
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (!over || active.id === over.id) return;
+
+    setServicesState((services) => {
+      const oldIndex = services.findIndex((service) => service.id === active.id);
+      const newIndex = services.findIndex((service) => service.id === over.id);
+      return arrayMove(services, oldIndex, newIndex);
+    });
+  };
+
+  const handleSave = async () => {
+    try {
+      if (!areaName || areaName.trim() === '') {
+        console.error('Area name is required');
+        // TODO: Show error notification to user
+        return;
+      }
+
+      if (servicesState.length === 0) {
+        console.error('At least one service is required');
+        // TODO: Show error notification to user
+        return;
+      }
+
+      if (isNewArea) {
+        console.log('Services state before transform:', servicesState);
+        const payload = await transformServiceDataToPayload(servicesState, areaName, areaDescription, connections);
+        console.log('Creating area with payload:', payload);
+
+        const newArea = await createAreaWithActions(payload);
+        console.log('New area created:', newArea);
+        // TODO: navigation vers le home ou vers l'area créée
+      } else {
+        await updateArea(areaId!, {
+          name: areaName,
+          description: areaDescription,
+          services: servicesState.map(s => s.serviceId)
+        });
+        console.log('Area updated successfully');
+        // TODO: Afficher une notification de succès
+      }
+    } catch (error) {
+      console.error('Error saving area:', error);
+      // TODO: Afficher une notification d'erreur à l'utilisateur
+    }
+  };
+
+  const handleRun = async () => {
+    if (!areaId) {
+      console.warn('Cannot run area: no area ID');
+      return;
+    }
+
+    try {
+      await runAreaById(areaId);
+      console.log('Area executed successfully');
+      // TODO: Afficher une notification de succès
+    } catch (error) {
+      console.error('Error running area:', error);
+      // TODO: Afficher une notification d'erreur
+    }
+  };
+
+  const addNewServiceBelow = () => {
+    const newId = `new-${Date.now()}`;
+    const newService: ServiceData = {
+      id: newId,
+      logo: '',
+      serviceName: '',
+      event: '',
+      cardName: '',
+      state: ServiceState.Configuration,
+      actionId: 0,
+      serviceId: '',
+    };
+    setServicesState(prev => [...prev, newService]);
+  };
+
+  const removeService = (id: string) => {
+    setServicesState((prev) => prev.filter((s) => s.id !== id));
+  };
+
+  const editService = (service: ServiceData) => {
+    setSelectedService(service);
+    setModalOpened(true);
+  };
+
+  const updateService = (updatedService: ServiceData) => {
+    setServicesState(prev => prev.map(s => {
+      if (s.id === updatedService.id) {
+        const preservedActionDefinitionId = updatedService.actionDefinitionId || s.actionDefinitionId;
+        return {
+          ...updatedService,
+          actionDefinitionId: preservedActionDefinitionId
+        };
+      }
+      return s;
+    }));
+
+    if (selectedService && selectedService.id === updatedService.id) {
+      const preservedActionDefinitionId = updatedService.actionDefinitionId || selectedService.actionDefinitionId;
+      setSelectedService({
+        ...updatedService,
+        actionDefinitionId: preservedActionDefinitionId
+      });
+    }
+  };
+
+  const moveServiceUp = (id: string) => {
+    setServicesState(prev => {
+      const index = prev.findIndex(service => service.id === id);
+      if (index <= 0)
+        return prev;
+
+      return arrayMove(prev, index, index - 1);
+    });
+  };
+
+  const moveServiceDown = (id: string) => {
+    setServicesState(prev => {
+      const index = prev.findIndex(service => service.id === id);
+      if (index < 0 || index >= prev.length - 1)
+        return prev;
+
+      return arrayMove(prev, index, index + 1);
+    });
+  };
+
+  const duplicateService = (id: string) => {
+    setServicesState(prev => {
+      const serviceToDuplicate = prev.find(service => service.id === id);
+      if (!serviceToDuplicate)
+        return prev;
+      const newId = `new-${Date.now()}`;
+      const duplicatedService = {
+        ...serviceToDuplicate,
+        id: newId,
+        position: layoutMode === 'free' ?
+          { x: (serviceToDuplicate.position?.x || 0) + 50, y: (serviceToDuplicate.position?.y || 0) + 50 } :
+          undefined
+      };
+      const index = prev.findIndex(service => service.id === id);
+      const newServices = [...prev];
+      newServices.splice(index + 1, 0, duplicatedService);
+      return newServices;
+    });
+  };
+
+  const createConnection = (connection: ConnectionData) => {
+    setConnections(prev => [...prev, connection]);
+
+    applyLinkEffect(connection);
+  };
+
+  const applyLinkEffect = (connection: ConnectionData) => {
+    const sourceService = servicesState.find(s => s.id === connection.sourceId);
+    const targetService = servicesState.find(s => s.id === connection.targetId);
+
+    if (!sourceService || !targetService) return;
+
+    const { type } = connection.linkData;
+
+    switch (type) {
+      case 'chain':
+        updateService({
+          ...targetService,
+          activationConfig: {
+            type: 'chain',
+          },
+          fields: {
+            ...targetService.fields,
+            _chainSource: sourceService.serviceName,
+            _chainSourceId: sourceService.id,
+            _chainMapping: connection.linkData.mapping || {},
+          }
+        });
+
+        updateService({
+          ...sourceService,
+          fields: {
+            ...sourceService.fields,
+            _hasChainTarget: true,
+            _chainTargets: [...(sourceService.fields?._chainTargets as string[] || []), targetService.id]
+          }
+        });
+        break;
+
+      case 'conditional':
+        updateService({
+          ...targetService,
+          activationConfig: {
+            type: 'webhook',
+            events: ['conditional_trigger']
+          },
+          fields: {
+            ...targetService.fields,
+            _conditionalSource: sourceService.serviceName,
+            _conditionalSourceId: sourceService.id,
+            _conditions: connection.linkData.condition || {},
+          }
+        });
+        break;
+
+      case 'parallel':
+        updateService({
+          ...targetService,
+          fields: {
+            ...targetService.fields,
+            _parallelWith: sourceService.serviceName,
+            _parallelSourceId: sourceService.id,
+            _synchronizedExecution: true
+          }
+        });
+
+        updateService({
+          ...sourceService,
+          fields: {
+            ...sourceService.fields,
+            _parallelWith: targetService.serviceName,
+            _parallelTargetId: targetService.id,
+            _synchronizedExecution: true
+          }
+        });
+        break;
+
+      case 'sequential':
+        updateService({
+          ...targetService,
+          activationConfig: {
+            type: 'chain',
+          },
+          fields: {
+            ...targetService.fields,
+            _sequentialSource: sourceService.serviceName,
+            _sequentialSourceId: sourceService.id,
+            _waitForCompletion: true,
+            _dataMapping: connection.linkData.mapping || {},
+          }
+        });
+        break;
+
+      default:
+        updateService({
+          ...targetService,
+          activationConfig: {
+            type: 'chain',
+          }
+        });
+        break;
+    }
+  };
+
+  const removeConnection = (connectionId: string) => {
+    const connection = connections.find(c => c.id === connectionId);
+
+    setConnections(prev => prev.filter(c => c.id !== connectionId));
+
+    if (connection) {
+      const targetService = servicesState.find(s => s.id === connection.targetId);
+      const sourceService = servicesState.find(s => s.id === connection.sourceId);
+
+      if (targetService) {
+        const hasOtherConnections = connections.some(c =>
+          c.id !== connectionId && c.targetId === connection.targetId
+        );
+
+        if (!hasOtherConnections) {
+          const cleanFields = { ...targetService.fields };
+
+          delete cleanFields._chainSource;
+          delete cleanFields._chainSourceId;
+          delete cleanFields._chainMapping;
+          delete cleanFields._conditionalSource;
+          delete cleanFields._conditionalSourceId;
+          delete cleanFields._conditions;
+          delete cleanFields._parallelWith;
+          delete cleanFields._parallelSourceId;
+          delete cleanFields._synchronizedExecution;
+          delete cleanFields._sequentialSource;
+          delete cleanFields._sequentialSourceId;
+          delete cleanFields._waitForCompletion;
+          delete cleanFields._dataMapping;
+
+          updateService({
+            ...targetService,
+            activationConfig: {
+              type: 'cron',
+              cron_expression: '0 */30 * * * *' // 30 minutes default
+            },
+            fields: cleanFields
+          });
+        }
+      }
+
+      if (sourceService && connection.linkData.type === 'chain') {
+        const cleanSourceFields = { ...sourceService.fields };
+        const chainTargets = (cleanSourceFields._chainTargets as string[] || []).filter(
+          targetId => targetId !== connection.targetId
+        );
+
+        if (chainTargets.length === 0) {
+          delete cleanSourceFields._hasChainTarget;
+          delete cleanSourceFields._chainTargets;
+        } else {
+          cleanSourceFields._chainTargets = chainTargets;
+        }
+
+        updateService({
+          ...sourceService,
+          fields: cleanSourceFields
+        });
+      }
+
+      if (sourceService && connection.linkData.type === 'parallel') {
+        const cleanSourceFields = { ...sourceService.fields };
+        delete cleanSourceFields._parallelWith;
+        delete cleanSourceFields._parallelTargetId;
+        delete cleanSourceFields._synchronizedExecution;
+
+        updateService({
+          ...sourceService,
+          fields: cleanSourceFields
+        });
+      }
+    }
+  };
+
+  const updateConnection = (connection: ConnectionData) => {
+    setConnections(prev => prev.map(c => c.id === connection.id ? connection : c));
+  };
+
+  const createLinearConnections = useCallback(() => {
+    if (layoutMode !== 'linear' || servicesState.length < 2) return;
+
+    const newConnections: ConnectionData[] = [];
+
+    for (let i = 0; i < servicesState.length - 1; i++) {
+      const sourceService = servicesState[i];
+      const targetService = servicesState[i + 1];
+
+      newConnections.push({
+        id: `linear-link-${sourceService.id}-${targetService.id}`,
+        sourceId: sourceService.id,
+        targetId: targetService.id,
+        linkData: {
+          type: 'chain',
+          order: i,
+          mapping: {},
+          condition: {}
+        }
+      });
+    }
+
+    setConnections(newConnections);
+  }, [servicesState, layoutMode]);
+
+  useEffect(() => {
+    if (layoutMode === 'linear') {
+      createLinearConnections();
+    }
+  }, [servicesState, layoutMode, createLinearConnections]);
+
+  const toggleLayoutMode = () => {
+    setLayoutMode(prev => {
+      const newMode = prev === 'linear' ? 'free' : 'linear';
+
+      if (newMode === 'free') {
+        setServicesState(prev => prev.map((service, index) => ({
+          ...service,
+          position: service.position || {
+            x: 100 + (index % 3) * 200,
+            y: 100 + Math.floor(index / 3) * 150
+          }
+        })));
+      } else {
+        createLinearConnections();
+      }
+
+      return newMode;
+    });
+  };
+
+  return {
+    servicesState,
+    selectedService,
+    modalOpened,
+    setModalOpened,
+    isDragging,
+    setIsDragging,
+    areaName,
+    setAreaName,
+    areaDescription,
+    setAreaDescription,
+    handleDragEnd,
+    handleSave,
+    handleRun,
+    addNewServiceBelow,
+    removeService,
+    editService,
+    updateService,
+    moveServiceUp,
+    moveServiceDown,
+    duplicateService,
+    connections,
+    createConnection,
+    removeConnection,
+    updateConnection,
+    layoutMode,
+    toggleLayoutMode,
+  };
+}

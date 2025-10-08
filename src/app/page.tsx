@@ -1,6 +1,6 @@
-import { HeroBanner } from '@/components/ui/HeroBanner';
-import { LogoCarousel } from '@/components/ui/LogoCarousel';
-import { FeaturesCards } from '@/components/ui/FeatureCard';
+import { HeroBanner } from '@/components/ui/infoDisplay/HeroBanner';
+import { LogoCarousel } from '@/components/ui/infoDisplay/LogoCarousel';
+import { FeaturesCards } from '@/components/ui/infoDisplay/FeatureCard';
 export default function Home() {
   return (
     <>

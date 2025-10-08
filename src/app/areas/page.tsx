@@ -1,36 +1,75 @@
 'use client';
 import React, { useState, useEffect, useMemo } from 'react';
-import AreaListCard from '../../components/ui/AreaListCard';
-import ServiceFilter from '../../components/ui/ServiceFilter';
+import AreaListCard from '../../components/ui/areaList/AreaListCard';
+import ServiceFilter from '../../components/ui/areaList/ServiceFilter';
 import { IconPlus } from '@tabler/icons-react';
 import { Title, TextInput, Select, Button, Group, Container, Stack, Divider, Pagination, Text } from '@mantine/core';
 import { useRouter } from 'next/navigation';
-import { getAreas, getServices } from '../../services/areasService';
-import { Area, Service } from '../../types';
+import { getAreas, getServices, deleteAreabyId, runAreaById, getAreasBackend } from '../../services/areasService';
+import { Area, Service, BackendArea } from '../../types';
+
+const isBackendArea = (area: Area | BackendArea): area is BackendArea => {
+    return 'actions' in area && 'reactions' in area;
+};
+
+const getAreaStatus = (area: Area | BackendArea): string => {
+    if (isBackendArea(area)) {
+        return area.enabled ? 'active' : 'inactive';
+    }
+    return area.status;
+};
+
+const getAreaServices = (area: Area | BackendArea): string[] => {
+    if (isBackendArea(area)) {
+        return [];
+    }
+    return area.services;
+};
 
 export default function AreaListPage() {
     const [searchName, setSearchName] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
-    const [selectedServices, setSelectedServices] = useState<number[]>([]);
+    const [selectedServices, setSelectedServices] = useState<string[]>([]);
     const [page, setPage] = useState(1);
     const router = useRouter();
-    const [areas, setAreas] = useState<Area[]>([]);
+    const [areas, setAreas] = useState<(Area | BackendArea)[]>([]);
     const [services, setServices] = useState<Service[]>([]);
 
     useEffect(() => {
         const loadData = async () => {
-            const [areasData, servicesData] = await Promise.all([getAreas(), getServices()]);
-            setAreas(areasData);
-            setServices(servicesData);
+            try {
+                const [areasData, servicesData] = await Promise.all([getAreasBackend(), getServices()]);
+                setAreas(areasData);
+                const transformedServices = servicesData.map(service => ({
+                    id: service.id,
+                    name: service.name,
+                    logo: service.iconLightUrl || service.iconDarkUrl || '/file.svg'
+                }));
+                setServices(transformedServices);
+            } catch (error) {
+                console.log('Backend mode failed, falling back to legacy mode:', error);
+                try {
+                    const areasData = await getAreas();
+                    setAreas(areasData);
+                    setServices([
+                        { id: '1', name: 'GitHub', logo: '/github.svg' },
+                        { id: '2', name: 'Gmail', logo: '/gmail.svg' },
+                        { id: '3', name: 'Slack', logo: '/slack.svg' }
+                    ]);
+                } catch (legacyError) {
+                    console.error('Both API modes failed:', legacyError);
+                }
+            }
         };
         loadData();
     }, []);
 
     const filteredAreas = useMemo(() => {
-        return areas.filter(area => {
+        const areasArray = Array.isArray(areas) ? areas : [];
+        return areasArray.filter(area => {
             if (searchName && !area.name.toLowerCase().includes(searchName.toLowerCase())) return false;
-            if (statusFilter && area.status !== statusFilter) return false;
-            if (selectedServices.length > 0 && !selectedServices.some(s => area.services.includes(s))) return false;
+            if (statusFilter && getAreaStatus(area) !== statusFilter) return false;
+            if (selectedServices.length > 0 && !selectedServices.some(s => getAreaServices(area).includes(s))) return false;
             return true;
         });
     }, [searchName, statusFilter, selectedServices, areas]);
@@ -52,6 +91,20 @@ export default function AreaListPage() {
         setStatusFilter('');
         setSelectedServices([]);
         setPage(1);
+    };
+
+    const handleDelete = (id: string | number) => {
+        const areaId = typeof id === 'string' ? id : id.toString();
+        deleteAreabyId(areaId).then(() => {
+            const areasArray = Array.isArray(areas) ? areas : [];
+            const updatedAreas = areasArray.filter(area => area.id !== areaId);
+            setAreas(updatedAreas);
+        });
+    };
+
+    const handleRun = (id: string | number) => {
+        const areaId = typeof id === 'string' ? id : id.toString();
+        runAreaById(areaId);
     };
 
     return (
@@ -89,7 +142,7 @@ export default function AreaListPage() {
                     </div>
                     <Button onClick={clearFilters} variant="outline">Clear Filters</Button>
                 </Group>
-                <AreaListCard areas={paginatedAreas} services={services} />
+                <AreaListCard areas={paginatedAreas} services={services} onDelete={handleDelete} onRun={handleRun} />
                 {filteredAreas.length === 0 && (
                     <Text ta="center" c="dimmed">No areas found.</Text>
                 )}

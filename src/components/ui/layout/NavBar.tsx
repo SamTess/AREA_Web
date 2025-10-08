@@ -10,10 +10,10 @@ import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core';
 import Image from 'next/image';
 
 import { useRouter } from 'next/navigation';
-import { UserMenu } from './UserMenu';
+import { UserMenu } from '../user/UserMenu';
 import classes from './NavBarMinimal.module.css';
-import { NavbarLinkProps, UserContent } from '../../types';
-import { getUserInfo } from '../../services/userService';
+import { NavbarLinkProps, UserContent } from '../../../types';
+import { getUserInfo } from '../../../services/userService';
 
 
 function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
@@ -70,7 +70,7 @@ export function NavbarMinimal() {
   ));
 
   return (
-    <nav className={classes.navbar}>
+    <nav className={classes.navbar} style={{ backgroundColor: 'var(--mantine-color-white)', width: '78px' }}> {/* la couleurs / le style a mettre ailleurs */}
       <Center>
         <Image src="/A1.png" alt="Logo" width={40} height={40} />
       </Center>

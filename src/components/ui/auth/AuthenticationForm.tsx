@@ -19,9 +19,9 @@ import { useForm } from '@mantine/form';
 import { upperFirst } from '@mantine/hooks';
 import { AxiosError } from 'axios';
 import { PasswordStrength } from './PasswordStrength';
-import { login, register, forgotPassword } from '../../services/authService';
-import { getOAuthProviders, initiateOAuth } from '../../services/oauthService';
-import { FormValues, OAuthProvider } from '../../types';
+import { login, register, forgotPassword } from '../../../services/authService';
+import { getOAuthProviders, initiateOAuth } from '../../../services/oauthService';
+import { FormValues, OAuthProvider } from '../../../types';
 
 export function AuthenticationForm(props: PaperProps) {
   const [type, setType] = useState<'login' | 'register' | 'forgotPassword'>('login');
@@ -94,10 +94,8 @@ export function AuthenticationForm(props: PaperProps) {
     setSuccess(null);
   };
 
-  const handleOAuthClick = (provider: OAuthProvider) => {
-    const providerKey = provider.providerKey || provider.label.toLowerCase();
-    const userAuthUrl = provider.userAuthUrl;
-    initiateOAuth(providerKey, userAuthUrl);
+  const handleOAuthClick = (providerKey: string) => {
+    initiateOAuth(providerKey);
   };
 
   const getErrorMessage = (error: unknown, type: 'login' | 'register' | 'forgotPassword'): string => {
@@ -241,12 +239,12 @@ export function AuthenticationForm(props: PaperProps) {
                 {data.map((item) => (
               <Button
                 variant="default"
-                key={item.label}
+                key={item.providerKey}
                 radius="xl"
-                leftSection={<Image src={item.iconPath} alt={item.label} width={20} height={20} />}
-                onClick={() => handleOAuthClick(item)}
+                leftSection={<Image src={item.providerLogoUrl} alt={item.providerLabel} width={20} height={20} />}
+                onClick={() => handleOAuthClick(item.providerKey)}
               >
-                {item.label}
+                {item.providerLabel}
               </Button>
                 ))}
             </Stack>

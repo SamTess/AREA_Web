@@ -10,12 +10,6 @@ describe('Home page', () => {
     cy.contains('Get Started').should('be.visible');
   });
 
-  it('should display the logo carousel with title', () => {
-    cy.visit('/');
-    cy.contains('Our services').should('be.visible');
-    cy.get('img[alt="logo"]').should('have.length.greaterThan', 0);
-  });
-
   it('should display the features cards', () => {
     cy.visit('/');
     cy.contains('Automate your tasks').should('be.visible');

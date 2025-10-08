@@ -1,6 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MantineProvider } from '@mantine/core'
-import ServiceFilter from '../src/components/ui/ServiceFilter'
+import ServiceFilter from '../src/components/ui/areaList/ServiceFilter'
 import { services as mockServices } from '../src/mocks/areas'
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
@@ -34,12 +34,12 @@ describe('ServiceFilter', () => {
     const githubOption = screen.getByText('GitHub')
     fireEvent.click(githubOption)
 
-    expect(mockOnChange).toHaveBeenCalledWith([1])
+    expect(mockOnChange).toHaveBeenCalledWith(["1"])
   })
 
   it('displays selected services as pills', () => {
     const mockOnChange = jest.fn()
-    render(<ServiceFilter services={mockServices} value={[1]} onChange={mockOnChange} />, { wrapper: AllTheProviders })
+    render(<ServiceFilter services={mockServices} value={["1"]} onChange={mockOnChange} />, { wrapper: AllTheProviders })
 
     const pills = screen.getAllByText('GitHub')
     expect(pills.length).toBeGreaterThan(0)
@@ -68,17 +68,17 @@ describe('ServiceFilter', () => {
 
   it('removes last service with Backspace when search is empty', () => {
     const mockOnChange = jest.fn()
-    render(<ServiceFilter services={mockServices} value={[1, 2]} onChange={mockOnChange} />, { wrapper: AllTheProviders })
+    render(<ServiceFilter services={mockServices} value={["1", "2"]} onChange={mockOnChange} />, { wrapper: AllTheProviders })
 
     const input = screen.getByPlaceholderText('Search services')
     fireEvent.keyDown(input, { key: 'Backspace' })
 
-    expect(mockOnChange).toHaveBeenCalledWith([1])
+    expect(mockOnChange).toHaveBeenCalledWith(["1"])
   })
 
   it('does not remove service with Backspace when search has content', () => {
     const mockOnChange = jest.fn()
-    render(<ServiceFilter services={mockServices} value={[1]} onChange={mockOnChange} />, { wrapper: AllTheProviders })
+    render(<ServiceFilter services={mockServices} value={["1"]} onChange={mockOnChange} />, { wrapper: AllTheProviders })
 
     const input = screen.getByPlaceholderText('Search services')
     fireEvent.change(input, { target: { value: 'test' } })
