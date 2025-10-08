@@ -61,7 +61,7 @@ export function LogsTable({ logs }: LogsTableProps) {
       title="System Logs"
       data={logs}
       columns={columns}
-      itemsPerPage={5}
+      itemsPerPage={15}
       showAddButton={false}
       showActions={false}
     />

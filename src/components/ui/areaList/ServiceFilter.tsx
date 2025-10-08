@@ -47,7 +47,6 @@ export default function ServiceFilter({ services, value, onChange }: ServiceFilt
 
   return (
     <Combobox store={combobox} onOptionSubmit={handleValueSelect}>
-      {/* a voir si on laisse ca*/}
       <style>
         {`
           .scroll-container::-webkit-scrollbar {

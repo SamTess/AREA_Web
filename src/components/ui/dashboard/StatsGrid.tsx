@@ -59,18 +59,14 @@ export function StatsGrid({ data }: { data: StatsGridProps[] }) {
         <Paper withBorder p="md" radius="md" key={`empty-${index}`}>
           <Group justify="space-between">
             <Text size="xs" c="dimmed" tt="uppercase">
-              
             </Text>
           </Group>
 
           <Group align="flex-end" gap="xs" mt={25}>
             <Text size="xl" fw={700}>
-              
             </Text>
           </Group>
-
           <Text fz="xs" c="dimmed" mt={7}>
-            
           </Text>
         </Paper>
       );

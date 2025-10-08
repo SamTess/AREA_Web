@@ -41,7 +41,7 @@ export function ServicesTable({ services, onAddService, onEditService, onDeleteS
       title="All Services"
       data={services}
       columns={columns}
-      itemsPerPage={4}
+      itemsPerPage={5}
       onAdd={onAddService}
       onEdit={onEditService}
       onDelete={onDeleteService}
