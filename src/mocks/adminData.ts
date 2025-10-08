@@ -202,6 +202,13 @@ export const areaStats = [
   { title: 'In Progress', value: '3', icon: IconClock },
 ];
 
+export const cardUserData = [
+  { title: 'Total Users', icon: 'user', value: '40', diff: 5 },
+  { title: 'Active Users', icon: 'user', value: '35', diff: 2 },
+  { title: 'New Users', icon: 'user', value: '5', diff: 10 },
+  { title: 'Admins', icon: 'user', value: '5', diff: 0 },
+];
+
 export const CardUserData = [
   { title: 'Total Users', icon: 'user', value: '2,500', diff: 10 },
   { title: 'Users Online', icon: 'user', value: '320', diff: -5 },

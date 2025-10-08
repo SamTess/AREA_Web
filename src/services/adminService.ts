@@ -15,7 +15,7 @@ import {
   logs,
   areaRuns,
   areaStats,
-  CardUserData
+  cardUserData
 } from '../mocks/adminData';
 
 export const getDashboardData = async () => {
@@ -204,14 +204,15 @@ export const getAreaStats = async () => {
 
 
 export const getCardUserData = async () => {
-  if (USE_MOCK_DATA)
-    return CardUserData;
+  if (USE_MOCK_DATA) {
+    return cardUserData;
+  }
 
   try {
     const response = await axios.get(API_CONFIG.endpoints.admin.cardUserData);
     return response.data;
   } catch (error) {
-    console.error(`Get CardUserData error:`, error);
+    console.error(`Get ${API_CONFIG.endpoints.admin.cardUserData} error:`, error);
     throw error;
   }
 };
