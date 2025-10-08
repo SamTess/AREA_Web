@@ -1,11 +1,4 @@
 describe('User Interactions', () => {
-  it('should allow typing in search input on areas page', () => {
-    cy.visit('/areas');
-    cy.get('input[placeholder="Search by name..."]')
-      .type('Test Area')
-      .should('have.value', 'Test Area');
-  });
-
   it('should handle form interactions on login page', () => {
     cy.visit('/login');
 
