@@ -133,7 +133,6 @@ export default function ActivationConfigStep({ service, onServiceChange }: Activ
     const currentTypeIsValid = validOptions.includes(activationType);
     console.log('ActivationConfigStep - useEffect - currentTypeIsValid:', currentTypeIsValid);
 
-    // Met à jour seulement si nécessaire
     if (!currentTypeIsValid || (activationType === 'manual' && defaultType !== 'manual')) {
       console.log('ActivationConfigStep - useEffect - UPDATING activation type from', activationType, 'to', defaultType);
       setActivationType(defaultType);
