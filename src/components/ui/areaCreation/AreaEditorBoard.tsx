@@ -111,7 +111,6 @@ export default function AreaEditorBoard({
           paddingTop: '100px'
         }}>
           <div style={{ width: '600px', maxWidth: '100%', position: 'relative' }}>
-            {/* SVG pour les connexions linéaires */}
             {connections.length > 0 && (
               <svg
                 style={{

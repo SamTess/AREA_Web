@@ -2,43 +2,9 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
 
 ## Getting Started
 
-### Option 1: Docker (Recommended)
-
-#### Development with Hot Reload
 
 ```bash
-# Create environment file
-make env
-# Edit Docker/.env with your configuration
-
-# Start development environment
-make dev-build
-```
-
-#### Production Deployment
-
-```bash
-# Build and start production
-make prod-build
-
-# View logs
-make prod-logs
-```
-
-See [Docker/README.md](Docker/README.md) for more Docker commands.
-
-### Option 2: Local Development
-
-First, run the development server:
-
-```bash
-npm run dev
-# or
 yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.

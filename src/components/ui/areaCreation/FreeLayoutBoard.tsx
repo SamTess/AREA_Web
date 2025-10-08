@@ -461,15 +461,12 @@ export default function FreeLayoutBoard({
         </Group>
       </div>
 
-      {/* Board principal sans zoom */}
       <div
         ref={boardRef}
         className={styles.board}
       >
-        {/* SVG pour les connexions avec définitions améliorées */}
         <svg className={styles.connections}>
           <defs>
-            {/* Flèche principale */}
             <marker
               id="arrowhead"
               markerWidth="12"
@@ -488,7 +485,6 @@ export default function FreeLayoutBoard({
               />
             </marker>
 
-            {/* Flèches colorées pour différents types de liens */}
             <marker
               id="arrowhead-green"
               markerWidth="12"
@@ -557,7 +553,6 @@ export default function FreeLayoutBoard({
               />
             </marker>
 
-            {/* Filtre pour les effets de glow */}
             <filter id="glow">
               <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
               <feMerge>
@@ -569,7 +564,6 @@ export default function FreeLayoutBoard({
           {renderConnections()}
         </svg>
 
-        {/* Services */}
         {services.map((service, index) => {
           const position = service.position || {
             x: 100 + (index % 3) * 320,
@@ -649,7 +643,6 @@ export default function FreeLayoutBoard({
                 linkInfo={linkInfo}
               />
 
-              {/* Overlay pour les services non configurés en mode linking */}
               {isLinkingMode && !canLink && (
                 <div style={{
                   position: 'absolute',
@@ -681,7 +674,6 @@ export default function FreeLayoutBoard({
         })}
       </div>
 
-      {/* Modal pour configurer les liens */}
       <Modal
         opened={linkModalOpened}
         onClose={() => {

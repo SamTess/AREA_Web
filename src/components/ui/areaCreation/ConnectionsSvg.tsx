@@ -59,7 +59,6 @@ export default function ConnectionsSvg({
 
         return (
           <g key={connection.id}>
-            {/* Ligne de connexion */}
             <path
               d={pathD}
               stroke="#4DABF7"
@@ -67,7 +66,6 @@ export default function ConnectionsSvg({
               fill="none"
               markerEnd="url(#arrowhead)"
             />
-            {/* Bouton de suppression au milieu de la ligne */}
             <circle
               cx={midX}
               cy={midY}
