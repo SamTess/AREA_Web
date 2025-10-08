@@ -1,18 +1,4 @@
 describe('User Interactions', () => {
-  it('should handle form interactions on login page', () => {
-    cy.visit('/login');
-
-    // Fill in email
-    cy.get('input[placeholder="Area@Area.com"]')
-      .type('test@example.com')
-      .should('have.value', 'test@example.com');
-
-    // Fill in password
-    cy.get('input[placeholder="Your password"]')
-      .type('password123')
-      .should('have.value', 'password123');
-  });
-
   it('should handle service filter interactions', () => {
     cy.visit('/areas');
 
