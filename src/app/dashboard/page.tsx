@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import { Tabs, Grid, Card, Text, Container, Title, Divider, Space } from '@mantine/core';
 import { IconPhoto, IconMessageCircle, IconSettings, IconFileText, IconUser, IconMap, IconCheck, IconX, IconClock } from '@tabler/icons-react';
 import { LineChart, PieChart, BarChart } from '@mantine/charts';
@@ -23,23 +24,45 @@ import {
   getServicesBarData,
   getLogs,
   getAreaRuns,
-  getAreaStats
+  getAreaStats,
+  getCardUserData
 } from '../../services/adminService';
 
 export default function DashboardPage() {
-  const lineData = getLineData();
-  const pieData = getPieData();
-  const barData = getBarData();
-  const revenueData = getRevenueData();
-  const profitData = getProfitData();
-  const users = getUsers();
-  const areas = getAreas();
-  const services = getServices();
-  const areasPieData = getAreasPieData();
-  const servicesBarData = getServicesBarData();
-  const logs = getLogs();
-  const areaRuns = getAreaRuns();
-  const areaStats = getAreaStats();
+  const [lineData, setLineData] = useState([]);
+  const [pieData, setPieData] = useState([]);
+  const [barData, setBarData] = useState([]);
+  const [revenueData, setRevenueData] = useState([]);
+  const [profitData, setProfitData] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [areas, setAreas] = useState([]);
+  const [services, setServices] = useState([]);
+  const [areasPieData, setAreasPieData] = useState([]);
+  const [servicesBarData, setServicesBarData] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const [areaRuns, setAreaRuns] = useState([]);
+  const [areaStats, setAreaStats] = useState([]);
+  const [cardUserData, setCardUserData] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLineData(await getLineData());
+      setPieData(await getPieData());
+      setBarData(await getBarData());
+      setRevenueData(await getRevenueData());
+      setProfitData(await getProfitData());
+      setUsers(await getUsers());
+      setAreas(await getAreas());
+      setServices(await getServices());
+      setAreasPieData(await getAreasPieData());
+      setServicesBarData(await getServicesBarData());
+      setLogs(await getLogs());
+      setAreaRuns(await getAreaRuns());
+      setAreaStats(await getAreaStats());
+      setCardUserData(await getCardUserData());
+    };
+    fetchData();
+  }, []);
 
   return (
     <Container size="xl" py="md">
@@ -62,7 +85,7 @@ export default function DashboardPage() {
         <Divider my="lg" />
 
         <Tabs.Panel value="gallery" pt="md">
-        <StatsGrid />
+        <StatsGrid data={cardUserData} />
         <Space  h="md" />
           <Grid>
             <Grid.Col span={{ base: 12, md: 8 }}>
