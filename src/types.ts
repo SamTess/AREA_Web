@@ -1,7 +1,105 @@
 export interface Service {
-  id: number;
+  id: string;
   name: string;
   logo: string;
+}
+
+export interface BackendService {
+  id: string;
+  key: string;
+  name: string;
+  auth: 'OAUTH2' | 'APIKEY' | 'NONE';
+  isActive: boolean;
+  docsUrl?: string;
+  iconLightUrl?: string;
+  iconDarkUrl?: string;
+}
+
+export interface BackendArea {
+  id: string;
+  name: string;
+  description: string;
+  enabled: boolean;
+  userId: string;
+  userEmail: string;
+  actions: BackendAction[];
+  reactions: BackendReaction[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface BackendAction {
+  id: string;
+  actionDefinitionId: string;
+  name: string;
+  parameters: Record<string, unknown>;
+  activationConfig: ActivationConfig;
+}
+
+export interface BackendReaction {
+  id: string;
+  actionDefinitionId: string;
+  name: string;
+  parameters: Record<string, unknown>;
+  mapping?: Record<string, string>;
+  condition?: ConditionGroup;
+  order: number;
+  continue_on_error: boolean;
+  activationConfig?: ActivationConfig;
+}
+
+export interface ActionDefinitionResponse {
+  id: string;
+  serviceId: string;
+  serviceKey: string;
+  serviceName: string;
+  key: string;
+  name: string;
+  description: string;
+  inputSchema?: Record<string, unknown>;
+  outputSchema?: Record<string, unknown>;
+  docsUrl?: string;
+  isEventCapable: boolean;
+  isExecutable: boolean;
+  version: number;
+  defaultPollIntervalSeconds?: number;
+  throttlePolicy?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ActivationConfig {
+  type: 'webhook' | 'cron' | 'manual' | 'poll' | 'chain';
+  webhook_url?: string;
+  events?: string[];
+  cron_expression?: string;
+  poll_interval?: number;
+  secret_token?: string;
+}
+
+export interface ConditionGroup {
+  operator: 'and' | 'or';
+  conditions: (Condition | ConditionGroup)[];
+}
+
+export interface Condition {
+  field: string;
+  operator: 'equals' | 'not_equals' | 'contains' | 'contains_any' | 'not_empty' | 'greater_than' | 'less_than';
+  value: unknown;
+}
+
+export interface ActionDefinition {
+  id: string;
+  serviceId: string;
+  key: string;
+  name: string;
+  description: string;
+  isEventCapable: boolean;
+  isExecutable: boolean;
+  inputSchema: Record<string, unknown>;
+  outputSchema: Record<string, unknown>;
+  version: number;
+  defaultPollIntervalSeconds?: number;
 }
 
 export enum ServiceState {
@@ -12,19 +110,41 @@ export enum ServiceState {
 }
 
 export interface Action {
-  id: number;
-  serviceId: number;
+  id: string;
+  serviceId: string;
+  serviceKey: string;
+  serviceName: string;
+  key: string;
   name: string;
   description: string;
-  fields?: Record<string, any>;
+  inputSchema?: {
+    type: string;
+    required?: string[];
+    properties?: Record<string, {
+      type: string;
+      description?: string;
+      pattern?: string;
+      minLength?: number;
+      maxLength?: number;
+      minimum?: number;
+      default?: string | number;
+      items?: { type: string };
+      minItems?: number;
+    }>;
+  };
+  outputSchema?: Record<string, unknown>;
+  isEventCapable: boolean;
+  isExecutable: boolean;
+  version: number;
+  fields?: Record<string, unknown>;
 }
 
 export interface Area {
-  id: number;
+  id: string;
   name: string;
   description: string;
   lastRun: string;
-  services: number[];
+  services: string[];
   status: 'success' | 'failed' | 'in progress' | 'not started';
 }
 
@@ -57,13 +177,11 @@ export interface RegisterData {
 }
 
 export interface OAuthProvider {
-  iconPath: string;
-  label: string;
-  providerKey?: string;
-  providerLabel?: string;
-  providerLogoUrl?: string;
-  userAuthUrl?: string;
-  clientId?: string;
+  providerKey: string;
+  providerLabel: string;
+  providerLogoUrl: string;
+  userAuthUrl: string;
+  clientId: string;
 }
 
 export interface UserContent {
@@ -90,8 +208,8 @@ export interface NavbarLinkProps {
 
 export interface ServiceFilterProps {
   services: Service[];
-  value: number[];
-  onChange: (value: number[]) => void;
+  value: string[];
+  onChange: (value: string[]) => void;
 }
 
 export interface CardProps {
@@ -107,10 +225,11 @@ export interface FormValues {
 }
 
 export interface AreaListCardProps {
-  areas: Area[];
+  areas: (Area | BackendArea)[];
   services: Service[];
-  onDelete?: (id: number) => void;
-  onRun?: (id: number) => void;
+  onDelete?: (id: string | number) => void;
+  onRun?: (id: string | number) => void;
+  onToggleActivation?: (id: number, enabled: boolean) => void;
 }
 
 export interface ServiceCardProps {
@@ -126,6 +245,13 @@ export interface ServiceCardProps {
   onUp?: () => void;
   onDown?: () => void;
   onDuplicate?: () => void;
+  linkInfo?: {
+    type?: LinkData['type'];
+    sourceService?: string;
+    hasChainTarget?: boolean;
+    isParallel?: boolean;
+    isConditional?: boolean;
+  };
 }
 
 export interface AccountCardProps {
@@ -143,14 +269,45 @@ export interface ServiceData {
   id: string;
   logo: string;
   serviceName: string;
+  serviceKey?: string;
   event: string;
   cardName: string;
   state: ServiceState;
   actionId: number;
-  serviceId: number;
-  fields?: Record<string, any>;
+  actionDefinitionId?: string;
+  serviceId: string;
+  fields?: Record<string, unknown>;
+  serviceToken?: string;
+  activationConfig?: ActivationConfig;
+  selectedAction?: ActionDefinitionResponse;
+  linkedTo?: string[];
+  linkData?: { [targetId: string]: LinkData };
+  position?: { x: number; y: number };
 }
 
+export interface LinkData {
+  type: 'chain' | 'conditional' | 'parallel' | 'sequential';
+  mapping?: Record<string, string>;
+  condition?: Record<string, unknown>;
+  order?: number;
+  metadata?: Record<string, unknown>;
+}
+
+export interface LinkEffect {
+  sourceService: ServiceData;
+  targetService: ServiceData;
+  linkType: LinkData['type'];
+  metadata?: Record<string, unknown>;
+}
+
+export interface ConnectionData {
+  id: string;
+  sourceId: string;
+  targetId: string;
+  sourceOutput?: string;
+  targetInput?: string;
+  linkData: LinkData;
+}
 export interface SetupStepProps {
   service: ServiceData;
   onRemove: () => void;
@@ -159,7 +316,7 @@ export interface SetupStepProps {
 
 export interface ConfigureStepProps {
   service: ServiceData;
-  onFieldsChange?: (fields: Record<string, any>) => void;
+  onFieldsChange?: (fields: Record<string, unknown>) => void;
 }
 
 export interface FinishStepProps {
@@ -174,13 +331,51 @@ export interface InfoServiceCardProps {
 export interface ModalServicesSelectionProps {
   isOpen: boolean;
   onClose: () => void;
-  onSelect: (service: Service) => void;
+  onSelect: (service: BackendService) => void;
 }
 
 export interface FieldData {
   name: string;
   mandatory: boolean;
-  type: 'text' | 'number' | 'dropdown' | 'date';
+  type: 'text' | 'number' | 'dropdown' | 'date' | 'array' | 'token';
+  description?: string;
   placeholder?: string;
+  pattern?: string;
+  minLength?: number;
+  maxLength?: number;
+  minimum?: number;
+  default?: string | number;
   options?: string[];
+  items?: { type: string };
+  minItems?: number;
+  serviceKey?: string;
+}
+
+export interface PageableResponse<T> {
+  content: T[];
+  pageable: {
+    pageNumber: number;
+    pageSize: number;
+    sort: {
+      unsorted: boolean;
+      sorted: boolean;
+      empty: boolean;
+    };
+    offset: number;
+    paged: boolean;
+    unpaged: boolean;
+  };
+  totalElements: number;
+  totalPages: number;
+  last: boolean;
+  numberOfElements: number;
+  size: number;
+  number: number;
+  sort: {
+    unsorted: boolean;
+    sorted: boolean;
+    empty: boolean;
+  };
+  first: boolean;
+  empty: boolean;
 }

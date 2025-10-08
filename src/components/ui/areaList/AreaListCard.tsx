@@ -3,7 +3,7 @@ import { Card, Text, Badge, Group, Stack, Anchor } from '@mantine/core';
 import { Menu, ActionIcon } from '@mantine/core';
 import { IconDotsVertical, IconEdit, IconPlayerPlay, IconTrash } from '@tabler/icons-react';
 import Image from 'next/image';
-import { AreaListCardProps } from '../../../types';
+import { AreaListCardProps, BackendArea, Area } from '../../../types';
 import { useRouter } from 'next/navigation';
 
 export default function AreaListCard({ areas, services, onDelete, onRun }: AreaListCardProps) {
@@ -13,14 +13,48 @@ export default function AreaListCard({ areas, services, onDelete, onRun }: AreaL
 
   const router = useRouter();
 
+  const isBackendArea = (area: Area | BackendArea): area is BackendArea => {
+    return 'actions' in area && 'reactions' in area;
+  };
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'success': return 'green';
       case 'failed': return 'red';
       case 'in progress': return 'yellow';
       case 'not started': return 'grey';
+      case 'active': return 'green';
+      case 'inactive': return 'gray';
+      case 'error': return 'red';
       default: return 'gray';
     }
+  };
+
+  const getAreaServices = (area: Area | BackendArea): string[] => {
+    if (isBackendArea(area)) {
+      return [];
+    }
+    return area.services;
+  };
+
+  const getAreaStatus = (area: Area | BackendArea): string => {
+    if (isBackendArea(area)) {
+      return area.enabled ? 'active' : 'inactive';
+    }
+    return area.status;
+  };
+
+  const formatLastRun = (lastRun: string | Date | null): string => {
+    if (!lastRun) return 'Never';
+    const date = new Date(lastRun);
+    return date.toLocaleDateString();
+  };
+
+  const getLastRun = (area: Area | BackendArea): string => {
+    if (isBackendArea(area)) {
+      return formatLastRun(area.updatedAt);
+    }
+    return area.lastRun || 'Never';
   };
   return (
     <Stack>
@@ -32,9 +66,9 @@ export default function AreaListCard({ areas, services, onDelete, onRun }: AreaL
               </Anchor>
               <Group>
               <Badge color={
-                getStatusColor(area.status)
+                getStatusColor(getAreaStatus(area))
               } variant="light">
-                {area.status}
+                {getAreaStatus(area)}
               </Badge>
                 <Menu
                   transitionProps={{ transition: 'pop' }}
@@ -68,9 +102,9 @@ export default function AreaListCard({ areas, services, onDelete, onRun }: AreaL
             </Text>
 
             <Group justify="space-between">
-              <Text size="sm">Last run: {area.lastRun}</Text>
+              <Text size="sm">Last run: {getLastRun(area)}</Text>
               <Group gap="xs">
-                {area.services.map((serviceId) => {
+                {getAreaServices(area).map((serviceId: string) => {
                   const service = servicesMap.get(serviceId);
                   return service ? (
                     <Badge key={service.id} color="blue" variant="light">

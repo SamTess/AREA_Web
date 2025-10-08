@@ -15,10 +15,11 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import ServiceCardItem from './ServiceCardItem';
-import { ServiceData } from '../../../types';
+import { ServiceData, ConnectionData } from '../../../types';
 
 interface AreaEditorBoardProps {
   services: ServiceData[];
+  connections: ConnectionData[];
   onDragEnd: (event: DragEndEvent) => void;
   onAddService: () => void;
   onRemoveService: (id: string) => void;
@@ -28,11 +29,11 @@ interface AreaEditorBoardProps {
   onMoveUp?: (id: string) => void;
   onMoveDown?: (id: string) => void;
   onDuplicate?: (id: string) => void;
-
 }
 
 export default function AreaEditorBoard({
   services,
+  connections,
   onDragEnd,
   onAddService,
   onRemoveService,
@@ -42,7 +43,6 @@ export default function AreaEditorBoard({
   onMoveUp,
   onMoveDown,
   onDuplicate
-
 }: AreaEditorBoardProps) {
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -111,6 +111,74 @@ export default function AreaEditorBoard({
           paddingTop: '100px'
         }}>
           <div style={{ width: '600px', maxWidth: '100%', position: 'relative' }}>
+            {/* SVG pour les connexions linéaires */}
+            {connections.length > 0 && (
+              <svg
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: '100%',
+                  height: '100%',
+                  pointerEvents: 'none',
+                  zIndex: -1
+                }}
+              >
+                <defs>
+                  <marker
+                    id="linear-arrowhead"
+                    markerWidth="10"
+                    markerHeight="7"
+                    refX="9"
+                    refY="3.5"
+                    orient="auto"
+                  >
+                    <polygon
+                      points="0 0, 10 3.5, 0 7"
+                      fill="#4DABF7"
+                      stroke="white"
+                      strokeWidth="1"
+                    />
+                  </marker>
+                </defs>
+                {connections.map((connection) => {
+                  const sourceIndex = services.findIndex(s => s.id === connection.sourceId);
+                  const targetIndex = services.findIndex(s => s.id === connection.targetId);
+
+                  if (sourceIndex === -1 || targetIndex === -1) return null;
+
+                  const cardHeight = 120;
+                  const cardMargin = 20;
+                  const totalCardHeight = cardHeight + cardMargin;
+
+                  const sourceY = sourceIndex * totalCardHeight + cardHeight - 10;
+                  const targetY = targetIndex * totalCardHeight + 10;
+
+                  const centerX = 300;
+
+                  return (
+                    <g key={connection.id}>
+                      <title></title>
+                      <line
+                        x1={centerX}
+                        y1={sourceY}
+                        x2={centerX}
+                        y2={targetY}
+                        stroke="#4DABF7"
+                        strokeWidth="3"
+                        markerEnd="url(#linear-arrowhead)"
+                        style={{
+                          filter: 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))'
+                        }}
+                      >
+                        <title></title>
+                      </line>
+                    </g>
+                  );
+                })}
+              </svg>
+            )}
+
             <DndContext
               sensors={sensors}
               collisionDetection={closestCenter}

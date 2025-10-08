@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG } from './api';
-import { clearSecureToken } from '../utils/secureStorage';
+import { refreshAuthToken, handleAuthFailure } from '../utils/tokenManager';
 
 interface RetryableRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean;
@@ -53,7 +53,9 @@ axios.interceptors.response.use(
       console.error(`❌ ${error.response?.status} ${originalRequest?.url}`, error.response?.data);
     }
 
-    if (typeof window !== 'undefined' && window.location.pathname.includes('/login')) {
+    if (typeof window !== 'undefined' &&
+        (window.location.pathname.includes('/login') ||
+         window.location.pathname.includes('/oauth-callback'))) {
       return Promise.reject(error);
     }
 
@@ -61,6 +63,7 @@ axios.interceptors.response.use(
       if (originalRequest.url?.includes('/login') ||
           originalRequest.url?.includes('/register') ||
           originalRequest.url?.includes('/refresh') ||
+          originalRequest.url?.includes('/oauth') ||
           originalRequest.url?.includes('/forgot-password')) {
         return Promise.reject(error);
       }
@@ -79,18 +82,17 @@ axios.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await axios.post(API_CONFIG.endpoints.auth.refresh);
-        processQueue(null, true);
-        return axios(originalRequest);
+        const refreshSuccess = await refreshAuthToken();
+        if (refreshSuccess) {
+          processQueue(null, true);
+          return axios(originalRequest);
+        } else {
+          throw new Error('Token refresh failed');
+        }
       } catch (refreshError) {
         processQueue(refreshError, false);
         console.warn('Token refresh failed');
-        await clearSecureToken();
-        if (typeof window !== 'undefined' &&
-            !window.location.pathname.includes('/login') &&
-            !window.location.pathname.includes('/register')) {
-          window.location.href = '/login';
-        }
+        await handleAuthFailure();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;

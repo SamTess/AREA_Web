@@ -1,9 +1,7 @@
 "use client";
 import {
   IconChevronRight,
-  IconLogout,
-  IconSettings,
-  IconSwitchHorizontal,
+  IconLogout
 } from '@tabler/icons-react';
 import { Avatar, Group, Menu, Text } from '@mantine/core';
 import { useRouter } from 'next/navigation';

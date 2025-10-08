@@ -15,10 +15,10 @@ export default function ServiceFilter({ services, value, onChange }: ServiceFilt
 
   const handleValueSelect = (val: string) =>
     onChange(
-      value.includes(+val) ? value.filter((v) => v !== +val) : [...value, +val]
+      value.includes(val) ? value.filter((v) => v !== val) : [...value, val]
     );
 
-  const handleValueRemove = (val: number) =>
+  const handleValueRemove = (val: string) =>
     onChange(value.filter((v) => v !== val));
 
   const values = value.map((id) => {
@@ -36,7 +36,7 @@ export default function ServiceFilter({ services, value, onChange }: ServiceFilt
   const options = services
     .filter((service) => service.name.toLowerCase().includes(search.trim().toLowerCase()))
     .map((service) => (
-      <Combobox.Option value={service.id.toString()} key={service.id} active={value.includes(service.id)}>
+      <Combobox.Option value={service.id} key={service.id} active={value.includes(service.id)}>
         <Group gap="sm">
           {value.includes(service.id) ? <CheckIcon size={12} /> : null}
           {service.logo && <Image src={service.logo} alt={service.name} width={16} height={16} />}

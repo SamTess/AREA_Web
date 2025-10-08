@@ -1,50 +1,58 @@
-import { Service, Area, Action, ServiceState } from '../types';
+import { Service, Area } from '../types';
+
+// Simplified Action type for mocks
+interface SimplifiedAction {
+  id: string;
+  serviceId: string;
+  name: string;
+  description: string;
+}
 
 export const services: Service[] = [
-    { id: 1, name: 'GitHub', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg' },
-    { id: 2, name: 'Google', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg' },
-    { id: 3, name: 'Bitbucket', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Bitbucket-blue-logomark-only.svg' },
-    { id: 4, name: 'Spotify', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg' },
-    { id: 5, name: 'Jira', logo: 'https://cdn.worldvectorlogo.com/logos/jira-1.svg' },
-    { id: 6, name: 'Slack', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png' },
+    { id: '1', name: 'GitHub', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg' },
+    { id: '2', name: 'Google', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg' },
+    { id: '3', name: 'Bitbucket', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Bitbucket-blue-logomark-only.svg' },
+    { id: '4', name: 'Spotify', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg' },
+    { id: '5', name: 'Jira', logo: 'https://cdn.worldvectorlogo.com/logos/jira-1.svg' },
+    { id: '6', name: 'Slack', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png' },
 ];
 
 
 export const data: Area[] = [
-    { id: 1, name: 'GitHub PR Monitor', description: 'Monitors pull requests and sends notifications', lastRun: '2024-09-25', services: [1, 6], status: 'success' },
-    { id: 2, name: 'Slack Channel Alert', description: 'Alerts users via Slack channels on events', lastRun: '2024-09-24', services: [6, 2], status: 'failed' },
-    { id: 3, name: 'GitLab CI Pipeline', description: 'Triggers on GitLab CI pipeline failures', lastRun: '2024-09-23', services: [2, 3], status: 'in progress' },
-    { id: 4, name: 'Bitbucket Repo Sync', description: 'Syncs repositories across Bitbucket instances', lastRun: '2024-09-22', services: [3, 4], status: 'success' },
-    { id: 5, name: 'Azure DevOps Build', description: 'Monitors build statuses in Azure DevOps', lastRun: '2024-09-21', services: [4, 5], status: 'success' },
-    { id: 6, name: 'Jira Issue Tracker', description: 'Tracks issues in Jira and sends updates', lastRun: '2024-09-20', services: [5, 1], status: 'not started' },
+    { id: '1', name: 'GitHub PR Monitor', description: 'Monitors pull requests and sends notifications', lastRun: '2024-09-25', services: ['1', '6'], status: 'success' },
+    { id: '2', name: 'Slack Channel Alert', description: 'Alerts users via Slack channels on events', lastRun: '2024-09-24', services: ['6', '2'], status: 'failed' },
+    { id: '3', name: 'GitLab CI Pipeline', description: 'Triggers on GitLab CI pipeline failures', lastRun: '2024-09-23', services: ['2', '3'], status: 'in progress' },
+    { id: '4', name: 'Bitbucket Repo Sync', description: 'Syncs repositories across Bitbucket instances', lastRun: '2024-09-22', services: ['3', '4'], status: 'success' },
+    { id: '5', name: 'Azure DevOps Build', description: 'Monitors build statuses in Azure DevOps', lastRun: '2024-09-21', services: ['4', '5'], status: 'success' },
+    { id: '6', name: 'Jira Issue Tracker', description: 'Tracks issues in Jira and sends updates', lastRun: '2024-09-20', services: ['5', '1'], status: 'not started' },
 ];
 
-export const actions: Action[] = [
-    { id: 1, serviceId: 1, name: 'Create Pull Request', description: 'Creates a new pull request in a GitHub repository' },
-    { id: 2, serviceId: 1, name: 'Close Issue', description: 'Closes an existing issue in a GitHub repository' },
-    { id: 3, serviceId: 1, name: 'Push to Repository', description: 'Pushes changes to a GitHub repository' },
-    { id: 4, serviceId: 1, name: 'Create Repository', description: 'Creates a new repository on GitHub' },
-    { id: 5, serviceId: 2, name: 'Send Email', description: 'Sends an email via Gmail' },
-    { id: 6, serviceId: 2, name: 'Create Calendar Event', description: 'Creates a new event in Google Calendar' },
-    { id: 7, serviceId: 2, name: 'Upload File to Drive', description: 'Uploads a file to Google Drive' },
-    { id: 8, serviceId: 3, name: 'Create Pull Request', description: 'Creates a new pull request in a Bitbucket repository' },
-    { id: 9, serviceId: 3, name: 'Merge Pull Request', description: 'Merges an existing pull request in Bitbucket' },
-    { id: 10, serviceId: 3, name: 'Create Repository', description: 'Creates a new repository on Bitbucket' },
-    { id: 11, serviceId: 4, name: 'Create Playlist', description: 'Creates a new playlist on Spotify' },
-    { id: 12, serviceId: 4, name: 'Add Song to Playlist', description: 'Adds a song to an existing Spotify playlist' },
-    { id: 13, serviceId: 4, name: 'Play Song', description: 'Starts playing a song on Spotify' },
-    { id: 14, serviceId: 5, name: 'Create Issue', description: 'Creates a new issue in Jira' },
-    { id: 15, serviceId: 5, name: 'Update Issue', description: 'Updates an existing issue in Jira' },
-    { id: 16, serviceId: 5, name: 'Assign Issue', description: 'Assigns an issue to a user in Jira' },
-    { id: 17, serviceId: 6, name: 'Send Message', description: 'Sends a message to a Slack channel' },
-    { id: 18, serviceId: 6, name: 'Create Channel', description: 'Creates a new channel in Slack' },
-    { id: 19, serviceId: 6, name: 'Invite User to Channel', description: 'Invites a user to join a Slack channel' },
+export const actions: SimplifiedAction[] = [
+    { id: '1', serviceId: '1', name: 'Create Pull Request', description: 'Creates a new pull request in a GitHub repository' },
+    { id: '2', serviceId: '1', name: 'Close Issue', description: 'Closes an existing issue in a GitHub repository' },
+    { id: '3', serviceId: '1', name: 'Push to Repository', description: 'Pushes changes to a GitHub repository' },
+    { id: '4', serviceId: '1', name: 'Create Repository', description: 'Creates a new repository on GitHub' },
+    { id: '5', serviceId: '2', name: 'Send Email', description: 'Sends an email via Gmail' },
+    { id: '6', serviceId: '2', name: 'Create Calendar Event', description: 'Creates a new event in Google Calendar' },
+    { id: '7', serviceId: '2', name: 'Upload File to Drive', description: 'Uploads a file to Google Drive' },
+    { id: '8', serviceId: '3', name: 'Create Pull Request', description: 'Creates a new pull request in a Bitbucket repository' },
+    { id: '9', serviceId: '3', name: 'Merge Pull Request', description: 'Merges an existing pull request in Bitbucket' },
+    { id: '10', serviceId: '3', name: 'Create Repository', description: 'Creates a new repository on Bitbucket' },
+    { id: '11', serviceId: '4', name: 'Create Playlist', description: 'Creates a new playlist on Spotify' },
+    { id: '12', serviceId: '4', name: 'Add Song to Playlist', description: 'Adds a song to an existing Spotify playlist' },
+    { id: '13', serviceId: '4', name: 'Play Song', description: 'Starts playing a song on Spotify' },
+    { id: '14', serviceId: '5', name: 'Create Issue', description: 'Creates a new issue in Jira' },
+    { id: '15', serviceId: '5', name: 'Update Issue', description: 'Updates an existing issue in Jira' },
+    { id: '16', serviceId: '5', name: 'Assign Issue', description: 'Assigns an issue to a user in Jira' },
+    { id: '17', serviceId: '6', name: 'Send Message', description: 'Sends a message to a Slack channel' },
+    { id: '18', serviceId: '6', name: 'Create Channel', description: 'Creates a new channel in Slack' },
+    { id: '19', serviceId: '6', name: 'Invite User to Channel', description: 'Invites a user to join a Slack channel' },
 ];
 
 export const whiteboardCards = [
-    { id: '1', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg', serviceName: 'GitHub', event: 'Push to repo', cardName: 'Push to repo', state: 'configuration', x: 100, y: 100, actionId: 3, serviceId: 1, areaId: 1 },
-    { id: '2', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', serviceName: 'Google Drive', event: 'File uploaded', cardName: 'File uploaded', state: 'success', x: 300, y: 100, actionId: 7, serviceId: 2, areaId: 3 },
-    { id: '3', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Bitbucket-blue-logomark-only.svg', serviceName: 'Bitbucket', event: 'PR merged', cardName: 'PR merged', state: 'failed', x: 500, y: 100, actionId: 9, serviceId: 3, areaId: 4 },
+    { id: '1', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg', serviceName: 'GitHub', event: 'Push to repo', cardName: 'Push to repo', state: 'configuration', x: 100, y: 100, actionId: '3', serviceId: '1', areaId: '1' },
+    { id: '2', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', serviceName: 'Google Drive', event: 'File uploaded', cardName: 'File uploaded', state: 'success', x: 300, y: 100, actionId: '7', serviceId: '2', areaId: '3' },
+    { id: '3', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Bitbucket-blue-logomark-only.svg', serviceName: 'Bitbucket', event: 'PR merged', cardName: 'PR merged', state: 'failed', x: 500, y: 100, actionId: '9', serviceId: '3', areaId: '4' },
     { id: '4', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg', serviceName: 'Spotify', event: 'New playlist', cardName: 'New playlist', state: 'success', x: 700, y: 100, actionId: 11, serviceId: 4, areaId: 5 },
     { id: '5', logo: 'https://cdn.worldvectorlogo.com/logos/jira-1.svg', serviceName: 'Jira', event: 'Issue created', cardName: 'Issue created', state: 'configuration', x: 100, y: 250, actionId: 14, serviceId: 5, areaId: 1 },
     { id: '6', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png', serviceName: 'Slack', event: 'Message sent', cardName: 'Message sent', state: 'in_progress', x: 300, y: 250, actionId: 17, serviceId: 6, areaId: 2 },

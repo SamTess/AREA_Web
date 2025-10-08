@@ -1,11 +1,29 @@
 import axios from '../config/axios';
 import { OAuthProvider } from '../types';
-import { API_CONFIG, USE_MOCK_DATA, buildApiUrl } from '../config/api';
+import { API_CONFIG, USE_MOCK_DATA } from '../config/api';
 
 const mockProviders: OAuthProvider[] = [
-  { iconPath: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png", label: 'Google' },
-  { iconPath: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg", label: 'Microsoft' },
-  { iconPath: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg", label: 'Github' },
+  {
+    providerKey: 'google',
+    providerLabel: 'Google',
+    providerLogoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png",
+    userAuthUrl: '#',
+    clientId: 'mock'
+  },
+  {
+    providerKey: 'microsoft',
+    providerLabel: 'Microsoft',
+    providerLogoUrl: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",
+    userAuthUrl: '#',
+    clientId: 'mock'
+  },
+  {
+    providerKey: 'github',
+    providerLabel: 'GitHub',
+    providerLogoUrl: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg",
+    userAuthUrl: '#',
+    clientId: 'mock'
+  },
 ];
 
 export const getOAuthProviders = async (): Promise<OAuthProvider[]> => {
@@ -14,21 +32,7 @@ export const getOAuthProviders = async (): Promise<OAuthProvider[]> => {
 
   try {
     const response = await axios.get(`${API_CONFIG.baseURL}/api/oauth/providers`);
-    return response.data.map((provider: {
-      providerKey: string;
-      providerLabel: string;
-      providerLogoUrl: string;
-      userAuthUrl: string;
-      clientId: string;
-    }) => ({
-      providerKey: provider.providerKey,
-      providerLabel: provider.providerLabel,
-      providerLogoUrl: provider.providerLogoUrl,
-      userAuthUrl: provider.userAuthUrl,
-      clientId: provider.clientId,
-      iconPath: provider.providerLogoUrl,
-      label: provider.providerLabel
-    }));
+    return response.data;
   } catch (error) {
     console.error('Get OAuth providers error:', error);
     throw error;
@@ -43,6 +47,10 @@ export const initiateOAuth = (provider: string, userAuthUrl?: string): void => {
 
   if (userAuthUrl) {
     window.location.href = userAuthUrl;
+    return;
+  }
+  if (!provider) {
+    console.error('Provider is required for OAuth initiation');
     return;
   }
   const oauthUrl = `${API_CONFIG.baseURL}/api/oauth/${provider.toLowerCase()}/authorize`;

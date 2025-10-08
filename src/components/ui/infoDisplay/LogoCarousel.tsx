@@ -7,7 +7,7 @@ import Autoplay from 'embla-carousel-autoplay';
 import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { getServices } from '../../../services/areasService';
-import { Service, CardProps } from '../../../types';
+import { BackendService, CardProps } from '../../../types';
 
 function Card({ image }: CardProps) {
   return (
@@ -24,7 +24,7 @@ function Card({ image }: CardProps) {
 }
 
 export function LogoCarousel() {
-  const [services, setServices] = useState<Service[]>([]);
+  const [services, setServices] = useState<BackendService[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -56,7 +56,7 @@ export function LogoCarousel() {
 
   const slides = safeServices.map((service) => (
     <Carousel.Slide key={service.id}>
-      <Card image={service.logo} />
+      <Card image={service.iconLightUrl || service.iconDarkUrl || '/file.svg'} />
     </Carousel.Slide>
   ));
 

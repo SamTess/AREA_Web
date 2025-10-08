@@ -1,10 +1,10 @@
-import { Card, Text, Menu, ActionIcon, Badge, Loader, Button, Center } from '@mantine/core';
+import { Card, Text, Menu, ActionIcon, Badge, Loader } from '@mantine/core';
 import Image from 'next/image';
 import styles from './ServiceCard.module.css';
 import { IconDotsVertical, IconClipboardCopy, IconTrash, IconSettings, IconX, IconCheck, IconEdit, IconArrowBigUpLine, IconArrowBigDownLine } from '@tabler/icons-react';
 import { ServiceState, ServiceCardProps } from '../../../types';
 
-export default function ServiceCard({ logo, serviceName, cardName, event, state, onRemove, onEdit, onUp, onDown, onDuplicate, isFirst, isLast }: ServiceCardProps) {
+export default function ServiceCard({ logo, serviceName, cardName, event, state, onRemove, onEdit, onUp, onDown, onDuplicate, isFirst, isLast, linkInfo }: ServiceCardProps) {
     return (
         <Card radius="md" withBorder className={styles.card} style={{ width: 300 }}>
             <div className={styles.leftStripe} />
@@ -45,6 +45,35 @@ export default function ServiceCard({ logo, serviceName, cardName, event, state,
                         </Menu.Dropdown>
                     </Menu>
                 </div>
+                {linkInfo && (
+                    <div style={{ marginTop: 8, padding: 8, backgroundColor: '#f8f9fa', borderRadius: 4 }}>
+                        {linkInfo.type === 'chain' && linkInfo.sourceService && (
+                            <Badge size="xs" color="blue" variant="light" style={{ marginRight: 4 }}>
+                                🔗 Chain from {linkInfo.sourceService}
+                            </Badge>
+                        )}
+                        {linkInfo.type === 'conditional' && linkInfo.sourceService && (
+                            <Badge size="xs" color="yellow" variant="light" style={{ marginRight: 4 }}>
+                                ❓ Conditional from {linkInfo.sourceService}
+                            </Badge>
+                        )}
+                        {linkInfo.type === 'parallel' && linkInfo.sourceService && (
+                            <Badge size="xs" color="green" variant="light" style={{ marginRight: 4 }}>
+                                ⚡ Parallel with {linkInfo.sourceService}
+                            </Badge>
+                        )}
+                        {linkInfo.type === 'sequential' && linkInfo.sourceService && (
+                            <Badge size="xs" color="purple" variant="light" style={{ marginRight: 4 }}>
+                                ⏭️ Sequential from {linkInfo.sourceService}
+                            </Badge>
+                        )}
+                        {linkInfo.hasChainTarget && (
+                            <Badge size="xs" color="cyan" variant="light">
+                                🎯 Has chain target
+                            </Badge>
+                        )}
+                    </div>
+                )}
             </div>
         </Card>
     );

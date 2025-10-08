@@ -41,7 +41,7 @@ export default function ServiceCardItem({ service, onRemove, onClick, onAdd, isL
   };
 
   return (
-    <div style={{ width: 'fit-content', margin: '0 auto' }}>
+    <div style={{ width: 'fit-content', margin: '0 auto', position: 'relative', zIndex: 2 }}>
       <div ref={setNodeRef} style={style} onDoubleClick={onClick}>
         <div
           style={{
@@ -78,10 +78,16 @@ export default function ServiceCardItem({ service, onRemove, onClick, onAdd, isL
           isLast={isLast}
         />
       </div>
-      { isLast && (
-          <Center>
-              <Button variant="light" size="xs" onClick={onAdd}> <IconPlus size={14} /> </Button>
-          </Center>
+      {isLast && (
+        <Center style={{ marginTop: 8 }}>
+          <Button
+            variant="light"
+            size="xs"
+            onClick={onAdd}
+          >
+            <IconPlus size={14} />
+          </Button>
+        </Center>
       )}
     </div>
   );

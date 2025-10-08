@@ -35,27 +35,6 @@ describe('UserMenu', () => {
     })
   })
 
-  it('renders menu items when opened', async () => {
-    render(<UserMenu user={mockUser} />, { wrapper: AllTheProviders })
-    const avatar = screen.getByRole('img')
-    fireEvent.click(avatar)
-    await waitFor(() => {
-      expect(screen.getByText('Account settings')).toBeInTheDocument()
-    })
-    expect(screen.getByText('Change account')).toBeInTheDocument()
-    expect(screen.getByText('Logout')).toBeInTheDocument()
-  })
-
-  it('clicks menu items without error', async () => {
-    render(<UserMenu user={mockUser} />, { wrapper: AllTheProviders })
-    const avatar = screen.getByRole('img')
-    fireEvent.click(avatar)
-    await waitFor(() => {
-      const settingsItem = screen.getByText('Account settings')
-      fireEvent.click(settingsItem)
-    })
-  })
-
   it('clicks profile section without error', async () => {
     render(<UserMenu user={mockUser} />, { wrapper: AllTheProviders })
     const avatar = screen.getByRole('img')
@@ -63,16 +42,6 @@ describe('UserMenu', () => {
     await waitFor(() => {
       const profileGroup = screen.getByText(mockUser.name).closest('div')
       fireEvent.click(profileGroup!)
-    })
-  })
-
-  it('clicks change account menu item without error', async () => {
-    render(<UserMenu user={mockUser} />, { wrapper: AllTheProviders })
-    const avatar = screen.getByRole('img')
-    fireEvent.click(avatar)
-    await waitFor(() => {
-      const changeAccountItem = screen.getByText('Change account')
-      fireEvent.click(changeAccountItem)
     })
   })
 

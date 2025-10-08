@@ -11,17 +11,21 @@ export const API_CONFIG = {
       forgotPassword: '/api/auth/forgot-password',
       resetPassword: '/api/auth/reset-password',
       verifyEmail: '/api/auth/verify-email',
-      providers: '/api/auth/providers',
-      oauth: '/api/auth/oauth/'
+      providers: '/api/oauth/providers',
+      oauth: '/api/auth/oauth/',
+      link: '/api/oauth-link/'
     },
     user: {
       profile: '/api/auth/profile',
       avatar: '/api/user/avatar',
-      getUser: '/api/auth/me'
+      getUser: '/api/auth/me',
+      serviceConnection: '/api/user/service-connection',
+      connectedServices: '/api/user/connected-services'
     },
     areas: {
       list: '/api/areas',
       create: '/api/areas',
+      createWithActions: '/api/areas/with-links',
       update: '/api/areas/',
       delete: '/api/areas/',
       getById: '/api/areas/',
@@ -33,11 +37,14 @@ export const API_CONFIG = {
       catalog: '/api/services/catalog',
       search: '/api/services/search',
       getById: '/api/services/',
-      actions: '/api/services/',
+      actions: '/api/action-definitions/service/',
       actionFields: '/api/services/',
     },
     actions: {
       create: '/api/actions',
+      labels: '/api/services/labels',
+      reactions: '/api/services/reactions',
+      test: '/api/test/'
     }
   }
 };
@@ -46,5 +53,4 @@ export const buildApiUrl = (endpoint: string): string => {
   return `${API_CONFIG.baseURL}${endpoint}`;
 };
 
-// export const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
-export const USE_MOCK_DATA = true;
+export const USE_MOCK_DATA = false;

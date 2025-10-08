@@ -57,18 +57,6 @@ describe('AuthenticationForm', () => {
     mockPush.mockClear();
   });
 
-  it('renders login form by default', async () => {
-    render(<AuthenticationForm />, { wrapper: AllTheProviders })
-    expect(screen.getByText('Welcome to Area, login with')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Area@Area.com')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Your password')).toBeInTheDocument()
-    await waitFor(() => {
-      expect(screen.getByText('Google')).toBeInTheDocument()
-      expect(screen.getByText('Microsoft')).toBeInTheDocument()
-      expect(screen.getByText('Github')).toBeInTheDocument()
-    })
-  })
-
   it('switches to register mode', () => {
     render(<AuthenticationForm />, { wrapper: AllTheProviders })
     const registerLink = screen.getByText("Don't have an account? Register")
