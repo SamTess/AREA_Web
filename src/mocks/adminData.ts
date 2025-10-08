@@ -55,7 +55,6 @@ export const revenueData = [
   { month: 'Oct', revenue: 11000 },
   { month: 'Nov', revenue: 10500 },
   { month: 'Dec', revenue: 12000 },
-  []
 ];
 
 export const profitData = [
@@ -201,4 +200,11 @@ export const areaStats = [
   { title: 'Successful', value: '8', icon: IconCheck },
   { title: 'Failed', value: '4', icon: IconX },
   { title: 'In Progress', value: '3', icon: IconClock },
+];
+
+export const CardUserData = [
+  { title: 'Total Users', icon: 'user', value: '2,500', diff: 10 },
+  { title: 'Users Online', icon: 'user', value: '320', diff: -5 },
+  { title: 'Non-Admin Users', icon: 'user', value: '2,200', diff: 8 },
+  { title: 'Admin Users', icon: 'user', value: '300', diff: 2 },
 ];

@@ -45,6 +45,23 @@ export const API_CONFIG = {
       labels: '/api/services/labels',
       reactions: '/api/services/reactions',
       test: '/api/test/'
+    },
+    admin: {
+      dashboard: '/api/admin/dashboard',
+      lineData: '/api/admin/line-data',
+      pieData: '/api/admin/pie-data',
+      barData: '/api/admin/bar-data',
+      revenueData: '/api/admin/revenue-data',
+      profitData: '/api/admin/profit-data',
+      users: '/api/admin/users',
+      areas: '/api/admin/areas',
+      services: '/api/admin/services',
+      areasPieData: '/api/admin/areas-pie-data',
+      servicesBarData: '/api/admin/services-bar-data',
+      logs: '/api/admin/logs',
+      areaRuns: '/api/admin/area-runs',
+      areaStats: '/api/admin/area-stats',
+      cardUserData: '/api/admin/card-user-data'
     }
   }
 };
