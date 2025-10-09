@@ -56,10 +56,8 @@ jest.mock('@mantine/carousel', () => ({
 
 jest.mock('embla-carousel-autoplay', () => jest.fn(() => ({})))
 
-// Mock environment variables
 process.env.NEXT_PUBLIC_USE_MOCK_DATA = 'true'
 
-// Mock user service to always use mock data with correct password field
 jest.mock('./services/userService', () => ({
   getUser: jest.fn().mockResolvedValue({
     name: 'Test Tester',
@@ -76,9 +74,8 @@ jest.mock('./services/userService', () => ({
   uploadAvatar: jest.fn().mockResolvedValue('https://mock.jpg'),
 }))
 
-// Mock auth service to return expected mock values
 jest.mock('./services/authService', () => ({
-  login: jest.fn().mockResolvedValue({ 
+  login: jest.fn().mockResolvedValue({
     token: 'mock-token',
     message: 'Login successful',
     user: {
@@ -90,7 +87,7 @@ jest.mock('./services/authService', () => ({
     },
     refreshToken: 'mock-refresh-token'
   }),
-  register: jest.fn().mockResolvedValue({ 
+  register: jest.fn().mockResolvedValue({
     token: 'mock-token',
     message: 'Registration successful',
     user: {
