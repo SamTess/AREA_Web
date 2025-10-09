@@ -18,6 +18,8 @@ import {
   cardUserData
 } from '../mocks/adminData';
 
+import {  UserContent, Service } from '../types.ts';
+
 export const getDashboardData = async () => {
   if (USE_MOCK_DATA)
     return data;
@@ -217,7 +219,7 @@ export const getCardUserData = async () => {
   }
 };
 
-export const addUser = async (user: any) => {
+export const addUser = async (user: UserContent) => {
   if (USE_MOCK_DATA) {
     return { ...user, id: Math.random().toString(36).substr(2, 9) };
   }
@@ -231,7 +233,7 @@ export const addUser = async (user: any) => {
   }
 };
 
-export const updateUser = async (id: string, user: any) => {
+export const updateUser = async (id: string, user: UserContent) => {
   if (USE_MOCK_DATA) {
     return { ...user, id };
   }
@@ -285,7 +287,7 @@ export const enableDisableArea = async (id: string, enable: boolean) => {
   }
 };
 
-export const addService = async (service: any) => {
+export const addService = async (service: Service) => {
   if (USE_MOCK_DATA) {
     return { ...service, id: Math.random().toString(36).substr(2, 9) };
   }
@@ -299,7 +301,7 @@ export const addService = async (service: any) => {
   }
 };
 
-export const updateService = async (id: string, service: any) => {
+export const updateService = async (id: string, service: Service) => {
   if (USE_MOCK_DATA) {
     return { ...service, id };
   }

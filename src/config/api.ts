@@ -1,5 +1,3 @@
-import { tr } from "zod/v4/locales";
-
 export const API_CONFIG = {
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
   endpoints: {
@@ -46,7 +44,8 @@ export const API_CONFIG = {
       create: '/api/actions',
       labels: '/api/services/labels',
       reactions: '/api/services/reactions',
-      test: '/api/test/'
+      test: '/api/test/',
+      actionDefinitions: '/api/action-definitions/'
     },
     admin: {
       dashboard: '/api/admin/dashboard',
@@ -64,6 +63,13 @@ export const API_CONFIG = {
       areaRuns: '/api/admin/area-runs',
       areaStats: '/api/admin/area-stats',
       cardUserData: '/api/admin/card-user-data'
+    },
+    backend: {
+      updateArea: '/area/',
+      deleteArea: '/area/',
+      triggerArea: '/area/',
+      getExecutions: '/area/',
+      toggleActivation: '/area/'
     }
   }
 };

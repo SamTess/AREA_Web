@@ -1,5 +1,4 @@
 import { SimpleGrid, Paper, Text, Group } from '@mantine/core';
-import { IconList, IconCheck, IconX, IconClock } from '@tabler/icons-react';
 
 interface AreaStatsCardsProps {
   areaStats: Array<{

@@ -33,7 +33,7 @@ export function ServicesTab() {
     // add et config
   };
 
-  const handleEditService = (updatedService: Service) => {
+  const handleEditService = () => {
     // ouvrir la modale du edit
     // appeler la route de edit
   };

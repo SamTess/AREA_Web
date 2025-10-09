@@ -1,5 +1,5 @@
 import { DataTable, Column } from '../DataTable';
-
+import Image from 'next/image';
 interface Service {
   id: number;
   name: string;
@@ -27,7 +27,9 @@ export function ServicesTable({ services, onAddService, onEditService, onDeleteS
       key: 'logo',
       label: 'Logo',
       render: (service) => (
-        <img
+        <Image
+          width={24}
+          height={24}
           src={service.logo}
           alt={service.name}
           style={{ width: 24, height: 24 }}

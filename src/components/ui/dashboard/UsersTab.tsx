@@ -47,7 +47,7 @@ export function UsersTab() {
     // add user
   };
 
-  const handleEditUser = (updatedUser: User) => {
+  const handleEditUser = () => {
     // ouvir la modale du edit
     // appeler la route de edit
   };

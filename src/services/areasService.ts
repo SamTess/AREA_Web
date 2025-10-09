@@ -141,7 +141,7 @@ export const getActionDefinitionById = async (actionDefinitionId: string): Promi
   }
 
   try {
-    const response = await axios.get(`/api/action-definitions/${actionDefinitionId}`);
+    const response = await axios.get(API_CONFIG.endpoints.actions.actionDefinitions + actionDefinitionId);
     return response.data;
   } catch (error) {
     console.error('Get action definition by id error:', error);
@@ -421,7 +421,7 @@ export const createAreaWithActions = async (payload: CreateAreaPayload): Promise
 
 export const updateAreaBackend = async (areaId: string, payload: Partial<CreateAreaPayload>): Promise<BackendArea> => {
   try {
-    const response = await axios.put(`/area/${areaId}`, payload);
+    const response = await axios.put(API_CONFIG.endpoints.backend.updateArea + areaId, payload);
     return response.data;
   } catch (error) {
     console.error('Update backend area error:', error);
@@ -431,7 +431,7 @@ export const updateAreaBackend = async (areaId: string, payload: Partial<CreateA
 
 export const deleteAreaBackend = async (areaId: string): Promise<void> => {
   try {
-    await axios.delete(`/area/${areaId}`);
+    await axios.delete(API_CONFIG.endpoints.backend.deleteArea + areaId);
   } catch (error) {
     console.error('Delete backend area error:', error);
     throw error;
@@ -440,7 +440,7 @@ export const deleteAreaBackend = async (areaId: string): Promise<void> => {
 
 export const triggerAreaManually = async (areaId: string): Promise<{ success: boolean; message?: string }> => {
   try {
-    const response = await axios.post(`/area/${areaId}/trigger`);
+    const response = await axios.post(API_CONFIG.endpoints.backend.triggerArea + `${areaId}/trigger`);
     return response.data;
   } catch (error) {
     console.error('Trigger area manually error:', error);
@@ -450,7 +450,7 @@ export const triggerAreaManually = async (areaId: string): Promise<{ success: bo
 
 export const getAreaExecutions = async (areaId: string): Promise<unknown[]> => {
   try {
-    const response = await axios.get(`/area/${areaId}/executions`);
+    const response = await axios.get(API_CONFIG.endpoints.backend.getExecutions + `${areaId}/executions`);
     return response.data;
   } catch (error) {
     console.error('Get area executions error:', error);
@@ -460,7 +460,7 @@ export const getAreaExecutions = async (areaId: string): Promise<unknown[]> => {
 
 export const toggleAreaActivation = async (areaId: string, enabled: boolean): Promise<BackendArea> => {
   try {
-    const response = await axios.patch(`/area/${areaId}/activation`, { enabled });
+    const response = await axios.patch(API_CONFIG.endpoints.backend.toggleActivation + `${areaId}/activation`, { enabled });
     return response.data;
   } catch (error) {
     console.error('Toggle area activation error:', error);
