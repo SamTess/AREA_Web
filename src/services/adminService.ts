@@ -18,7 +18,7 @@ import {
   cardUserData
 } from '../mocks/adminData';
 
-import {  UserContent, Service } from '../types.ts';
+import {  UserContent, Service } from '../types';
 
 export const getDashboardData = async () => {
   if (USE_MOCK_DATA)
