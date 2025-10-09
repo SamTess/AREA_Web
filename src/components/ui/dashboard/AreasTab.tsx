@@ -14,6 +14,7 @@ interface Area {
   lastRun: string;
   status: string;
   user: string;
+  enabled: boolean;
 }
 
 interface AreaRun {
@@ -66,6 +67,16 @@ export function AreasTab() {
     (selectedStatus ? run.status === selectedStatus : true)
   );
 
+  const handleDeleteArea = (area: Area) => {
+    setAreas(prevAreas => prevAreas.filter(a => a.id !== area.id));
+    // appeler la route de delete
+  }
+
+  const handleToggleArea = (area: Area, enabled: boolean) => {
+    setAreas(prevAreas => prevAreas.map(a => a.id === area.id ? { ...a, enabled } : a));
+    // appeler la route pour toggle
+  }
+
   return (
     <>
       <AreaStatsCards areaStats={areaStats} />
@@ -110,7 +121,7 @@ export function AreasTab() {
               </Combobox>
             </Grid.Col>
             <Grid.Col span={12}>
-              <AreasTable areas={filteredAreas} />
+              <AreasTable areas={filteredAreas} onDeleteArea={handleDeleteArea} onToggleArea={handleToggleArea} />
             </Grid.Col>
           </Grid>
         </Grid.Col>

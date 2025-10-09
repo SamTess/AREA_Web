@@ -110,21 +110,21 @@ export const users = [
 ];
 
 export const areas = [
-  { id: 1, name: 'GitHub PR Monitor', description: 'Monitors pull requests and sends notifications', lastRun: '2024-09-25', status: 'success', user: 'John Doe' },
-  { id: 2, name: 'Slack Channel Alert', description: 'Alerts users via Slack channels on events', lastRun: '2024-09-24', status: 'failed', user: 'Jane Smith' },
-  { id: 3, name: 'GitLab CI Pipeline', description: 'Triggers on GitLab CI pipeline failures', lastRun: '2024-09-23', status: 'in progress', user: 'Bob Johnson' },
-  { id: 4, name: 'Bitbucket Repo Sync', description: 'Syncs repositories across Bitbucket instances', lastRun: '2024-09-22', status: 'success', user: 'Alice Williams' },
-  { id: 5, name: 'Azure DevOps Build', description: 'Monitors build statuses in Azure DevOps', lastRun: '2024-09-21', status: 'success', user: 'Charlie Brown' },
-  { id: 6, name: 'Jira Issue Tracker', description: 'Tracks and updates Jira issues automatically', lastRun: '2024-09-20', status: 'in progress', user: 'Diana Prince' },
-  { id: 7, name: 'Multi-Service Notification', description: 'Combines GitHub and Slack for notifications', lastRun: '2024-09-19', status: 'success', user: 'Eve Adams' },
-  { id: 8, name: 'GitLab Merge Request', description: 'Handles merge requests in GitLab', lastRun: '2024-09-18', status: 'failed', user: 'Frank Miller' },
-  { id: 9, name: 'Discord Bot Alert', description: 'Sends alerts to Discord channels', lastRun: '2024-09-17', status: 'success', user: 'George Lucas' },
-  { id: 10, name: 'Twitter Post Monitor', description: 'Monitors Twitter posts and reacts', lastRun: '2024-09-16', status: 'failed', user: 'Hannah Montana' },
-  { id: 11, name: 'Google Calendar Sync', description: 'Syncs events between calendars', lastRun: '2024-09-15', status: 'success', user: 'Ian Fleming' },
-  { id: 12, name: 'Spotify Playlist Update', description: 'Updates playlists based on triggers', lastRun: '2024-09-14', status: 'in progress', user: 'Julia Roberts' },
-  { id: 13, name: 'Email Notification', description: 'Sends email alerts on events', lastRun: '2024-09-13', status: 'success', user: 'Kevin Hart' },
-  { id: 14, name: 'Weather Alert', description: 'Alerts on weather changes', lastRun: '2024-09-12', status: 'failed', user: 'Linda Blair' },
-  { id: 15, name: 'RSS Feed Monitor', description: 'Monitors RSS feeds for updates', lastRun: '2024-09-11', status: 'success', user: 'Mike Tyson' },
+  { id: 1, name: 'GitHub PR Monitor', description: 'Monitors pull requests and sends notifications', lastRun: '2024-09-25', status: 'success', user: 'John Doe', enabled: true },
+  { id: 2, name: 'Slack Channel Alert', description: 'Alerts users via Slack channels on events', lastRun: '2024-09-24', status: 'failed', user: 'Jane Smith', enabled: false },
+  { id: 3, name: 'GitLab CI Pipeline', description: 'Triggers on GitLab CI pipeline failures', lastRun: '2024-09-23', status: 'in progress', user: 'Bob Johnson', enabled: true },
+  { id: 4, name: 'Bitbucket Repo Sync', description: 'Syncs repositories across Bitbucket instances', lastRun: '2024-09-22', status: 'success', user: 'Alice Williams', enabled: true },
+  { id: 5, name: 'Azure DevOps Build', description: 'Monitors build statuses in Azure DevOps', lastRun: '2024-09-21', status: 'success', user: 'Charlie Brown', enabled: false },
+  { id: 6, name: 'Jira Issue Tracker', description: 'Tracks and updates Jira issues automatically', lastRun: '2024-09-20', status: 'in progress', user: 'Diana Prince', enabled: true },
+  { id: 7, name: 'Multi-Service Notification', description: 'Combines GitHub and Slack for notifications', lastRun: '2024-09-19', status: 'success', user: 'Eve Adams', enabled: true },
+  { id: 8, name: 'GitLab Merge Request', description: 'Handles merge requests in GitLab', lastRun: '2024-09-18', status: 'failed', user: 'Frank Miller', enabled: false },
+  { id: 9, name: 'Discord Bot Alert', description: 'Sends alerts to Discord channels', lastRun: '2024-09-17', status: 'success', user: 'George Lucas', enabled: true },
+  { id: 10, name: 'Twitter Post Monitor', description: 'Monitors Twitter posts and reacts', lastRun: '2024-09-16', status: 'failed', user: 'Hannah Montana', enabled: false },
+  { id: 11, name: 'Google Calendar Sync', description: 'Syncs events between calendars', lastRun: '2024-09-15', status: 'success', user: 'Ian Fleming', enabled: true },
+  { id: 12, name: 'Spotify Playlist Update', description: 'Updates playlists based on triggers', lastRun: '2024-09-14', status: 'in progress', user: 'Julia Roberts', enabled: true },
+  { id: 13, name: 'Email Notification', description: 'Sends email alerts on events', lastRun: '2024-09-13', status: 'success', user: 'Kevin Hart', enabled: true },
+  { id: 14, name: 'Weather Alert', description: 'Alerts on weather changes', lastRun: '2024-09-12', status: 'failed', user: 'Linda Blair', enabled: false },
+  { id: 15, name: 'RSS Feed Monitor', description: 'Monitors RSS feeds for updates', lastRun: '2024-09-11', status: 'success', user: 'Mike Tyson', enabled: true },
 ];
 
 export const services = [

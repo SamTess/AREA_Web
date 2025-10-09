@@ -29,6 +29,20 @@ export function ServicesTab() {
     service.name.toLowerCase().includes(searchServices.toLowerCase())
   );
 
+  const handleAddService = () => {
+    // add et config
+  };
+
+  const handleEditService = (updatedService: Service) => {
+    // ouvrir la modale du edit
+    // appeler la route de edit
+  };
+
+  const handleDeleteService = (service: Service) => {
+    setServices(services.filter(s => s.id !== service.id));
+    // appeler la route de delete
+  };
+
   return (
     <Grid>
       <Grid.Col span={{ base: 12, md: 6 }}>
@@ -53,7 +67,7 @@ export function ServicesTab() {
             />
           </Grid.Col>
           <Grid.Col span={12}>
-            <ServicesTable services={filteredServices} />
+            <ServicesTable services={filteredServices} onAddService={handleAddService} onEditService={handleEditService} onDeleteService={handleDeleteService} />
           </Grid.Col>
         </Grid>
       </Grid.Col>

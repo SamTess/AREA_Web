@@ -10,9 +10,9 @@ interface User {
 
 interface UsersTableProps {
   users: User[];
-  onAddUser?: () => void;
-  onEditUser?: (user: User) => void;
-  onDeleteUser?: (user: User) => void;
+  onAddUser: () => void;
+  onEditUser: (updatedUser: User) => void;
+  onDeleteUser: (user: User) => void;
 }
 
 export function UsersTable({ users, onAddUser, onEditUser, onDeleteUser }: UsersTableProps) {

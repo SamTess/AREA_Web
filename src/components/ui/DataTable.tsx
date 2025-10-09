@@ -1,4 +1,4 @@
-import { Card, Title, Group, Button, Table, Pagination } from '@mantine/core';
+import { Card, Title, Group, Button, Table, Pagination, Switch } from '@mantine/core';
 import { IconPlus, IconEdit, IconTrash } from '@tabler/icons-react';
 import { useState, ReactNode } from 'react';
 
@@ -14,14 +14,17 @@ export interface DataTableProps<T> {
   data: T[];
   columns: Column<T>[];
   itemsPerPage?: number;
-  
+
   onAdd?: () => void;
   onEdit?: (item: T) => void;
   onDelete?: (item: T) => void;
-  
+
   addButtonText?: string;
   showAddButton?: boolean;
   showActions?: boolean;
+  showToggle?: boolean;
+  getToggleChecked?: (item: T) => boolean;
+  onToggle?: (item: T, checked: boolean) => void;
 }
 
 export function DataTable<T extends { id: number | string }>({
@@ -35,6 +38,9 @@ export function DataTable<T extends { id: number | string }>({
   addButtonText,
   showAddButton = true,
   showActions = true,
+  showToggle = false,
+  getToggleChecked,
+  onToggle,
 }: DataTableProps<T>) {
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -43,10 +49,20 @@ export function DataTable<T extends { id: number | string }>({
   const endIndex = startIndex + itemsPerPage;
   const paginatedData = data.slice(startIndex, endIndex);
 
-  // Add actions column if needed
-  const allColumns: Column<T>[] = showActions ? [
+  const allColumns: Column<T>[] = [
     ...columns,
-    {
+    ...(showToggle ? [{
+      key: 'toggle' as keyof T,
+      label: 'Enable/Disable',
+      render: (item: T) => (
+        <Switch
+          checked={getToggleChecked?.(item) || false}
+          onChange={(event) => onToggle?.(item, event.currentTarget.checked)}
+          size="sm"
+        />
+      )
+    }] : []),
+    ...(showActions ? [{
       key: 'actions' as keyof T,
       label: 'Actions',
       render: (item: T) => (
@@ -70,8 +86,8 @@ export function DataTable<T extends { id: number | string }>({
           )}
         </Group>
       )
-    }
-  ] : columns;
+    }] : [])
+  ];
 
   return (
     <Card withBorder shadow="sm" p="md" radius="md">

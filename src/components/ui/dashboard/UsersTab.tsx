@@ -43,6 +43,20 @@ export function UsersTab() {
     (selectedRole ? user.role === selectedRole : true)
   );
 
+  const handleAddUser = () => {
+    // add user
+  };
+
+  const handleEditUser = (updatedUser: User) => {
+    // ouvir la modale du edit
+    // appeler la route de edit
+  };
+
+  const handleDeleteUser = (user: User) => {
+    setUsers(users.filter(u => u.id !== user.id));
+    // appeler la route de delete
+  };
+
   return (
     <>
       <StatsGrid data={cardUserData} />
@@ -117,7 +131,7 @@ export function UsersTab() {
         </Grid.Col>
 
         <Grid.Col span={12}>
-          <UsersTable users={filteredUsers} />
+          <UsersTable users={filteredUsers} onAddUser={handleAddUser} onEditUser={handleEditUser} onDeleteUser={handleDeleteUser} />
         </Grid.Col>
       </Grid>
     </>

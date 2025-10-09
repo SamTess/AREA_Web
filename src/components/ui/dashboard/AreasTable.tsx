@@ -8,6 +8,7 @@ interface Area {
   lastRun: string;
   status: string;
   user: string;
+  enabled: boolean;
 }
 
 interface AreasTableProps {
@@ -15,9 +16,10 @@ interface AreasTableProps {
   onAddArea?: () => void;
   onEditArea?: (area: Area) => void;
   onDeleteArea?: (area: Area) => void;
+  onToggleArea?: (area: Area, enabled: boolean) => void;
 }
 
-export function AreasTable({ areas, onAddArea, onEditArea, onDeleteArea }: AreasTableProps) {
+export function AreasTable({ areas, onAddArea, onEditArea, onDeleteArea, onToggleArea }: AreasTableProps) {
   const columns: Column<Area>[] = [
     {
       key: 'id',
@@ -71,6 +73,9 @@ export function AreasTable({ areas, onAddArea, onEditArea, onDeleteArea }: Areas
       onAdd={onAddArea}
       onEdit={onEditArea}
       onDelete={onDeleteArea}
+      showToggle={true}
+      getToggleChecked={(area) => area.enabled}
+      onToggle={onToggleArea}
       addButtonText="Add Area"
     />
   );
