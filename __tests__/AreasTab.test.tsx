@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import { AreasTab } from '../src/components/ui/dashboard/AreasTab';
+import { deleteArea, enableDisableArea } from '../src/services/adminService';
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return <MantineProvider>{children}</MantineProvider>;
@@ -105,8 +106,6 @@ describe('AreasTab', () => {
   });
 
   it('handles delete area', async () => {
-    const { deleteArea } = require('../src/services/adminService');
-
     render(<AreasTab />, { wrapper: AllTheProviders });
 
     await waitFor(() => {
@@ -119,8 +118,6 @@ describe('AreasTab', () => {
   });
 
   it('handles toggle area enable/disable', async () => {
-    const { enableDisableArea } = require('../src/services/adminService');
-
     render(<AreasTab />, { wrapper: AllTheProviders });
 
     await waitFor(() => {

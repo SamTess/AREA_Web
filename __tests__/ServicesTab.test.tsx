@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import { ServicesTab } from '../src/components/ui/dashboard/ServicesTab';
+import { deleteService } from '../src/services/adminService';
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return <MantineProvider>{children}</MantineProvider>;
@@ -51,8 +52,6 @@ describe('ServicesTab', () => {
   });
 
   it('handles delete service', async () => {
-    const { deleteService } = require('../src/services/adminService');
-
     render(<ServicesTab />, { wrapper: AllTheProviders });
 
     await waitFor(() => {

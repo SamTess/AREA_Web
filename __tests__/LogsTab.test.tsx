@@ -1,6 +1,7 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { MantineProvider } from '@mantine/core';
 import { LogsTab } from '../src/components/ui/dashboard/LogsTab';
+import { getLogs } from '../src/services/adminService';
 
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return <MantineProvider>{children}</MantineProvider>;
@@ -67,8 +68,6 @@ describe('LogsTab', () => {
   });
 
   it('handles reload logs', async () => {
-    const { getLogs } = require('../src/services/adminService');
-
     render(<LogsTab />, { wrapper: AllTheProviders });
 
     await waitFor(() => {
