@@ -5,6 +5,13 @@
 import '@testing-library/jest-dom'
 import React from 'react'
 
+// Mock ResizeObserver for Recharts
+global.ResizeObserver = jest.fn().mockImplementation(() => ({
+  observe: jest.fn(),
+  unobserve: jest.fn(),
+  disconnect: jest.fn(),
+}))
+
 jest.mock('next/navigation', () => ({
   useRouter() {
     return {
