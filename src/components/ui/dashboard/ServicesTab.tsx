@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Grid, Card, Title, TextInput } from '@mantine/core';
 import { BarChart } from '@mantine/charts';
 import { ServicesTable } from './ServicesTable';
-import { getServices, getServicesBarData } from '../../../services/adminService';
+import { getServices, getServicesBarData, deleteService } from '../../../services/adminService';
 
 interface Service {
   id: number;
@@ -40,7 +40,7 @@ export function ServicesTab() {
 
   const handleDeleteService = (service: Service) => {
     setServices(services.filter(s => s.id !== service.id));
-    // appeler la route de delete
+    deleteService(service.id.toString());
   };
 
   return (

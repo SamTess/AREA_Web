@@ -216,3 +216,112 @@ export const getCardUserData = async () => {
     throw error;
   }
 };
+
+export const addUser = async (user: any) => {
+  if (USE_MOCK_DATA) {
+    return { ...user, id: Math.random().toString(36).substr(2, 9) };
+  }
+
+  try {
+    const response = await axios.post(API_CONFIG.endpoints.admin.users, user);
+    return response.data;
+  } catch (error) {
+    console.error(`Post ${API_CONFIG.endpoints.admin.users} error:`, error);
+    throw error;
+  }
+};
+
+export const updateUser = async (id: string, user: any) => {
+  if (USE_MOCK_DATA) {
+    return { ...user, id };
+  }
+
+  try {
+    const response = await axios.put(`${API_CONFIG.endpoints.admin.users}/${id}`, user);
+    return response.data;
+  } catch (error) {
+    console.error(`Put ${API_CONFIG.endpoints.admin.users}/${id} error:`, error);
+    throw error;
+  }
+};
+
+
+export const deleteUser = async (id: string) => {
+  if (USE_MOCK_DATA) {
+    return;
+  }
+
+  try {
+    await axios.delete(`${API_CONFIG.endpoints.admin.users}/${id}`);
+  } catch (error) {
+    console.error(`Delete ${API_CONFIG.endpoints.admin.users}/${id} error:`, error);
+    throw error;
+  }
+};
+
+export const deleteArea = async (id: string) => {
+  if (USE_MOCK_DATA) {
+    return;
+  }
+
+  try {
+    await axios.delete(`${API_CONFIG.endpoints.admin.areas}/${id}`);
+  } catch (error) {
+    console.error(`Delete ${API_CONFIG.endpoints.admin.areas}/${id} error:`, error);
+    throw error;
+  }
+};
+
+export const enableDisableArea = async (id: string, enable: boolean) => {
+  if (USE_MOCK_DATA) {
+    return;
+  }
+
+  try {
+    await axios.patch(`${API_CONFIG.endpoints.admin.areas}/${id}`, { enabled: enable });
+  } catch (error) {
+    console.error(`Patch ${API_CONFIG.endpoints.admin.areas}/${id} error:`, error);
+    throw error;
+  }
+};
+
+export const addService = async (service: any) => {
+  if (USE_MOCK_DATA) {
+    return { ...service, id: Math.random().toString(36).substr(2, 9) };
+  }
+
+  try {
+    const response = await axios.post(API_CONFIG.endpoints.admin.services, service);
+    return response.data;
+  } catch (error) {
+    console.error(`Post ${API_CONFIG.endpoints.admin.services} error:`, error);
+    throw error;
+  }
+};
+
+export const updateService = async (id: string, service: any) => {
+  if (USE_MOCK_DATA) {
+    return { ...service, id };
+  }
+
+  try {
+    const response = await axios.put(`${API_CONFIG.endpoints.admin.services}/${id}`, service);
+    return response.data;
+  } catch (error) {
+    console.error(`Put ${API_CONFIG.endpoints.admin.services}/${id} error:`, error);
+    throw error;
+  }
+};
+
+export const deleteService = async (id: string) => {
+  if (USE_MOCK_DATA) {
+    return;
+  }
+
+  try {
+    await axios.delete(`${API_CONFIG.endpoints.admin.services}/${id}`);
+  } catch (error) {
+    console.error(`Delete ${API_CONFIG.endpoints.admin.services}/${id} error:`, error);
+    throw error;
+  }
+};

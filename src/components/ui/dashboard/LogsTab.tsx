@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Grid, TextInput, Combobox, useCombobox } from '@mantine/core';
+import { Grid, TextInput, Combobox, useCombobox, Button } from '@mantine/core';
+import { IconReload } from '@tabler/icons-react';
 import { LogsTable } from './LogsTable';
 import { getLogs } from '../../../services/adminService';
 
@@ -31,6 +32,10 @@ export function LogsTab() {
 
   const comboboxValueLogLevel = ['', 'INFO', 'ERROR', 'WARN', 'DEBUG'];
 
+  const reloadLogs = async () => {
+    setLogs(await getLogs());
+  };
+
   const filteredLogs = logs.filter(log =>
     (log.message.toLowerCase().includes(searchLogs.toLowerCase()) ||
      log.source.toLowerCase().includes(searchLogs.toLowerCase())) &&
@@ -41,14 +46,14 @@ export function LogsTab() {
     <Grid>
       <Grid.Col span={12}>
         <Grid>
-          <Grid.Col span={{ base: 8, md: 10 }}>
+          <Grid.Col span={{ base: 6, md: 8 }}>
             <TextInput
               placeholder="Search logs by message or source..."
               value={searchLogs}
               onChange={(event) => setSearchLogs(event.currentTarget.value)}
             />
           </Grid.Col>
-          <Grid.Col span={{ base: 4, md: 2 }}>
+          <Grid.Col span={{ base: 3, md: 2 }}>
             <Combobox
               store={comboboxLog}
               onOptionSubmit={(value) => {
@@ -77,6 +82,16 @@ export function LogsTab() {
               </Combobox.Dropdown>
             </Combobox>
           </Grid.Col>
+          <Grid.Col span={{ base: 3, md: 2 }}>
+            <Button
+              onClick={() => {
+                reloadLogs();
+              }}
+            >
+              <IconReload />
+            </Button>
+          </Grid.Col>
+
           <Grid.Col span={12}>
             <LogsTable logs={filteredLogs} />
           </Grid.Col>

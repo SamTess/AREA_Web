@@ -5,7 +5,7 @@ import { Grid, TextInput, Combobox, useCombobox, Space } from '@mantine/core';
 import { AreaStatsCards } from './AreaStatsCards';
 import { AreasTable } from './AreasTable';
 import { AreaRunsTable } from './AreaRunsTable';
-import { getAreas, getAreaRuns, getAreaStats } from '../../../services/adminService';
+import { getAreas, getAreaRuns, getAreaStats , deleteArea, enableDisableArea} from '../../../services/adminService';
 
 interface Area {
   id: number;
@@ -69,12 +69,12 @@ export function AreasTab() {
 
   const handleDeleteArea = (area: Area) => {
     setAreas(prevAreas => prevAreas.filter(a => a.id !== area.id));
-    // appeler la route de delete
+    deleteArea(area.id.toString());
   }
 
   const handleToggleArea = (area: Area, enabled: boolean) => {
     setAreas(prevAreas => prevAreas.map(a => a.id === area.id ? { ...a, enabled } : a));
-    // appeler la route pour toggle
+    enableDisableArea(area.id.toString(), enabled);
   }
 
   return (

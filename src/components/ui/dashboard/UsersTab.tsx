@@ -5,7 +5,7 @@ import { Grid, Card, Title, TextInput, Combobox, useCombobox, Space } from '@man
 import { LineChart, BarChart } from '@mantine/charts';
 import { StatsGrid } from './StatsGrid';
 import { UsersTable } from './UsersTable';
-import { getLineData, getBarData, getCardUserData, getUsers } from '../../../services/adminService';
+import { getLineData, getBarData, getCardUserData, getUsers, deleteUser } from '../../../services/adminService';
 
 interface User {
   id: number;
@@ -54,7 +54,7 @@ export function UsersTab() {
 
   const handleDeleteUser = (user: User) => {
     setUsers(users.filter(u => u.id !== user.id));
-    // appeler la route de delete
+    deleteUser(user.id.toString());
   };
 
   return (
