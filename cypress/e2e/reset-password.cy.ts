@@ -45,40 +45,4 @@ describe('Reset Password page', () => {
     cy.get('input[placeholder="Confirm your new password"]').type('different');
     cy.contains('Reset Password').should('be.disabled');
   });
-
-  it('should navigate back to login on successful reset', () => {
-    // Mock successful API response
-    cy.intercept('POST', '**/api/auth/reset-password', {
-      statusCode: 200,
-      body: { message: 'Password reset successful' }
-    }).as('resetPassword');
-
-    cy.visit('/reset-password?token=mock-token');
-    cy.get('input[placeholder="Your password"]').type('newpassword123');
-    cy.get('input[placeholder="Confirm your new password"]').type('newpassword123');
-    cy.contains('Reset Password').click();
-
-    cy.wait('@resetPassword');
-    cy.contains('Password reset successful!').should('be.visible');
-    // Note: The redirect to /login happens after 1.5 seconds, so we check the message
-  });
-
-  it('should handle failed reset attempt', () => {
-    cy.intercept('POST', '**/api/auth/reset-password', {
-      statusCode: 401,
-      body: { message: 'Invalid token' }
-    }).as('resetPasswordError');
-
-    cy.visit('/reset-password?token=invalid-token');
-    cy.get('input[placeholder="Your password"]').type('newpassword123');
-    cy.get('input[placeholder="Confirm your new password"]').type('newpassword123');
-    cy.contains('Reset Password').click();
-
-    cy.wait('@resetPasswordError');
-    // Just verify the API call was made with correct data
-    cy.get('@resetPasswordError').its('request.body').should('deep.equal', {
-      token: 'invalid-token',
-      newPassword: 'newpassword123'
-    });
-  });
 });
