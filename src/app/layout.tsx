@@ -35,7 +35,7 @@ export default function RootLayout({
           <div>
         <NavbarMinimal />
           </div>
-          <div style={{ marginLeft: '80px' }}>
+          <div className="content">
           {children}
           </div>
           <Footer />
