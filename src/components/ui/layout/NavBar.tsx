@@ -27,9 +27,9 @@ function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
 }
 
 const dataCenter = [
-  { icon: IconHome2, label: 'Home', link: "/" },
-  { icon: IconGauge, label: 'Dashboard', link: "/dashboard" },
-  { icon: IconListDetails, label: 'Areas', link: "/areas" },
+  { icon: IconHome2, label: 'Home', link: "/", checkAdmin: false },
+  { icon: IconListDetails, label: 'Areas', link: "/areas", checkAdmin: false },
+  { icon: IconGauge, label: 'Dashboard', link: "/dashboard", checkAdmin: true },
 ];
 
 export function NavbarMinimal() {
@@ -37,6 +37,7 @@ export function NavbarMinimal() {
   const router = useRouter();
   const [isConnected, setIsConnected] = useState(false);
   const [user, setUser] = useState<UserContent | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -45,6 +46,7 @@ export function NavbarMinimal() {
         if (userInfo && userInfo.email) {
           setIsConnected(true);
           setUser(userInfo);
+          setIsAdmin(userInfo.isAdmin === true);
         } else {
           setIsConnected(false);
         }
@@ -57,6 +59,7 @@ export function NavbarMinimal() {
   }, []);
 
   const links = dataCenter.map((link, index) => (
+    (link.checkAdmin && !isAdmin) ? null :
     <NavbarLink
       {...link}
       key={link.label}
@@ -70,7 +73,7 @@ export function NavbarMinimal() {
   ));
 
   return (
-    <nav className={classes.navbar} style={{ backgroundColor: 'var(--mantine-color-white)', width: '78px' }}> {/* la couleurs / le style a mettre ailleurs */}
+    <nav className={classes.navbar} style={{ backgroundColor: 'var(--mantine-color-white)', width: '78px' }}>
       <Center>
         <Image src="/A1.png" alt="Logo" width={40} height={40} />
       </Center>

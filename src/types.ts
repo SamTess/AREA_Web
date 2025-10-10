@@ -189,6 +189,7 @@ export interface UserContent {
   email: string;
   avatarSrc: string;
   profileData: ProfileData;
+  isAdmin: boolean;
 }
 
 export interface ProfileData {
