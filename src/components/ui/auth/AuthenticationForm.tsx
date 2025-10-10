@@ -208,7 +208,6 @@ export function AuthenticationForm(props: PaperProps) {
     if (loading) { return; }
     setError(null);
     setSuccess(null);
-    const validation = form.validate();
     await handleSubmit(form.values);
   };
 
