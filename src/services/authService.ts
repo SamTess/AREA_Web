@@ -102,6 +102,7 @@ export const getCurrentUser = async (): Promise<UserContent> => {
       name: 'Mock User',
       email: 'mock@example.com',
       avatarSrc: 'https://mock.jpg',
+      isAdmin: true,
       profileData: {
         email: 'mock@example.com',
         firstName: 'Mock',
