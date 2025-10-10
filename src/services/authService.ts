@@ -163,7 +163,7 @@ export const verifyEmail = async (token: string): Promise<void> => {
     return Promise.resolve();
 
   try {
-    await axios.post(API_CONFIG.endpoints.auth.verifyEmail, { token });
+    await axios.get(API_CONFIG.endpoints.auth.verifyEmail, { params: { token } });
   } catch (error) {
     console.error('Verify email error:', error);
     throw error;
