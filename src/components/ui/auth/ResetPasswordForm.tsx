@@ -156,6 +156,7 @@ export function ResetPasswordForm(props: PaperProps) {
             form.setFieldValue('password', val);
             clearMessages();
           }}
+          error={form.errors.password}
         />
 
         <PasswordInput
