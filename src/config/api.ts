@@ -44,7 +44,27 @@ export const API_CONFIG = {
       create: '/api/actions',
       labels: '/api/services/labels',
       reactions: '/api/services/reactions',
-      test: '/api/test/'
+      test: '/api/test/',
+      actionDefinitions: '/api/action-definitions/'
+    },
+    admin: {
+      userConnectedPerDay: '/api/admin/user-connected-per-day',
+      newUserPerMonth: '/api/admin/new-user-per-month',
+      users: '/api/admin/users',
+      areas: '/api/admin/areas',
+      services: '/api/admin/services',
+      servicesUsage: '/api/admin/services-usage',
+      logs: '/api/admin/logs',
+      areaRuns: '/api/admin/area-runs',
+      areaStats: '/api/admin/area-stats',
+      cardUserData: '/api/admin/card-user-data'
+    },
+    backend: {
+      updateArea: '/area/',
+      deleteArea: '/area/',
+      triggerArea: '/area/',
+      getExecutions: '/area/',
+      toggleActivation: '/area/'
     }
   }
 };
@@ -53,4 +73,4 @@ export const buildApiUrl = (endpoint: string): string => {
   return `${API_CONFIG.baseURL}${endpoint}`;
 };
 
-export const USE_MOCK_DATA = process.env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
+export const USE_MOCK_DATA = true;
