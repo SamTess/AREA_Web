@@ -1,16 +1,11 @@
 import axios from '../config/axios';
 import { API_CONFIG, USE_MOCK_DATA } from '../config/api';
 import {
-  data,
   lineData,
-  pieData,
   barData,
-  revenueData,
-  profitData,
   users,
   areas,
   services,
-  areasPieData,
   servicesBarData,
   logs,
   areaRuns,
@@ -20,41 +15,15 @@ import {
 
 import {  UserContent, Service } from '../types';
 
-export const getDashboardData = async () => {
-  if (USE_MOCK_DATA)
-    return data;
-
-  try {
-    const response = await axios.get(API_CONFIG.endpoints.admin.dashboard);
-    return response.data;
-  } catch (error) {
-    console.error(`Get ${API_CONFIG.endpoints.admin.dashboard} error:`, error);
-    throw error;
-  }
-};
-
 export const getLineData = async () => {
   if (USE_MOCK_DATA)
     return lineData;
 
   try {
-    const response = await axios.get(API_CONFIG.endpoints.admin.lineData);
+    const response = await axios.get(API_CONFIG.endpoints.admin.userConnectedPerDay);
     return response.data;
   } catch (error) {
-    console.error(`Get ${API_CONFIG.endpoints.admin.lineData} error:`, error);
-    throw error;
-  }
-};
-
-export const getPieData = async () => {
-  if (USE_MOCK_DATA)
-    return pieData;
-
-  try {
-    const response = await axios.get(API_CONFIG.endpoints.admin.pieData);
-    return response.data;
-  } catch (error) {
-    console.error(`Get ${API_CONFIG.endpoints.admin.pieData} error:`, error);
+    console.error(`Get ${API_CONFIG.endpoints.admin.userConnectedPerDay} error:`, error);
     throw error;
   }
 };
@@ -64,37 +33,10 @@ export const getBarData = async () => {
     return barData;
 
   try {
-    const response = await axios.get(API_CONFIG.endpoints.admin.barData);
+    const response = await axios.get(API_CONFIG.endpoints.admin.newUserPerMonth);
     return response.data;
   } catch (error) {
-    console.error(`Get ${API_CONFIG.endpoints.admin.barData} error:`, error);
-    throw error;
-  }
-};
-
-export const getRevenueData = async () => {
-  if (USE_MOCK_DATA)
-    return revenueData;
-
-
-  try {
-    const response = await axios.get(API_CONFIG.endpoints.admin.revenueData);
-    return response.data;
-  } catch (error) {
-    console.error(`Get ${API_CONFIG.endpoints.admin.revenueData} error:`, error);
-    throw error;
-  }
-};
-
-export const getProfitData = async () => {
-  if (USE_MOCK_DATA)
-    return profitData;
-
-  try {
-    const response = await axios.get(API_CONFIG.endpoints.admin.profitData);
-    return response.data;
-  } catch (error) {
-    console.error(`Get ${API_CONFIG.endpoints.admin.profitData} error:`, error);
+    console.error(`Get ${API_CONFIG.endpoints.admin.newUserPerMonth} error:`, error);
     throw error;
   }
 };
@@ -138,29 +80,16 @@ export const getServices = async () => {
   }
 };
 
-export const getAreasPieData = async () => {
-  if (USE_MOCK_DATA)
-    return areasPieData;
-
-
-  try {
-    const response = await axios.get(API_CONFIG.endpoints.admin.areasPieData);
-    return response.data;
-  } catch (error) {
-    console.error(`Get ${API_CONFIG.endpoints.admin.areasPieData} error:`, error);
-    throw error;
-  }
-};
 
 export const getServicesBarData = async () => {
   if (USE_MOCK_DATA)
     return servicesBarData;
 
   try {
-    const response = await axios.get(API_CONFIG.endpoints.admin.servicesBarData);
+    const response = await axios.get(API_CONFIG.endpoints.admin.servicesUsage);
     return response.data;
   } catch (error) {
-    console.error(`Get ${API_CONFIG.endpoints.admin.servicesBarData} error:`, error);
+    console.error(`Get ${API_CONFIG.endpoints.admin.servicesUsage} error:`, error);
     throw error;
   }
 };

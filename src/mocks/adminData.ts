@@ -140,12 +140,6 @@ export const services = [
   { id: 10, name: 'Apple', logo: 'https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg' },
 ];
 
-export const areasPieData = [
-  { name: 'Success', value: 8, color: 'green' },
-  { name: 'Failed', value: 4, color: 'red' },
-  { name: 'In Progress', value: 3, color: 'yellow' },
-];
-
 export const servicesBarData = [
   { service: 'GitHub', usage: 25 },
   { service: 'Slack', usage: 20 },
@@ -209,9 +203,3 @@ export const cardUserData = [
   { title: 'Admins', icon: 'user', value: '5', diff: 0 },
 ];
 
-export const CardUserData = [
-  { title: 'Total Users', icon: 'user', value: '2,500', diff: 10 },
-  { title: 'Users Online', icon: 'user', value: '320', diff: -5 },
-  { title: 'Non-Admin Users', icon: 'user', value: '2,200', diff: 8 },
-  { title: 'Admin Users', icon: 'user', value: '300', diff: 2 },
-];
