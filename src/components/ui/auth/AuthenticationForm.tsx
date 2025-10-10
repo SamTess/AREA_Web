@@ -166,9 +166,8 @@ export function AuthenticationForm(props: PaperProps) {
         await login({ email: values.email, password: values.password });
         setSuccess('Login successful! Redirecting...');
         setTimeout(() => {
-          router.push('/');
           window.location.reload();
-
+          router.push('/');
         }, 1500);
       } else if (type === 'register') {
         await register({
@@ -179,11 +178,14 @@ export function AuthenticationForm(props: PaperProps) {
         });
         setSuccess('Registration successful! Redirecting...');
         setTimeout(() => {
+          window.location.reload();
           router.push('/');
         }, 1500);
       } else if (type === 'forgotPassword') {
         await forgotPassword(values.email);
         setSuccess('Password reset email sent! Please check your inbox.');
+        window.location.reload();
+        router.push('/login');
         form.reset();
       }
     } catch (error: unknown) {
@@ -207,10 +209,6 @@ export function AuthenticationForm(props: PaperProps) {
     setError(null);
     setSuccess(null);
     const validation = form.validate();
-    if (validation.hasErrors) {
-      setError('Please correct the errors in the form before submitting.');
-      return;
-    }
     await handleSubmit(form.values);
   };
 

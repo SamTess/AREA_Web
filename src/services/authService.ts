@@ -74,6 +74,18 @@ export const forgotPassword = async (email: string): Promise<void> => {
   }
 };
 
+export const resetPassword = async (token: string, newPassword: string): Promise<void> => {
+  if (USE_MOCK_DATA)
+    return Promise.resolve();
+
+  try {
+    await axios.post(API_CONFIG.endpoints.auth.resetPassword, { token, newPassword });
+  } catch (error) {
+    console.error('Reset password error:', error);
+    throw error;
+  }
+};
+
 export const updateProfile = async (data: ProfileData): Promise<void> => {
   if (USE_MOCK_DATA)
     return Promise.resolve();
