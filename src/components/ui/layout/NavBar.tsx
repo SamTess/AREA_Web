@@ -5,11 +5,13 @@ import {
   IconHome2,
   IconLogin,
   IconListDetails,
+  IconMenu2,
 } from '@tabler/icons-react';
-import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core';
+import { Button, Center, Stack, Tooltip, UnstyledButton } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import Image from 'next/image';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { UserMenu } from '../user/UserMenu';
 import classes from './NavBarMinimal.module.css';
 import { NavbarLinkProps, UserContent } from '../../../types';
@@ -27,16 +29,19 @@ function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
 }
 
 const dataCenter = [
-  { icon: IconHome2, label: 'Home', link: "/" },
-  { icon: IconGauge, label: 'Dashboard', link: "/dashboard" },
-  { icon: IconListDetails, label: 'Areas', link: "/areas" },
+  { icon: IconHome2, label: 'Home', link: "/", checkAdmin: false },
+  { icon: IconListDetails, label: 'Areas', link: "/areas", checkAdmin: false },
+  { icon: IconGauge, label: 'Dashboard', link: "/dashboard", checkAdmin: true },
 ];
 
 export function NavbarMinimal() {
-  const [active, setActive] = useState(0);
   const router = useRouter();
+  const pathname = usePathname();
   const [isConnected, setIsConnected] = useState(false);
   const [user, setUser] = useState<UserContent | null>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
     const checkAuthStatus = async () => {
@@ -45,6 +50,7 @@ export function NavbarMinimal() {
         if (userInfo && userInfo.email) {
           setIsConnected(true);
           setUser(userInfo);
+          setIsAdmin(userInfo.isAdmin === true);
         } else {
           setIsConnected(false);
         }
@@ -56,13 +62,21 @@ export function NavbarMinimal() {
     checkAuthStatus();
   }, []);
 
+  useEffect(() => {
+    if (!isMobile) {
+      setIsOpen(true);
+    } else {
+      setIsOpen(false);
+    }
+  }, [isMobile]);
+
   const links = dataCenter.map((link, index) => (
+    (link.checkAdmin && !isAdmin) ? null :
     <NavbarLink
       {...link}
       key={link.label}
-      active={index === active}
+      active={link.link === pathname}
       onClick={() => {
-        setActive(index);
         console.log("Navigating to:", link.link);
         router.push(link.link);
       }}
@@ -70,25 +84,34 @@ export function NavbarMinimal() {
   ));
 
   return (
-    <nav className={classes.navbar} style={{ backgroundColor: 'var(--mantine-color-white)', width: '78px' }}> {/* la couleurs / le style a mettre ailleurs */}
-      <Center>
-        <Image src="/A1.png" alt="Logo" width={40} height={40} />
-      </Center>
+    <>
+      <nav className={`${classes.navbar} ${isOpen ? classes.open : ''}`} style={{ backgroundColor: 'var(--mantine-color-white)', width: '78px' }}>
+        <div className={classes.navbarMain}>
+          <Stack justify="center" gap={0}>
+            {links}
+          </Stack>
+        </div>
 
-      <div className={classes.navbarMain}>
-        <Stack justify="center" gap={0}>
-          {links}
-        </Stack>
-      </div>
+        <Center className={classes.logo}>
+          <Image src="/A1.png" alt="Logo" width={40} height={40} />
+        </Center>
 
-
-      <Stack justify="center" gap={0}>
-        {isConnected && user ? (
-          <UserMenu user={user} />
-        ) : (
-          <NavbarLink icon={IconLogin} label="Login" onClick={() => router.push('/login')} />
-        )}
-      </Stack>
-    </nav>
+        <div className={classes.user}>
+          {isConnected && user ? (
+            <UserMenu user={user} />
+          ) : (
+            <NavbarLink icon={IconLogin} label="Login" onClick={() => router.push('/login')} />
+          )}
+        </div>
+      </nav>
+      {isMobile && !isOpen && (
+        <Button variant="light" radius="xl" onClick={() => setIsOpen(!isOpen)} className={classes.hamburger}>
+          <IconMenu2 size={20} />
+        </Button>
+      )}
+      {isMobile && isOpen && (
+        <div className={classes.overlay} onClick={() => setIsOpen(false)} />
+      )}
+    </>
   );
 }

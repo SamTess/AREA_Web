@@ -1,18 +1,17 @@
 .footer {
-  margin-top: 120px;
-  border-top: 1px solid light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-5));
-  max-height: 150px;
+  margin-top: auto;
+  width: 100%;
 }
 
 .inner {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: var(--mantine-spacing-md) var(--mantine-spacing-md);
-  max-height: 150px;
+  padding: 0;
 
   @media (max-width: 768px) {
     flex-direction: column;
+    padding: 1rem 0;
   }
 }
 

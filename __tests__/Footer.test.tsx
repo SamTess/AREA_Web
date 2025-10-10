@@ -16,16 +16,15 @@ describe('Footer', () => {
 
   it('renders footer links', () => {
     render(<Footer />, { wrapper: AllTheProviders })
-    expect(screen.getByText('Contact')).toBeInTheDocument()
-    expect(screen.getByText('Privacy')).toBeInTheDocument()
-    expect(screen.getByText('Blog')).toBeInTheDocument()
-    expect(screen.getByText('Careers')).toBeInTheDocument()
+    expect(screen.getByText('About')).toBeInTheDocument()
+    expect(screen.getByText('Features')).toBeInTheDocument()
+    expect(screen.getByText('Support')).toBeInTheDocument()
   })
 
   it('renders links as anchor elements', () => {
     render(<Footer />, { wrapper: AllTheProviders })
     const links = screen.getAllByRole('link')
-    expect(links).toHaveLength(4)
+    expect(links).toHaveLength(3)
     links.forEach(link => {
       expect(link).toHaveAttribute('href', '#')
     })
@@ -33,8 +32,8 @@ describe('Footer', () => {
 
   it('prevents default on link clicks', () => {
     render(<Footer />, { wrapper: AllTheProviders })
-    const contactLink = screen.getByText('Contact')
-    const clickEvent = fireEvent.click(contactLink)
+    const aboutLink = screen.getByText('About')
+    const clickEvent = fireEvent.click(aboutLink)
     expect(clickEvent).toBe(false)
   })
 })
