@@ -1,3 +1,5 @@
+import { env } from "process";
+
 export const API_CONFIG = {
   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
   endpoints: {
@@ -10,10 +12,10 @@ export const API_CONFIG = {
       status: '/api/auth/status',
       forgotPassword: '/api/auth/forgot-password',
       resetPassword: '/api/auth/reset-password',
-      verifyEmail: '/api/auth/verify-email',
+      verifyEmail: '/api/auth/verify',
       providers: '/api/oauth/providers',
       oauth: '/api/auth/oauth/',
-      link: '/api/oauth-link/'
+      link: '/api/oauth-link/',
     },
     user: {
       profile: '/api/auth/profile',
@@ -73,4 +75,4 @@ export const buildApiUrl = (endpoint: string): string => {
   return `${API_CONFIG.baseURL}${endpoint}`;
 };
 
-export const USE_MOCK_DATA = true;
+export const USE_MOCK_DATA = env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';

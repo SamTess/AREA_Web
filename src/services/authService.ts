@@ -157,3 +157,15 @@ export const refreshToken = async (): Promise<{ token: string }> => {
     throw error;
   }
 };
+
+export const verifyEmail = async (token: string): Promise<void> => {
+  if (USE_MOCK_DATA)
+    return Promise.resolve();
+
+  try {
+    await axios.post(API_CONFIG.endpoints.auth.verifyEmail, { token });
+  } catch (error) {
+    console.error('Verify email error:', error);
+    throw error;
+  }
+};
