@@ -9,7 +9,7 @@ import {
 import { Center, Stack, Tooltip, UnstyledButton } from '@mantine/core';
 import Image from 'next/image';
 
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { UserMenu } from '../user/UserMenu';
 import classes from './NavBarMinimal.module.css';
 import { NavbarLinkProps, UserContent } from '../../../types';
@@ -33,8 +33,8 @@ const dataCenter = [
 ];
 
 export function NavbarMinimal() {
-  const [active, setActive] = useState(0);
   const router = useRouter();
+  const pathname = usePathname();
   const [isConnected, setIsConnected] = useState(false);
   const [user, setUser] = useState<UserContent | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -63,9 +63,8 @@ export function NavbarMinimal() {
     <NavbarLink
       {...link}
       key={link.label}
-      active={index === active}
+      active={link.link === pathname}
       onClick={() => {
-        setActive(index);
         console.log("Navigating to:", link.link);
         router.push(link.link);
       }}
