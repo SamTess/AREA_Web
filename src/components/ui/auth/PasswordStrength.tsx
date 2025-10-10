@@ -1,6 +1,7 @@
 import { IconCheck, IconX } from '@tabler/icons-react';
 import { Box, Center, Group, PasswordInput, Progress, Text } from '@mantine/core';
 import { useInputState } from '@mantine/hooks';
+import { ReactNode } from 'react';
 
 function PasswordRequirement({ meets, label }: { meets: boolean; label: string }) {
   return (
@@ -32,7 +33,7 @@ function getStrength(password: string) {
   return Math.max(100 - (100 / (requirements.length + 1)) * multiplier, 0);
 }
 
-export function PasswordStrength({ value, onChange, onKeyDown }: { value?: string; onChange?: (value: string) => void; onKeyDown?: (event: React.KeyboardEvent) => void }) {
+export function PasswordStrength({ value, onChange, onKeyDown, error }: { value?: string; onChange?: (value: string) => void; onKeyDown?: (event: React.KeyboardEvent) => void; error?: ReactNode }) {
   const [internalValue, setInternalValue] = useInputState('');
   const currentValue = value !== undefined ? value : internalValue;
   const handleChange = onChange || setInternalValue;
@@ -63,6 +64,7 @@ export function PasswordStrength({ value, onChange, onKeyDown }: { value?: strin
         placeholder="Your password"
         label="Password"
         required
+        error={error}
       />
 
       <Group gap={5} grow mt="xs" mb="md">
