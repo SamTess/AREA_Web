@@ -7,6 +7,7 @@ import { Title, TextInput, Select, Button, Group, Container, Stack, Divider, Pag
 import { useRouter } from 'next/navigation';
 import { getAreas, getServices, deleteAreabyId, runAreaById, getAreasBackend } from '../../services/areasService';
 import { Area, Service, BackendArea } from '../../types';
+import { getCurrentUser } from '@/services/authService';
 
 const isBackendArea = (area: Area | BackendArea): area is BackendArea => {
     return 'actions' in area && 'reactions' in area;
@@ -61,8 +62,15 @@ export default function AreaListPage() {
                 }
             }
         };
+        const checkLogin = async () => {
+            const user = await getCurrentUser();
+            if (!user) {
+                router.push('/');
+            }
+        };
+        checkLogin();
         loadData();
-    }, []);
+    }, [router]);
 
     const filteredAreas = useMemo(() => {
         const areasArray = Array.isArray(areas) ? areas : [];

@@ -292,7 +292,21 @@ export const getCardByAreaId = async (areaId: string): Promise<ServiceData[]> =>
 export const getAreaById = async (areaId: string): Promise<BackendArea | undefined> => {
   if (USE_MOCK_DATA) {
     const area = mockData.find(area => String(area.id) === areaId);
-    return Promise.resolve(area as unknown as BackendArea);
+    if (area) {
+      return Promise.resolve({
+        id: area.id,
+        name: area.name,
+        description: area.description,
+        enabled: true,
+        userId: '1', // Mock user id
+        userEmail: 'user@example.com',
+        actions: [],
+        reactions: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      });
+    }
+    return Promise.resolve(undefined);
   }
 
   try {

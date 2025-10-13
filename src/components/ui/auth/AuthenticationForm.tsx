@@ -63,7 +63,7 @@ export function AuthenticationForm(props: PaperProps) {
 
     validate: {
       email: (val) => { return /^\S+@\S+$/.test(val) ? null : 'Invalid email'; },
-      password: (val) => { return val.length <= 6 ? 'Password should include at least 6 characters' : null; },
+      password: (val) => { return val.length <= 8 ? 'Password should include at least 6 characters' : null; },
       confirmPassword: (val, values) => {
         if (type !== 'register') return null;
         return val !== values.password ? 'Passwords do not match' : null;
@@ -324,7 +324,7 @@ export function AuthenticationForm(props: PaperProps) {
                 form.setFieldValue('password', event.currentTarget.value);
                 clearMessages();
               }}
-              error={form.errors.password && 'Password should include at least 6 characters'}
+              error={form.errors.password && 'Password should include at least 8 characters'}
               radius="md"
             />
           ) : null}

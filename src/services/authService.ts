@@ -111,10 +111,12 @@ export const logout = async (): Promise<void> => {
 export const getCurrentUser = async (): Promise<UserContent> => {
   if (USE_MOCK_DATA)
     return Promise.resolve({
+      id: 1,
       name: 'Mock User',
       email: 'mock@example.com',
       avatarSrc: 'https://mock.jpg',
       isAdmin: true,
+      isVerified: true,
       profileData: {
         email: 'mock@example.com',
         firstName: 'Mock',
