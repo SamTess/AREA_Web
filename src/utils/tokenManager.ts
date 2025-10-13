@@ -80,10 +80,5 @@ export const handleAuthFailure = async (): Promise<void> => {
     localStorage.removeItem('_ate');
     sessionStorage.removeItem('_sk');
     localStorage.removeItem('authToken');
-
-    if (!window.location.pathname.includes('/login') &&
-        !window.location.pathname.includes('/register')) {
-      window.location.href = '/login';
-    }
   }
 };
