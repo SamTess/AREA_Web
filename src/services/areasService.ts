@@ -173,9 +173,20 @@ export const getActionFieldsFromActionDefinition = (action: Action): FieldData[]
 
   Object.entries(properties).forEach(([fieldName, fieldDef]) => {
     let fieldType: FieldData['type'] = 'text';
+
     switch (fieldDef.type) {
       case 'string':
-        fieldType = 'text';
+        if (fieldDef.format === 'date-time') {
+          fieldType = 'datetime';
+        } else if (fieldDef.format === 'date') {
+          fieldType = 'date';
+        } else if (fieldDef.format === 'time') {
+          fieldType = 'time';
+        } else if (fieldDef.format === 'email') {
+          fieldType = 'email';
+        } else {
+          fieldType = 'text';
+        }
         break;
       case 'integer':
       case 'number':
@@ -192,12 +203,14 @@ export const getActionFieldsFromActionDefinition = (action: Action): FieldData[]
       name: fieldName,
       mandatory: required.includes(fieldName),
       type: fieldType,
+      format: fieldDef.format,
       description: fieldDef.description,
       placeholder: fieldDef.description || `Enter ${fieldName}`,
       pattern: fieldDef.pattern,
       minLength: fieldDef.minLength,
       maxLength: fieldDef.maxLength,
       minimum: fieldDef.minimum,
+      maximum: fieldDef.maximum,
       default: fieldDef.default,
       items: fieldDef.items,
       minItems: fieldDef.minItems
