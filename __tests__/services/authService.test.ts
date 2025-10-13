@@ -104,7 +104,7 @@ describe('authService', () => {
         language: 'en'
       };
 
-      await expect(updateProfile(profileData)).resolves.toBeUndefined();
+      await expect(updateProfile("1", profileData)).resolves.toBeUndefined();
       expect(mockedAxios.put).not.toHaveBeenCalled();
     });
   });
