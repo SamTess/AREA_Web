@@ -185,6 +185,7 @@ export interface OAuthProvider {
 }
 
 export interface UserContent {
+  id: string;
   name: string;
   email: string;
   avatarSrc: string;
@@ -196,7 +197,7 @@ export interface ProfileData {
   email: string;
   firstName: string;
   lastName: string;
-  language: string;
+  language?: string;
   password?: string;
 }
 
