@@ -1,4 +1,4 @@
-const React = require('react');
+import React from 'react';
 
 const BarChart = ({ data }) => 
   React.createElement('div', { 'data-testid': 'bar-chart' }, JSON.stringify(data));
@@ -15,7 +15,7 @@ const PieChart = ({ data }) =>
 const DonutChart = ({ data }) => 
   React.createElement('div', { 'data-testid': 'donut-chart' }, JSON.stringify(data));
 
-module.exports = {
+export {
   BarChart,
   LineChart,
   AreaChart,

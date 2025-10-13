@@ -70,7 +70,7 @@ export function NavbarMinimal() {
     }
   }, [isMobile]);
 
-  const links = dataCenter.map((link, index) => (
+  const links = dataCenter.map((link) => (
     (link.checkAdmin && !isAdmin) ? null :
     <NavbarLink
       {...link}
