@@ -72,10 +72,11 @@ function OAuthCallbackContent() {
             setMessage('Authentication successful! Redirecting...');
           }
           setTimeout(() => {
+            window.location.reload();
             router.push(returnUrl);
           }, 2000);
         }
-      } catch (error: unknown) {
+    } catch (error: unknown) {
         console.error('OAuth exchange error:', error);
         setStatus('error');
 
