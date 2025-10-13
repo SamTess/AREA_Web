@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Loader, Text, Center, Stack } from '@mantine/core';
 import { verifyEmail } from '@/services/authService';
 
-export default function VerifyEmailPage() {
+function VerifyEmailContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [step, setStep] = useState<'loading' | 'verified' | 'error'>('loading');
@@ -62,5 +62,24 @@ export default function VerifyEmailPage() {
       </Center>
       <div style={{ height: '130px' }}></div>
     </div>
+  );
+}
+
+export default function VerifyEmailPage() {
+  return (
+    <Suspense fallback={
+      <div>
+        <div style={{ height: '130px' }}></div>
+        <Center style={{ height: 'calc(100vh - 260px)' }}>
+          <Stack align="center" gap="md">
+            <Loader size="xl" />
+            <Text size="lg">Loading...</Text>
+          </Stack>
+        </Center>
+        <div style={{ height: '130px' }}></div>
+      </div>
+    }>
+      <VerifyEmailContent />
+    </Suspense>
   );
 }
