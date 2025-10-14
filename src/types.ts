@@ -185,11 +185,13 @@ export interface OAuthProvider {
 }
 
 export interface UserContent {
+  id: string;
   name: string;
   email: string;
   avatarSrc: string;
   profileData: ProfileData;
   isAdmin: boolean;
+  isVerified: boolean;
 }
 
 export interface ProfileData {

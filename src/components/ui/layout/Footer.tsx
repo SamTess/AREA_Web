@@ -1,5 +1,5 @@
 'use client';
-import { Image, Anchor, Group, Container, Flex } from '@mantine/core';
+import { Image, Anchor, Group, Flex } from '@mantine/core';
 import './Footer.css';
 
 const links = [

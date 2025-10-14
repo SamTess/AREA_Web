@@ -7,10 +7,12 @@ const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
 }
 
 const mockUser = {
+  id: "1",
   name: "Test User",
   email: "testuser@example.com",
   avatarSrc: "https://example.com/avatar.png",
   isAdmin: true,
+  isVerified: true,
   profileData: {
     email: "testuser@example.com",
     firstName: "Test",

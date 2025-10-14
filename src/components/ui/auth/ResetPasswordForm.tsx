@@ -43,7 +43,7 @@ export function ResetPasswordForm(props: PaperProps) {
     },
 
     validate: {
-      password: (val) => val.length <= 6 ? 'Password should include at least 6 characters' : null,
+      password: (val) => val.length <= 8 ? 'Password should include at least 8 characters' : null,
       confirmPassword: (val, values) => val !== values.password ? 'Passwords do not match' : null,
     },
     validateInputOnChange: true,
