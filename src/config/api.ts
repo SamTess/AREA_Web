@@ -1,7 +1,9 @@
 import { env } from "process";
 
 export const API_CONFIG = {
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
+  baseURL: typeof window !== 'undefined' && window.location.origin.includes('areaaaaaaaaaaaaaaaaaaa.space')
+    ? ''
+    : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'),
   endpoints: {
     auth: {
       login: '/api/auth/login',
