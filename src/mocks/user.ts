@@ -6,6 +6,7 @@ export const mockUser: UserContent = {
   email: 'user@example.com',
   avatarSrc: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png',
   isAdmin: true,
+  isVerified: true,
   profileData: {
     email: 'user@example.com',
     firstName: 'Test',

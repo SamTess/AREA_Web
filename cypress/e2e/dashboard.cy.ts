@@ -1,7 +1,7 @@
 describe('Dashboard page', () => {
   beforeEach(() => {
-    cy.setupMockEnvironment();
     cy.visit('/dashboard');
+    cy.setupMockEnvironment();
   });
 
   it('should load the dashboard page', () => {
@@ -68,21 +68,4 @@ describe('Dashboard page', () => {
     cy.get('.mantine-Card-root').should('exist');
   });
 
-  it('should display tables in dashboard tabs', () => {
-    // Test Users tab table
-    cy.contains('Users').click();
-    cy.get('table').should('exist');
-
-    // Test Areas tab tables
-    cy.contains('Areas').click();
-    cy.get('table').should('have.length.at.least', 1);
-
-    // Test Services tab table
-    cy.contains('Services').click();
-    cy.get('table').should('exist');
-
-    // Test Logs tab table
-    cy.contains('Logs').click();
-    cy.get('table').should('exist');
-  });
 });

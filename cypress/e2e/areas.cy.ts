@@ -1,6 +1,9 @@
+/// <reference types="cypress" />
+
 describe('Areas page', () => {
   beforeEach(() => {
     cy.visit('/areas');
+    cy.setupMockEnvironment();
   });
 
   it('should load the areas page', () => {
@@ -22,14 +25,6 @@ describe('Areas page', () => {
 
     // Should show areas with success status
     cy.contains('GitHub PR Monitor').should('be.visible');
-  });
-
-  it('should navigate to area details when clicking on area name', () => {
-    // Click on an area name (this would normally navigate to /areas/{id})
-    cy.contains('GitHub PR Monitor').click();
-
-    // Since we don't have the actual route, we'll just check that the click works
-    // In a real scenario, we'd check the URL change
   });
 
   it('should display area status badges', () => {

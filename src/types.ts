@@ -191,6 +191,7 @@ export interface UserContent {
   avatarSrc: string;
   profileData: ProfileData;
   isAdmin: boolean;
+  isVerified: boolean;
 }
 
 export interface ProfileData {

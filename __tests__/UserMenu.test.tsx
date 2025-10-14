@@ -12,6 +12,7 @@ const mockUser = {
   email: "testuser@example.com",
   avatarSrc: "https://example.com/avatar.png",
   isAdmin: true,
+  isVerified: true,
   profileData: {
     email: "testuser@example.com",
     firstName: "Test",
