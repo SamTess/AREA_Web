@@ -1,7 +1,5 @@
-import { env } from "process";
-
 export const API_CONFIG = {
-  baseURL: typeof window !== 'undefined' && window.location.origin.includes('areaaaaaaaaaaaaaaaaaaa.space')
+  baseURL: typeof window !== 'undefined' && window.location.origin && window.location.origin.includes('areaaaaaaaaaaaaaaaaaaa.space')
     ? ''
     : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'),
   endpoints: {

@@ -208,7 +208,7 @@ interface LinkData {
 
 ```typescript
 export const API_CONFIG = {
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
   endpoints: {
     auth: {
       login: '/api/auth/login',
@@ -628,7 +628,7 @@ describe('AREA Creation Flow', () => {
 
 ```bash
 # API
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+NEXT_PUBLIC_API_URL=http://localhost:8080
 
 # Mock data mode (development)
 NEXT_PUBLIC_USE_MOCK_DATA=true
@@ -929,7 +929,7 @@ interface LinkData {
 
 ```typescript
 export const API_CONFIG = {
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
+  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080',
   endpoints: {
     auth: {
       login: '/api/auth/login',
@@ -1347,7 +1347,7 @@ describe('AREA Creation Flow', () => {
 
 ```bash
 # API
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+NEXT_PUBLIC_API_URL=http://localhost:8080
 
 # Mode mock (développement)
 NEXT_PUBLIC_USE_MOCK_DATA=true
