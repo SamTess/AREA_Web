@@ -11,6 +11,7 @@ const mockUser = {
   name: "Test User",
   email: "testuser@example.com",
   avatarSrc: "https://example.com/avatar.png",
+  password: 'zadsfqSGDSX*&é',
   isAdmin: true,
   isVerified: true,
   profileData: {
