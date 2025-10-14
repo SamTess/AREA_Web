@@ -144,7 +144,7 @@ export default function AboutPage() {
                 Our Mission
               </Title>
               <Text size="lg" c="dimmed">
-                At AREA, we're on a mission to democratize automation and make it accessible to everyone.
+                At AREA, we&apos;re on a mission to democratize automation and make it accessible to everyone.
                 We believe that technology should work for you, not the other way around. Our platform
                 empowers users to create custom workflows that connect their favorite services, automate
                 repetitive tasks, and unlock new possibilities in their digital lives.
@@ -165,7 +165,7 @@ export default function AboutPage() {
               between different web services, applications, and IoT devices.
             </Text>
             <Text size="lg" mb="md">
-              With AREA, you can set up <strong>"Actions"</strong> that trigger <strong>"Reactions"</strong>
+              With AREA, you can set up <strong>&quot;Actions&quot;</strong> that trigger <strong>&quot;Reactions&quot;</strong>
               across multiple platforms. For example:
             </Text>
             <List spacing="sm" size="lg" mb="md">
@@ -254,7 +254,7 @@ export default function AboutPage() {
             >
               <Text c="dimmed" size="sm">
                 Today, AREA continues to evolve with new features, integrations, and improvements
-                driven by our growing community. We're committed to making automation simple,
+                driven by our growing community. We&apos;re committed to making automation simple,
                 powerful, and accessible to all.
               </Text>
             </Timeline.Item>
@@ -328,8 +328,8 @@ export default function AboutPage() {
               </Accordion.Control>
               <Accordion.Panel>
                 AREA works by connecting to your favorite services through secure OAuth2 authentication.
-                You create "Areas" which consist of an Action (trigger) and one or more Reactions
-                (responses). When the action occurs, AREA automatically executes the reactions you've
+                You create &quot;Areas&quot; which consist of an Action (trigger) and one or more Reactions
+                (responses). When the action occurs, AREA automatically executes the reactions you&apos;ve
                 configured.
               </Accordion.Panel>
             </Accordion.Item>
@@ -340,7 +340,7 @@ export default function AboutPage() {
               </Accordion.Control>
               <Accordion.Panel>
                 AREA supports a wide range of popular services including email providers, social media
-                platforms, cloud storage, productivity tools, and more. We're constantly adding new
+                platforms, cloud storage, productivity tools, and more. We&apos;re constantly adding new
                 integrations based on user feedback and demand.
               </Accordion.Panel>
             </Accordion.Item>
@@ -375,7 +375,7 @@ export default function AboutPage() {
             Get in Touch
           </Title>
           <Text size="lg" c="dimmed" mb="xl" maw={600} mx="auto">
-            Have questions or feedback? We'd love to hear from you! Join our community, contribute to
+            Have questions or feedback? We&apos;d love to hear from you! Join our community, contribute to
             the project, or reach out to our team.
           </Text>
           <Group justify="center" gap="md">

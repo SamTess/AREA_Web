@@ -104,7 +104,7 @@ export default function ContactPage() {
             Get in Touch
           </Title>
           <Text size="lg" c="dimmed" maw={500} mx="auto">
-            Questions or need help? We're here to assist you every step of the way.
+            Questions or need help? We&apos;re here to assist you every step of the way.
           </Text>
         </Box>
         <Box>
@@ -192,7 +192,7 @@ export default function ContactPage() {
               Send us a Message
             </Title>
             <Text size="sm" c="dimmed">
-              We'll respond within 24 hours
+              We&apos;ll respond within 24 hours
             </Text>
           </Box>
 
@@ -206,7 +206,7 @@ export default function ContactPage() {
               onClose={() => setSubmitted(false)}
               radius="lg"
             >
-              Thank you! We'll get back to you soon.
+              Thank you! We&apos;ll get back to you soon.
             </Alert>
           )}
 
