@@ -1,7 +1,7 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { PasswordInput, NativeSelect, TextInput, Title, Avatar, Button, Container, Card, Stack, Group, Menu, Modal, Text, Loader } from '@mantine/core';
+import { PasswordInput, TextInput, Title, Avatar, Button, Container, Card, Stack, Group, Menu, Modal, Text, Loader } from '@mantine/core';
 import { IconCamera } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { z } from 'zod';
@@ -74,6 +74,7 @@ export default function ProfilPage() {
       }
     };
     loadUser();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleSave = async () => {
