@@ -1,6 +1,8 @@
+import { API_CONFIG } from '../config/api';
+
 export const hasSecureToken = async (): Promise<boolean> => {
   try {
-    const response = await fetch('/api/auth/status', {
+    const response = await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.auth.status}`, {
       method: 'GET',
       credentials: 'include',
       headers: {
@@ -20,7 +22,7 @@ export const hasSecureToken = async (): Promise<boolean> => {
 
 export const clearSecureToken = async (): Promise<void> => {
   try {
-    await fetch('/api/auth/logout', {
+    await fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.auth.logout}`, {
       method: 'POST',
       credentials: 'include',
       headers: {

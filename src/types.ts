@@ -123,12 +123,14 @@ export interface Action {
     properties?: Record<string, {
       type: string;
       description?: string;
+      format?: string;
       pattern?: string;
       minLength?: number;
       maxLength?: number;
       minimum?: number;
+      maximum?: number;
       default?: string | number;
-      items?: { type: string };
+      items?: { type: string; format?: string };
       minItems?: number;
     }>;
   };
@@ -340,16 +342,18 @@ export interface ModalServicesSelectionProps {
 export interface FieldData {
   name: string;
   mandatory: boolean;
-  type: 'text' | 'number' | 'dropdown' | 'date' | 'array' | 'token';
+  type: 'text' | 'number' | 'dropdown' | 'date' | 'datetime' | 'time' | 'email' | 'array' | 'token';
   description?: string;
   placeholder?: string;
   pattern?: string;
+  format?: string;
   minLength?: number;
   maxLength?: number;
   minimum?: number;
+  maximum?: number;
   default?: string | number;
   options?: string[];
-  items?: { type: string };
+  items?: { type: string; format?: string };
   minItems?: number;
   serviceKey?: string;
 }

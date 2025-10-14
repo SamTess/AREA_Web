@@ -44,6 +44,7 @@ export const initiateOAuth = (provider: string, userAuthUrl?: string): void => {
     console.log(`Mock OAuth initiation for ${provider}`);
     return;
   }
+  localStorage.setItem('oauth_provider', provider.toLowerCase());
 
   if (userAuthUrl) {
     window.location.href = userAuthUrl;

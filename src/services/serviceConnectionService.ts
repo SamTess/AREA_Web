@@ -96,6 +96,7 @@ export const initiateServiceConnection = async (serviceKey: string, returnUrl?: 
     localStorage.setItem('oauth_link_mode', 'true');
 
     const provider = mapServiceKeyToOAuthProvider(serviceKey);
+    localStorage.setItem('oauth_provider', provider);
     const oauthUrl = `${API_CONFIG.baseURL}/api/oauth/${provider}/authorize`;
 
     window.location.href = oauthUrl;
