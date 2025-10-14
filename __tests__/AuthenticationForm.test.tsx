@@ -86,7 +86,7 @@ describe('AuthenticationForm', () => {
     fireEvent.click(submitButton)
     await waitFor(() => {
       expect(screen.queryByText('Invalid email')).not.toBeInTheDocument()
-      expect(screen.queryByText('Password should include at least 6 characters')).not.toBeInTheDocument()
+      expect(screen.queryByText('Password should include at least 8 characters')).not.toBeInTheDocument()
     })
   })
 
@@ -112,7 +112,7 @@ describe('AuthenticationForm', () => {
     await user.tab()
 
     await waitFor(() => {
-      expect(screen.getByText('Password should include at least 6 characters')).toBeInTheDocument()
+      expect(screen.getByText('Password should include at least 8 characters')).toBeInTheDocument()
     })
   })
 

@@ -1,5 +1,7 @@
 export const API_CONFIG = {
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080',
+  baseURL: typeof window !== 'undefined' && window.location.origin && window.location.origin.includes('areaaaaaaaaaaaaaaaaaaa.space')
+    ? ''
+    : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080'),
   endpoints: {
     auth: {
       login: '/api/auth/login',
@@ -16,7 +18,7 @@ export const API_CONFIG = {
       link: '/api/oauth-link/',
     },
     user: {
-      profile: '/api/auth/profile',
+      profile: '/api/users',
       avatar: '/api/user/avatar',
       getUser: '/api/auth/me',
       serviceConnection: '/api/user/service-connection',
@@ -73,5 +75,4 @@ export const buildApiUrl = (endpoint: string): string => {
   return `${API_CONFIG.baseURL}${endpoint}`;
 };
 
-// export const USE_MOCK_DATA = env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
-export const USE_MOCK_DATA = false;
+export const USE_MOCK_DATA = env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';

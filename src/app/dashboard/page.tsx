@@ -6,8 +6,22 @@ import { UsersTab } from '../../components/ui/dashboard/UsersTab';
 import { AreasTab } from '../../components/ui/dashboard/AreasTab';
 import { ServicesTab } from '../../components/ui/dashboard/ServicesTab';
 import { LogsTab } from '../../components/ui/dashboard/LogsTab';
+import { useEffect } from 'react';
+import { getCurrentUser } from '@/services/authService';
+import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
+  const router = useRouter();
+
+  useEffect(() => {
+    const checkAdmin = async () => {
+      const user = await getCurrentUser();
+      if (!user || !user.isAdmin) {
+        router.push('/');
+      }
+    };
+    checkAdmin();
+  }, [router]);
   return (
     <Container size="xl" py="md">
     <Tabs variant="pills" radius="lg" defaultValue="users">

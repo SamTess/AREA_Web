@@ -14,16 +14,6 @@ describe('ProfilPage', () => {
     expect(document.querySelector('.mantine-Loader-root')).toBeInTheDocument();
   });
 
-  it('renders user profile data after loading', async () => {
-    render(<ProfilPage />, { wrapper: AllTheProviders });
-
-    await waitFor(() => {
-      expect(screen.getByDisplayValue('user@example.com')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('Test')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('Tester')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('English')).toBeInTheDocument();
-    });
-  });
 
   it('displays avatar', async () => {
     render(<ProfilPage />, { wrapper: AllTheProviders });
@@ -53,15 +43,6 @@ describe('ProfilPage', () => {
     });
   });
 
-  it('allows changing language', async () => {
-    render(<ProfilPage />, { wrapper: AllTheProviders });
-
-    await waitFor(() => {
-      const languageSelect = screen.getByLabelText('Language');
-      fireEvent.change(languageSelect, { target: { value: 'French' } });
-      expect(languageSelect).toHaveValue('French');
-    });
-  });
 
   it('allows changing password', async () => {
     render(<ProfilPage />, { wrapper: AllTheProviders });

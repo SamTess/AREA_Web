@@ -65,7 +65,7 @@ describe('ResetPasswordForm', () => {
     await user.tab(); // blur the input
 
     await waitFor(() => {
-      expect(screen.getByText('Password should include at least 6 characters')).toBeInTheDocument();
+      expect(screen.getByText('Password should include at least 8 characters')).toBeInTheDocument();
     });
   });
 
