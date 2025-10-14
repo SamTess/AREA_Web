@@ -227,7 +227,7 @@ jobs:
         env:
           CI: true
           NEXT_PUBLIC_USE_MOCK_DATA: true
-          NEXT_PUBLIC_API_BASE_URL: http://localhost:3000
+          NEXT_PUBLIC_API_URL: http://localhost:3000
 
       - name: Upload Cypress screenshots
         if: failure() && steps.check-e2e-tests.outputs.tests-exist == 'true'

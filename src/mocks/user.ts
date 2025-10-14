@@ -1,7 +1,7 @@
 import { UserContent } from '../types';
 
 export const mockUser: UserContent = {
-  id: '1',
+  id: "1",
   name: 'Test Tester',
   email: 'user@example.com',
   password: 'feafze235fùd*a',

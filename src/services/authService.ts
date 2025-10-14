@@ -86,12 +86,12 @@ export const resetPassword = async (token: string, newPassword: string): Promise
   }
 };
 
-export const updateProfile = async (data: ProfileData): Promise<void> => {
+export const updateProfile = async (userId: string, data: ProfileData): Promise<void> => {
   if (USE_MOCK_DATA)
     return Promise.resolve();
 
   try {
-    await axios.put(API_CONFIG.endpoints.user.profile, data);
+    await axios.put(`${API_CONFIG.endpoints.user.profile}/${userId}`, data);
   } catch (error) {
     console.error('Update profile error:', error);
     throw error;

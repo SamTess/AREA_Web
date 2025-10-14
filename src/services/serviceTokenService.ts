@@ -1,6 +1,8 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:8080';
+const API_BASE_URL = typeof window !== 'undefined' && window.location.origin.includes('areaaaaaaaaaaaaaaaaaaa.space')
+  ? ''
+  : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080');
 
 export interface ServiceTokenRequest {
   serviceKey: string;
