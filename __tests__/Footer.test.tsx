@@ -17,23 +17,21 @@ describe('Footer', () => {
   it('renders footer links', () => {
     render(<Footer />, { wrapper: AllTheProviders })
     expect(screen.getByText('About')).toBeInTheDocument()
-    expect(screen.getByText('Features')).toBeInTheDocument()
-    expect(screen.getByText('Support')).toBeInTheDocument()
+    expect(screen.getByText('Contact')).toBeInTheDocument()
   })
 
   it('renders links as anchor elements', () => {
     render(<Footer />, { wrapper: AllTheProviders })
     const links = screen.getAllByRole('link')
-    expect(links).toHaveLength(3)
-    links.forEach(link => {
-      expect(link).toHaveAttribute('href', '#')
-    })
+    expect(links).toHaveLength(2)
+    expect(links[0]).toHaveAttribute('href', '/about')
+    expect(links[1]).toHaveAttribute('href', '/contact')
   })
 
-  it('prevents default on link clicks', () => {
+  it('allows default on link clicks', () => {
     render(<Footer />, { wrapper: AllTheProviders })
     const aboutLink = screen.getByText('About')
     const clickEvent = fireEvent.click(aboutLink)
-    expect(clickEvent).toBe(false)
+    expect(clickEvent).toBe(true)
   })
 })
