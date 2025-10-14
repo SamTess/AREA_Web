@@ -1,12 +1,12 @@
 [
-  { "id": 1, "name": "GitHub PR Monitor", "description": "Monitors pull requests and sends notifications", "lastRun": "2024-09-25", "services": [1], "status": "success" },
-  { "id": 2, "name": "Slack Channel Alert", "description": "Alerts users via Slack channels on events", "lastRun": "2024-09-24", "services": [6], "status": "failed" },
-  { "id": 3, "name": "GitLab CI Pipeline", "description": "Triggers on GitLab CI pipeline failures", "lastRun": "2024-09-23", "services": [2], "status": "in progress" },
-  { "id": 4, "name": "Bitbucket Repo Sync", "description": "Syncs repositories across Bitbucket instances", "lastRun": "2024-09-22", "services": [3], "status": "success" },
-  { "id": 5, "name": "Azure DevOps Build", "description": "Monitors build statuses in Azure DevOps", "lastRun": "2024-09-21", "services": [4], "status": "success" },
-  { "id": 6, "name": "Jira Issue Tracker", "description": "Tracks and updates Jira issues automatically", "lastRun": "2024-09-20", "services": [5], "status": "in progress" },
-  { "id": 7, "name": "Multi-Service Notification", "description": "Combines GitHub and Slack for notifications", "lastRun": "2024-09-19", "services": [1,2,3,4,5, 6], "status": "success" },
-  { "id": 8, "name": "GitLab Merge Request", "description": "Handles merge requests in GitLab", "lastRun": "2024-09-18", "services": [2], "status": "failed" },
-  { "id": 9, "name": "Bitbucket Webhook", "description": "Processes webhooks from Bitbucket", "lastRun": "2024-09-17", "services": [3], "status": "in progress" },
-  { "id": 10, "name": "Azure Slack Integration", "description": "Integrates Azure DevOps with Slack alerts", "lastRun": "2024-09-16", "services": [4, 6], "status": "success" }
+  { "id": "1", "name": "GitHub PR Monitor", "description": "Monitors pull requests and sends notifications", "enabled": true, "userId": "user1", "userEmail": "user@example.com", "actions": [], "reactions": [], "createdAt": "2024-09-25", "updatedAt": "2024-09-25" },
+  { "id": "2", "name": "Slack Channel Alert", "description": "Alerts users via Slack channels on events", "enabled": false, "userId": "user1", "userEmail": "user@example.com", "actions": [], "reactions": [], "createdAt": "2024-09-24", "updatedAt": "2024-09-24" },
+  { "id": "3", "name": "GitLab CI Pipeline", "description": "Triggers on GitLab CI pipeline failures", "enabled": true, "userId": "user1", "userEmail": "user@example.com", "actions": [], "reactions": [], "createdAt": "2024-09-23", "updatedAt": "2024-09-23" },
+  { "id": "4", "name": "Bitbucket Repo Sync", "description": "Syncs repositories across Bitbucket instances", "enabled": true, "userId": "user1", "userEmail": "user@example.com", "actions": [], "reactions": [], "createdAt": "2024-09-22", "updatedAt": "2024-09-22" },
+  { "id": "5", "name": "Azure DevOps Build", "description": "Monitors build statuses in Azure DevOps", "enabled": true, "userId": "user1", "userEmail": "user@example.com", "actions": [], "reactions": [], "createdAt": "2024-09-21", "updatedAt": "2024-09-21" },
+  { "id": "6", "name": "Jira Issue Tracker", "description": "Tracks and updates Jira issues automatically", "enabled": false, "userId": "user1", "userEmail": "user@example.com", "actions": [], "reactions": [], "createdAt": "2024-09-20", "updatedAt": "2024-09-20" },
+  { "id": "7", "name": "Multi-Service Notification", "description": "Combines GitHub and Slack for notifications", "enabled": true, "userId": "user1", "userEmail": "user@example.com", "actions": [], "reactions": [], "createdAt": "2024-09-19", "updatedAt": "2024-09-19" },
+  { "id": "8", "name": "GitLab Merge Request", "description": "Handles merge requests in GitLab", "enabled": false, "userId": "user1", "userEmail": "user@example.com", "actions": [], "reactions": [], "createdAt": "2024-09-18", "updatedAt": "2024-09-18" },
+  { "id": "9", "name": "Bitbucket Webhook", "description": "Processes webhooks from Bitbucket", "enabled": true, "userId": "user1", "userEmail": "user@example.com", "actions": [], "reactions": [], "createdAt": "2024-09-17", "updatedAt": "2024-09-17" },
+  { "id": "10", "name": "Azure Slack Integration", "description": "Integrates Azure DevOps with Slack alerts", "enabled": true, "userId": "user1", "userEmail": "user@example.com", "actions": [], "reactions": [], "createdAt": "2024-09-16", "updatedAt": "2024-09-16" }
 ]
