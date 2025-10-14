@@ -49,3 +49,15 @@ export const getUserInfo = async (): Promise<UserContent> => {
     throw error;
   }
 }
+
+export const getUserById = async (id: string): Promise<UserContent> => {
+  if (USE_MOCK_DATA)
+    return mockUser;
+  try {
+    const response = await axios.get(`${API_CONFIG.endpoints.user.getUserById}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error('Get user by id error:', error);
+    throw error;
+  }
+};
