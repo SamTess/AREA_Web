@@ -22,10 +22,6 @@ interface AreasTableProps {
 export function AreasTable({ areas, onAddArea, onEditArea, onDeleteArea, onToggleArea }: AreasTableProps) {
   const columns: Column<Area>[] = [
     {
-      key: 'id',
-      label: 'ID',
-    },
-    {
       key: 'name',
       label: 'Name',
     },

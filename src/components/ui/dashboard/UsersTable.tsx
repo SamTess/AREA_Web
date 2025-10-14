@@ -18,10 +18,6 @@ interface UsersTableProps {
 export function UsersTable({ users, onAddUser, onEditUser, onDeleteUser }: UsersTableProps) {
   const columns: Column<User>[] = [
     {
-      key: 'id',
-      label: 'ID',
-    },
-    {
       key: 'name',
       label: 'Name',
     },

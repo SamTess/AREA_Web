@@ -13,12 +13,8 @@ interface ServicesTableProps {
   onDeleteService?: (service: Service) => void;
 }
 
-export function ServicesTable({ services, onAddService, onEditService, onDeleteService }: ServicesTableProps) {
+export function ServicesTable({ services, onDeleteService }: ServicesTableProps) {
   const columns: Column<Service>[] = [
-    {
-      key: 'id',
-      label: 'ID',
-    },
     {
       key: 'name',
       label: 'Name',
@@ -44,8 +40,6 @@ export function ServicesTable({ services, onAddService, onEditService, onDeleteS
       data={services}
       columns={columns}
       itemsPerPage={5}
-      onAdd={onAddService}
-      onEdit={onEditService}
       onDelete={onDeleteService}
       addButtonText="Add Service"
     />
