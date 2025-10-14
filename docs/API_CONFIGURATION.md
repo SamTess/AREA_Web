@@ -14,7 +14,7 @@ cp .env.example .env.local
 
 | Variable | Description | Valeur par défaut | Exemples |
 |----------|-------------|-------------------|----------|
-| `NEXT_PUBLIC_API_BASE_URL` | URL de base de l'API backend | `http://localhost:8080` | `https://api.example.com`, `http://192.168.1.100:8080` |
+| `NEXT_PUBLIC_API_URL` | URL de base de l'API backend | `http://localhost:8080` | `https://api.example.com`, `http://192.168.1.100:8080` |
 | `NEXT_PUBLIC_USE_MOCK_DATA` | Utiliser les données mockées | `false` | `true` pour le développement sans backend |
 | `NEXT_PUBLIC_ENVIRONMENT` | Environnement d'exécution | `development` | `development`, `staging`, `production` |
 
@@ -77,7 +77,7 @@ Dans ce mode :
 
 ```env
 NEXT_PUBLIC_USE_MOCK_DATA=false
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+NEXT_PUBLIC_API_URL=http://localhost:8080
 ```
 
 Dans ce mode :
@@ -91,19 +91,19 @@ Dans ce mode :
 
 #### Développement local
 ```env
-NEXT_PUBLIC_API_BASE_URL=http://localhost:8080
+NEXT_PUBLIC_API_URL=http://localhost:8080
 NEXT_PUBLIC_ENVIRONMENT=development
 ```
 
 #### Staging
 ```env
-NEXT_PUBLIC_API_BASE_URL=https://api-staging.example.com
+NEXT_PUBLIC_API_URL=https://api-staging.example.com
 NEXT_PUBLIC_ENVIRONMENT=staging
 ```
 
 #### Production
 ```env
-NEXT_PUBLIC_API_BASE_URL=https://api.example.com
+NEXT_PUBLIC_API_URL=https://api.example.com
 NEXT_PUBLIC_ENVIRONMENT=production
 ```
 
