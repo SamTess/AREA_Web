@@ -31,6 +31,7 @@ export const API_CONFIG = {
       create: '/api/areas',
       createWithActions: '/api/areas/with-links',
       update: '/api/areas/',
+      updateComplete: '/api/areas/',
       delete: '/api/areas/',
       getById: '/api/areas/',
       cards: '/api/areas/',
@@ -62,13 +63,6 @@ export const API_CONFIG = {
       areaRuns: '/api/admin/area-runs',
       areaStats: '/api/admin/area-stats',
       cardUserData: '/api/admin/card-user-data'
-    },
-    backend: {
-      updateArea: '/area/',
-      deleteArea: '/area/',
-      triggerArea: '/area/',
-      getExecutions: '/area/',
-      toggleActivation: '/area/'
     }
   }
 };

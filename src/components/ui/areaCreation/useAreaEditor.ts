@@ -1,7 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import { getAreaById, updateArea, createAreaWithActions, CreateAreaPayload, getServices, runAreaById, getActionDefinitionById } from '../../../services/areasService';
+import { notifications } from '@mantine/notifications';
+import {
+  getAreaById,
+  updateAreaComplete,
+  createAreaWithActions,
+  CreateAreaPayload,
+  getServices,
+  runAreaById,
+  getActionDefinitionById
+} from '../../../services/areasService';
 import { ServiceState, ServiceData, BackendArea, BackendService, ConnectionData } from '../../../types';
 
 let servicesCache: BackendService[] | null = null;
@@ -320,14 +329,20 @@ export function useAreaEditor(areaId?: string) {
   const handleSave = async () => {
     try {
       if (!areaName || areaName.trim() === '') {
-        console.error('Area name is required');
-        // TODO: Show error notification to user
+        notifications.show({
+          title: 'Error',
+          message: 'AREA name is required',
+          color: 'red',
+        });
         return;
       }
 
       if (servicesState.length === 0) {
-        console.error('At least one service is required');
-        // TODO: Show error notification to user
+        notifications.show({
+          title: 'Error',
+          message: 'At least one service is required',
+          color: 'red',
+        });
         return;
       }
 
@@ -338,36 +353,66 @@ export function useAreaEditor(areaId?: string) {
 
         const newArea = await createAreaWithActions(payload);
         console.log('New area created:', newArea);
-        // TODO: navigation vers le home ou vers l'area créée
-      } else {
-        await updateArea(areaId!, {
-          name: areaName,
-          description: areaDescription,
-          services: servicesState.map(s => s.serviceId)
+        notifications.show({
+          title: 'Success',
+          message: `AREA "${areaName}" was created successfully!`,
+          color: 'green',
         });
-        console.log('Area updated successfully');
-        // TODO: Afficher une notification de succès
+      } else {
+          console.log('Services state before transform:', servicesState);
+          const payload = await transformServiceDataToPayload(servicesState, areaName, areaDescription, connections);
+          console.log('Updating area with payload:', payload);
+
+          await updateAreaComplete(areaId!, payload);
+          console.log('Area updated successfully');
+
+          notifications.show({
+            title: 'Success',
+            message: `AREA "${areaName}" was updated successfully!`,
+            color: 'green',
+          });
       }
     } catch (error) {
-      console.error('Error saving area:', error);
-      // TODO: Afficher une notification d'erreur à l'utilisateur
-    }
-  };
+        console.error('Error saving area:', error);
 
-  const handleRun = async () => {
-    if (!areaId) {
-      console.warn('Cannot run area: no area ID');
-      return;
-    }
+        const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+        notifications.show({
+          title: 'Error',
+          message: `Failed to save AREA: ${errorMessage}`,
+          color: 'red',
+        });
+      }
+    };
 
-    try {
-      await runAreaById(areaId);
-      console.log('Area executed successfully');
-      // TODO: Afficher une notification de succès
-    } catch (error) {
-      console.error('Error running area:', error);
-      // TODO: Afficher une notification d'erreur
-    }
+    const handleRun = async () => {
+      if (!areaId) {
+        notifications.show({
+          title: 'Error',
+          message: 'Unable to run AREA: missing ID',
+          color: 'red',
+        });
+        return;
+      }
+
+      try {
+        await runAreaById(areaId);
+        console.log('Area executed successfully');
+
+        notifications.show({
+          title: 'Success',
+          message: `AREA "${areaName}" was executed successfully!`,
+          color: 'green',
+        });
+      } catch (error) {
+        console.error('Error running area:', error);
+
+        const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+        notifications.show({
+          title: 'Error',
+          message: `Failed to execute AREA: ${errorMessage}`,
+          color: 'red',
+        });
+      }
   };
 
   const addNewServiceBelow = () => {
