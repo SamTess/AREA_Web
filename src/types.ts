@@ -198,7 +198,7 @@ export interface ProfileData {
   email: string;
   firstName: string;
   lastName: string;
-  language: string;
+  language?: string;
   password?: string;
 }
 

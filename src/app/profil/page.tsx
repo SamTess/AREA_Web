@@ -1,19 +1,19 @@
 'use client';
 
-import { useState, useEffect, useRef, useCallback } from 'react';
+import { AxiosError } from 'axios';
 import { PasswordInput, NativeSelect, TextInput, Title, Avatar, Button, Container, Card, Stack, Group, Menu, Modal, Text, Loader } from '@mantine/core';
 import { IconCamera } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { z } from 'zod';
-import { updateProfile } from '../../services/authService';
-import { getUser, uploadAvatar } from '../../services/userService';
+import { getCurrentUser, updateProfile } from '../../services/authService';
+import {  uploadAvatar } from '../../services/userService';
 import { ProfileData, UserContent } from '../../types';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 const profileSchema = z.object({
   email: z.string().email('Invalid email address'),
   firstName: z.string().min(1, 'First name is required'),
   lastName: z.string().min(1, 'Last name is required'),
-  language: z.string().min(1, 'Language is required'),
   password: z.string().optional().refine((val: string | undefined) => !val || val.length >= 6, {
     message: 'Password must be at least 6 characters',
   }),
@@ -27,13 +27,13 @@ export default function ProfilPage() {
   const [originalAvatarSrc, setOriginalAvatarSrc] = useState<string>('');
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [userId, setUserId] = useState<string | " ">(" ");
 
   const form = useForm<ProfileData>({
     initialValues: {
       email: '',
       firstName: '',
       lastName: '',
-      language: user?.profileData.language || 'French',
       password: '',
     },
     validate: (values) => {
@@ -61,11 +61,12 @@ export default function ProfilPage() {
   useEffect(() => {
     const loadUser = async () => {
       try {
-        const userData = await getUser('user@example.com'); // a rempldacer par l'id dans le /me route
+        const userData = await getCurrentUser();
         setUser(userData);
         setOriginalAvatarSrc(userData.avatarSrc);
         form.setValues(userData.profileData);
         form.resetDirty(userData.profileData);
+        setUserId(userData.id);
       } catch (error) {
         console.error('Failed to load user', error);
       } finally {
@@ -73,22 +74,35 @@ export default function ProfilPage() {
       }
     };
     loadUser();
-  }, [form]);
+  }, []);
 
   const handleSave = async () => {
     setLoading(true);
     try {
+      try {
+        await getCurrentUser();
+      } catch (authError) {
+        console.error('User not authenticated:', authError);
+        alert('Your session has expired. Please log in again.');
+        return;
+      }
+
       let avatarUrl = user?.avatarSrc;
       if (avatarFile) {
         avatarUrl = await uploadAvatar(avatarFile);
         setUser(prev => prev ? { ...prev, avatarSrc: avatarUrl! } : null);
       }
-      await updateProfile(form.values);
+      await updateProfile(userId, form.values);
       form.resetDirty();
       setAvatarFile(null);
       setOpened(false);
     } catch (error) {
       console.error('Failed to update profile', error);
+      if (error instanceof AxiosError && error.response?.status === 403) {
+        alert('You are not authorized to update your profile. Please check your authentication.');
+      } else {
+        alert('Failed to update profile. Please try again.');
+      }
     } finally {
       setLoading(false);
     }
@@ -163,12 +177,6 @@ export default function ProfilPage() {
             label="Last Name"
             placeholder="Last Name"
             {...form.getInputProps('lastName')}
-          />
-          <NativeSelect
-            label="Language"
-            description="Select your preferred language"
-            data={['French', 'English']}
-            {...form.getInputProps('language')}
           />
           <Group justify="flex-end">
             <Menu shadow="md" width={200}>
