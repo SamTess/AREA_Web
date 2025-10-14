@@ -1,3 +1,5 @@
+import { env } from "process";
+
 export const API_CONFIG = {
   baseURL: typeof window !== 'undefined' && window.location.origin && window.location.origin.includes('areaaaaaaaaaaaaaaaaaaa.space')
     ? ''
@@ -75,4 +77,4 @@ export const buildApiUrl = (endpoint: string): string => {
   return `${API_CONFIG.baseURL}${endpoint}`;
 };
 
-export const USE_MOCK_DATA = env.NEXT_PUBLIC_USE_MOCK_DATA === 'true';
+export const USE_MOCK_DATA = env.NEXT_PUBLIC_USE_MOCK_DATA  === 'true';
