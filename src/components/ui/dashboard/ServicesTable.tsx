@@ -13,7 +13,7 @@ interface ServicesTableProps {
   onDeleteService?: (service: Service) => void;
 }
 
-export function ServicesTable({ services, onDeleteService }: ServicesTableProps) {
+export function ServicesTable({ services, onAddService, onEditService, onDeleteService }: ServicesTableProps) {
   const columns: Column<Service>[] = [
     {
       key: 'name',
@@ -40,6 +40,8 @@ export function ServicesTable({ services, onDeleteService }: ServicesTableProps)
       data={services}
       columns={columns}
       itemsPerPage={5}
+      onAdd={onAddService}
+      onEdit={onEditService}
       onDelete={onDeleteService}
       addButtonText="Add Service"
     />

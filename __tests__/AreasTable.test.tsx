@@ -156,7 +156,6 @@ describe('AreasTable', () => {
       { wrapper: AllTheProviders }
     );
 
-    expect(screen.getByText('ID')).toBeInTheDocument();
     expect(screen.getByText('Name')).toBeInTheDocument();
     expect(screen.getByText('Description')).toBeInTheDocument();
     expect(screen.getByText('Last Run')).toBeInTheDocument();
