@@ -19,14 +19,12 @@ export default function AreaListCard({ areas, services, onDelete, onRun }: AreaL
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'success': return 'green';
-      case 'failed': return 'red';
-      case 'in progress': return 'yellow';
-      case 'not started': return 'grey';
-      case 'active': return 'green';
-      case 'inactive': return 'gray';
-      case 'error': return 'red';
-      default: return 'gray';
+      case 'active':
+        return 'green';
+      case 'inactive':
+        return 'red';
+      default:
+        return 'gray';
     }
   };
 

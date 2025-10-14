@@ -21,7 +21,7 @@ export function HeroBanner() {
           Automate your tasks with custom applets. AREA offers you an intuitive platform to connect your favorite services and save time.
         </Text>
 
-        <Button variant="gradient" size="xl" radius="xl" className={classes.control} onClick={() => { router.push('/register'); }}>
+        <Button variant="gradient" size="xl" radius="xl" className={classes.control} onClick={() => { router.push('/login'); }}>
           Get Started
         </Button>
       </Container>
