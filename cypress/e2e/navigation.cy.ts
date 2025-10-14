@@ -34,4 +34,22 @@ describe('Navigation', () => {
     // Check that the app handles 404 (Next.js default behavior)
     cy.get('body').should('exist');
   });
+
+  it('should display footer links on home page', () => {
+    cy.visit('/');
+    cy.contains('About').should('be.visible');
+    cy.contains('Contact').should('be.visible');
+  });
+
+  it('should navigate to about page from footer', () => {
+    cy.visit('/');
+    cy.contains('About').click();
+    cy.url().should('include', '/about');
+  });
+
+  it('should navigate to contact page from footer', () => {
+    cy.visit('/');
+    cy.contains('Contact').click();
+    cy.url().should('include', '/contact');
+  });
 });
