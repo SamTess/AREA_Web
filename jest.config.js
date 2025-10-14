@@ -12,6 +12,9 @@ const customJestConfig = {
   testEnvironmentOptions: {
     customExportConditions: [''],
   },
+  moduleNameMapper: {
+    '^@mantine/charts$': '<rootDir>/__mocks__/@mantine/charts.js',
+  },
   collectCoverageFrom: [
     'src/**/*.{js,jsx,ts,tsx}',
     '!src/**/*.d.ts',

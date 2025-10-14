@@ -1,7 +1,7 @@
-import { TextInput, NumberInput, Select, Stack, Button, Group, ActionIcon, Alert } from '@mantine/core';
-import { DatePickerInput } from '@mantine/dates';
+import { TextInput, NumberInput, Select, Stack, Button, Group, ActionIcon, Alert, Textarea } from '@mantine/core';
+import { DatePickerInput, TimeInput, DateTimePicker } from '@mantine/dates';
 import { useState, useEffect, useRef } from 'react';
-import { IconPlus, IconTrash, IconKey, IconCheck } from '@tabler/icons-react';
+import { IconPlus, IconTrash, IconKey, IconCheck, IconClock, IconCalendar } from '@tabler/icons-react';
 import { ConfigureStepProps, FieldData, Action } from '../../../types';
 import { getActionDefinitionById, getActionFieldsFromActionDefinition } from '../../../services/areasService';
 import { hasValidToken, storeServiceToken } from '../../../services/serviceTokenService';
@@ -172,7 +172,7 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
 
             {data.map((field, index) => {
                 const commonProps = {
-                    label: field.name + (field.mandatory ? ' *' : ''),
+                    label: field.name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + (field.mandatory ? ' *' : ''),
                     placeholder: field.placeholder || field.description,
                     required: field.mandatory,
                     description: field.description,
@@ -184,6 +184,20 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
 
                 switch (field.type) {
                     case 'text':
+                        if (field.name.toLowerCase().includes('description') || field.name.toLowerCase().includes('body')) {
+                            return (
+                                <Textarea
+                                    key={index}
+                                    {...commonProps}
+                                    value={(formValues[field.name] as string) || ''}
+                                    onChange={(e) => handleChange(field.name, e.target.value)}
+                                    minLength={field.minLength}
+                                    maxLength={field.maxLength}
+                                    minRows={3}
+                                    autosize
+                                />
+                            );
+                        }
                         return (
                             <TextInput
                                 key={index}
@@ -194,6 +208,20 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
                                 maxLength={field.maxLength}
                             />
                         );
+
+                    case 'email':
+                        return (
+                            <TextInput
+                                key={index}
+                                {...commonProps}
+                                type="email"
+                                value={(formValues[field.name] as string) || ''}
+                                onChange={(e) => handleChange(field.name, e.target.value)}
+                                minLength={field.minLength}
+                                maxLength={field.maxLength}
+                            />
+                        );
+
                     case 'number':
                         return (
                             <NumberInput
@@ -202,14 +230,70 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
                                 value={formValues[field.name] ? Number(formValues[field.name]) : undefined}
                                 onChange={(value) => handleChange(field.name, value)}
                                 min={field.minimum}
+                                max={field.maximum}
                             />
                         );
+
+                    case 'datetime':
+                        return (
+                            <DateTimePicker
+                                key={index}
+                                {...commonProps}
+                                leftSection={<IconCalendar size={16} />}
+                                valueFormat="YYYY-MM-DD HH:mm"
+                                value={formValues[field.name] ? new Date(formValues[field.name] as string) : null}
+                                onChange={(value) => {
+                                    if (value) {
+                                        const dateValue = value as unknown as Date;
+                                        handleChange(field.name, dateValue.toISOString());
+                                    } else {
+                                        handleChange(field.name, null);
+                                    }
+                                }}
+                                clearable
+                            />
+                        );
+
+                    case 'date':
+                        return (
+                            <DatePickerInput
+                                key={index}
+                                {...commonProps}
+                                leftSection={<IconCalendar size={16} />}
+                                valueFormat="YYYY-MM-DD"
+                                value={formValues[field.name] ? new Date(formValues[field.name] as string) : null}
+                                onChange={(value) => {
+                                    if (value) {
+                                        const dateValue = value as unknown as Date;
+                                        const dateStr = dateValue.toISOString().split('T')[0];
+                                        handleChange(field.name, dateStr);
+                                    } else {
+                                        handleChange(field.name, null);
+                                    }
+                                }}
+                                clearable
+                            />
+                        );
+
+                    case 'time':
+                        return (
+                            <TimeInput
+                                key={index}
+                                {...commonProps}
+                                leftSection={<IconClock size={16} />}
+                                value={formValues[field.name] as string || ''}
+                                onChange={(e) => handleChange(field.name, e.target.value)}
+                            />
+                        );
+
                     case 'array':
                         const arrayValue = (formValues[field.name] as string[]) || [''];
+                        const isEmailArray = field.items?.format === 'email';
+
                         return (
                             <Stack key={index} gap="xs">
                                 <label style={{ fontSize: '14px', fontWeight: 500 }}>
-                                    {field.name + (field.mandatory ? ' *' : '')}
+                                    {field.name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + (field.mandatory ? ' *' : '')}
                                     {field.description && (
                                         <div style={{ fontSize: '12px', color: '#666', fontWeight: 'normal' }}>
                                             {field.description}
@@ -220,8 +304,9 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
                                     <Group key={arrayIndex} gap="xs">
                                         <TextInput
                                             flex={1}
+                                            type={isEmailArray ? 'email' : 'text'}
                                             value={item}
-                                            placeholder={`Enter ${field.name} ${arrayIndex + 1}`}
+                                            placeholder={isEmailArray ? `email@example.com` : `Enter ${field.name} ${arrayIndex + 1}`}
                                             onChange={(e) => handleArrayChange(field.name, arrayIndex, e.target.value)}
                                         />
                                         {arrayValue.length > (field.minItems || 1) && (
@@ -241,10 +326,11 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
                                     leftSection={<IconPlus size={16} />}
                                     onClick={() => addArrayItem(field.name)}
                                 >
-                                    Add {field.name}
+                                    Add {isEmailArray ? 'Email' : field.name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ')}
                                 </Button>
                             </Stack>
                         );
+
                     case 'dropdown':
                         return (
                             <Select
@@ -253,18 +339,11 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
                                 value={(formValues[field.name] as string) || ''}
                                 onChange={(value) => handleChange(field.name, value)}
                                 data={field.options || []}
+                                searchable
+                                clearable
                             />
                         );
-                    case 'date':
-                        return (
-                            <DatePickerInput
-                                key={index}
-                                {...commonProps}
-                                valueFormat="YYYY-MM-DD"
-                                value={formValues[field.name] ? new Date(formValues[field.name] as string) : null}
-                                onChange={(value) => handleChange(field.name, value)}
-                            />
-                        );
+
                     default:
                         return null;
                 }

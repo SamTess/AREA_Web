@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
+import '@mantine/charts/styles.css';
 import { MantineProvider } from '@mantine/core';
 import { Footer } from '../components/ui/layout/Footer';
 import { NavbarMinimal } from '../components/ui/layout/NavBar';

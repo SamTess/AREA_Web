@@ -4,6 +4,19 @@ import {
   isWebCryptoSupported
 } from '../../src/utils/secureStorage';
 
+// Mock the API_CONFIG
+jest.mock('../../src/config/api', () => ({
+  API_CONFIG: {
+    baseURL: '',
+    endpoints: {
+      auth: {
+        status: '/api/auth/status',
+        logout: '/api/auth/logout',
+      },
+    },
+  },
+}));
+
 // Mock fetch
 global.fetch = jest.fn();
 

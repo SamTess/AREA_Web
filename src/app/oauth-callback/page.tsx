@@ -46,14 +46,15 @@ function OAuthCallbackContent() {
         setMessage('Exchanging authorization code...');
 
         const isLinkMode = localStorage.getItem('oauth_link_mode') === 'true';
+        const provider = localStorage.getItem('oauth_provider') || 'github';
 
         let response;
         if (isLinkMode) {
-          response = await axios.post('/api/oauth-link/github/exchange', {
+          response = await axios.post(`/api/oauth-link/${provider}/exchange`, {
             code: code
           });
         } else {
-          response = await axios.post('/api/oauth/github/exchange', {
+          response = await axios.post(`/api/oauth/${provider}/exchange`, {
             code: code
           });
         }
@@ -63,13 +64,20 @@ function OAuthCallbackContent() {
         if (response.status === 200) {
           setStatus('success');
           localStorage.removeItem('oauth_link_mode');
+          localStorage.removeItem('oauth_provider');
           const returnUrl = localStorage.getItem('oauth_return_url') || '/';
           localStorage.removeItem('oauth_return_url');
 
           if (isLinkMode) {
             setMessage('Account linked successfully! Redirecting...');
+            setTimeout(() => {
+              window.location.href = returnUrl;
+            }, 1500);
           } else {
             setMessage('Authentication successful! Redirecting...');
+            setTimeout(() => {
+              window.location.href = returnUrl;
+            }, 1500);
           }
           setTimeout(() => {
             window.location.reload();
@@ -109,6 +117,7 @@ function OAuthCallbackContent() {
 
         const isLinkMode = localStorage.getItem('oauth_link_mode') === 'true';
         localStorage.removeItem('oauth_link_mode');
+        localStorage.removeItem('oauth_provider');
         if (isLinkMode) {
           setTimeout(() => {
             const returnUrl = localStorage.getItem('oauth_return_url') || '/';
