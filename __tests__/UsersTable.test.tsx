@@ -82,7 +82,6 @@ describe('UsersTable', () => {
       { wrapper: AllTheProviders }
     );
 
-    expect(screen.getByText('ID')).toBeInTheDocument();
     expect(screen.getByText('Name')).toBeInTheDocument();
     expect(screen.getByText('Email')).toBeInTheDocument();
     expect(screen.getByText('Role')).toBeInTheDocument();

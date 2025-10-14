@@ -16,10 +16,6 @@ interface ServicesTableProps {
 export function ServicesTable({ services, onAddService, onEditService, onDeleteService }: ServicesTableProps) {
   const columns: Column<Service>[] = [
     {
-      key: 'id',
-      label: 'ID',
-    },
-    {
       key: 'name',
       label: 'Name',
     },

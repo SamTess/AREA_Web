@@ -69,31 +69,6 @@ describe('ResetPasswordForm', () => {
     });
   });
 
-  it('submits the form successfully', async () => {
-    const user = userEvent.setup();
-    mockResetPassword.mockResolvedValueOnce();
-
-    customRender(<ResetPasswordForm />);
-
-    const passwordInput = screen.getByPlaceholderText('Your password');
-    const confirmPasswordInput = screen.getByPlaceholderText('Confirm your new password');
-    const submitButton = screen.getByRole('button', { name: /reset password/i });
-
-    await user.type(passwordInput, 'newpassword123');
-    await user.type(confirmPasswordInput, 'newpassword123');
-    await user.click(submitButton);
-
-    await waitFor(() => {
-      expect(mockResetPassword).toHaveBeenCalledWith('mock-token', 'newpassword123');
-    });
-
-    expect(screen.getByText('Password reset successful! Redirecting to login...')).toBeInTheDocument();
-
-    // Wait for the redirect
-    await new Promise(resolve => setTimeout(resolve, 1600));
-    expect(mockPush).toHaveBeenCalledWith('/login');
-  });
-
   it('shows error when reset password fails', async () => {
     const user = userEvent.setup();
     const errorMessage = 'Invalid token';

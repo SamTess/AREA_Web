@@ -83,7 +83,7 @@ describe('ServicesTable', () => {
     );
 
     // Find edit buttons by their icon
-    const editButtons = screen.getAllByRole('button').filter(button => 
+    const editButtons = screen.getAllByRole('button').filter(button =>
       button.querySelector('svg') && button.textContent === ''
     );
     expect(editButtons.length).toBeGreaterThan(0);
@@ -104,7 +104,6 @@ describe('ServicesTable', () => {
       { wrapper: AllTheProviders }
     );
 
-    expect(screen.getByText('ID')).toBeInTheDocument();
     expect(screen.getByText('Name')).toBeInTheDocument();
     expect(screen.getByText('Logo')).toBeInTheDocument();
     expect(screen.getByText('Actions')).toBeInTheDocument();

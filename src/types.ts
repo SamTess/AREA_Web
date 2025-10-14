@@ -190,6 +190,7 @@ export interface UserContent {
   id: string;
   name: string;
   email: string;
+  password: string;
   avatarSrc: string;
   profileData: ProfileData;
   isAdmin: boolean;

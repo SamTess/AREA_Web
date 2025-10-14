@@ -6,6 +6,7 @@ import { LineChart, BarChart } from '@mantine/charts';
 import { StatsGrid } from './StatsGrid';
 import { UsersTable } from './UsersTable';
 import { getLineData, getBarData, getCardUserData, getUsers, deleteUser } from '../../../services/adminService';
+import { ModaleUser } from './ModaleUser';
 
 interface User {
   id: number;
@@ -21,6 +22,8 @@ export function UsersTab() {
   const [users, setUsers] = useState<User[]>([]);
   const [searchUsers, setSearchUsers] = useState('');
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [modaleOpened, setModaleOpened] = useState(false);
 
   const combobox = useCombobox({
     onDropdownClose: () => combobox.resetSelectedOption(),
@@ -44,11 +47,14 @@ export function UsersTab() {
   );
 
   const handleAddUser = () => {
-    // add user
+    setSelectedUserId(null);
+    setModaleOpened(true);
   };
 
-  const handleEditUser = () => {
-    // ouvir la modale du edit
+  const handleEditUser = (user: User) => {
+    setSelectedUserId(user.id.toString());
+    setModaleOpened(true);
+    // ouvrir la modale du edit
     // appeler la route de edit
   };
 
@@ -134,6 +140,7 @@ export function UsersTab() {
           <UsersTable users={filteredUsers} onAddUser={handleAddUser} onEditUser={handleEditUser} onDeleteUser={handleDeleteUser} />
         </Grid.Col>
       </Grid>
+      <ModaleUser opened={modaleOpened} onClose={() => { setModaleOpened(false); setSelectedUserId(null); }} userId={selectedUserId} />
     </>
   );
 }
