@@ -25,7 +25,13 @@ export function LogsTab() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLogs(await getLogs());
+      try {
+        const logsData = await getLogs();
+        setLogs(Array.isArray(logsData) ? logsData : []);
+      } catch (error) {
+        console.error('Error fetching logs data:', error);
+        setLogs([]);
+      }
     };
     fetchData();
   }, []);
@@ -33,7 +39,13 @@ export function LogsTab() {
   const comboboxValueLogLevel = ['', 'INFO', 'ERROR', 'WARN', 'DEBUG'];
 
   const reloadLogs = async () => {
-    setLogs(await getLogs());
+    try {
+      const logsData = await getLogs();
+      setLogs(Array.isArray(logsData) ? logsData : []);
+    } catch (error) {
+      console.error('Error reloading logs:', error);
+      setLogs([]);
+    }
   };
 
   const filteredLogs = logs.filter(log =>
