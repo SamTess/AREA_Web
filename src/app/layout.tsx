@@ -4,7 +4,9 @@ import "./globals.css";
 import '@mantine/core/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/charts/styles.css';
+import '@mantine/notifications/styles.css';
 import { MantineProvider } from '@mantine/core';
+import { Notifications } from '@mantine/notifications';
 import { Footer } from '../components/ui/layout/Footer';
 import { NavbarMinimal } from '../components/ui/layout/NavBar';
 const geistSans = Geist({
@@ -33,6 +35,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <MantineProvider>
+          <Notifications position="top-right" />
           <div>
         <NavbarMinimal />
           </div>

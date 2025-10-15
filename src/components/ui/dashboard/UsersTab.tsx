@@ -15,10 +15,27 @@ interface User {
   role: string;
 }
 
+interface LineDataPoint {
+  date: string;
+  users: number;
+}
+
+interface BarDataPoint {
+  month: string;
+  newUsers: number;
+}
+
+interface CardUserDataPoint {
+  title: string;
+  icon: 'user' | 'discount' | 'receipt' | 'coin';
+  value: string;
+  diff: number;
+}
+
 export function UsersTab() {
-  const [lineData, setLineData] = useState([]);
-  const [barData, setBarData] = useState([]);
-  const [cardUserData, setCardUserData] = useState([]);
+  const [lineData, setLineData] = useState<LineDataPoint[]>([]);
+  const [barData, setBarData] = useState<BarDataPoint[]>([]);
+  const [cardUserData, setCardUserData] = useState<CardUserDataPoint[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [searchUsers, setSearchUsers] = useState('');
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
@@ -33,10 +50,25 @@ export function UsersTab() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setLineData(await getLineData());
-      setBarData(await getBarData());
-      setCardUserData(await getCardUserData());
-      setUsers(await getUsers());
+      try {
+        const lineDataResult = await getLineData();
+        setLineData(Array.isArray(lineDataResult) ? lineDataResult : []);
+
+        const barDataResult = await getBarData();
+        setBarData(Array.isArray(barDataResult) ? barDataResult : []);
+
+        const cardUserDataResult = await getCardUserData();
+        setCardUserData(Array.isArray(cardUserDataResult) ? cardUserDataResult : []);
+
+        const usersData = await getUsers();
+        setUsers(Array.isArray(usersData) ? usersData : []);
+      } catch (error) {
+        console.error('Error fetching users data:', error);
+        setLineData([]);
+        setBarData([]);
+        setCardUserData([]);
+        setUsers([]);
+      }
     };
     fetchData();
   }, []);

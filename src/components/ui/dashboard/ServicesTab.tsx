@@ -12,15 +12,29 @@ interface Service {
   logo: string;
 }
 
+interface ServiceBarData {
+  service: string;
+  usage: number;
+}
+
 export function ServicesTab() {
-  const [servicesBarData, setServicesBarData] = useState([]);
+  const [servicesBarData, setServicesBarData] = useState<ServiceBarData[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [searchServices, setSearchServices] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
-      setServices(await getServices());
-      setServicesBarData(await getServicesBarData());
+      try {
+        const servicesData = await getServices();
+        setServices(Array.isArray(servicesData) ? servicesData : []);
+
+        const servicesBarDataResult = await getServicesBarData();
+        setServicesBarData(Array.isArray(servicesBarDataResult) ? servicesBarDataResult : []);
+      } catch (error) {
+        console.error('Error fetching services data:', error);
+        setServices([]);
+        setServicesBarData([]);
+      }
     };
     fetchData();
   }, []);

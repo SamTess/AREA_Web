@@ -1,7 +1,7 @@
-import { Stack, Text, Select, Alert, Modal, Button, Group } from '@mantine/core';
+import { Stack, Text, Select, Alert, Modal, Button, Group, NumberInput, SegmentedControl, TextInput } from '@mantine/core';
 import { useState, useEffect } from 'react';
 import { ServiceData, ActivationConfig } from '../../../types';
-import { IconInfoCircle, IconAlertTriangle } from '@tabler/icons-react';
+import { IconInfoCircle, IconAlertTriangle, IconClock, IconWebhook } from '@tabler/icons-react';
 
 interface ActivationConfigStepProps {
   service: ServiceData;
@@ -39,6 +39,24 @@ export default function ActivationConfigStep({ service, onServiceChange }: Activ
   // eslint-disable-next-line react-hooks/rules-of-hooks
   const [pendingActivationType, setPendingActivationType] = useState<string | null>(null);
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [cronPreset, setCronPreset] = useState<string>('custom');
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [cronExpression, setCronExpression] = useState<string>('0 0 * * *');
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const [pollInterval, setPollInterval] = useState<number>(300);
+
+  const cronPresets = [
+    { value: '*/5 * * * *', label: 'Every 5 minutes' },
+    { value: '*/15 * * * *', label: 'Every 15 minutes' },
+    { value: '*/30 * * * *', label: 'Every 30 minutes' },
+    { value: '0 * * * *', label: 'Every hour' },
+    { value: '0 0 * * *', label: 'Every day at midnight' },
+    { value: '0 9 * * 1-5', label: 'Weekdays at 9 AM' },
+    { value: 'custom', label: 'Custom expression' }
+  ];
+
   const activationTypeOptions = [
     { value: 'manual', label: 'Manual' },
     { value: 'cron', label: 'CRON Schedule' },
@@ -68,8 +86,11 @@ export default function ActivationConfigStep({ service, onServiceChange }: Activ
     }
   };
 
-  const updateActivationConfig = (type: string) => {
-    const newConfig: ActivationConfig = { type: type as ActivationConfig['type'] };
+  const updateActivationConfig = (type: string, additionalConfig: Partial<ActivationConfig> = {}) => {
+    const newConfig: ActivationConfig = {
+      type: type as ActivationConfig['type'],
+      ...additionalConfig
+    };
     const updatedService: ServiceData = {
       ...service,
       activationConfig: newConfig
@@ -100,6 +121,21 @@ export default function ActivationConfigStep({ service, onServiceChange }: Activ
     setPendingActivationType(null);
     setShowWarningModal(false);
   };
+
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  useEffect(() => {
+    if (service.activationConfig) {
+      if (service.activationConfig.cron_expression) {
+        setCronExpression(service.activationConfig.cron_expression);
+        const preset = cronPresets.find(p => p.value === service.activationConfig?.cron_expression);
+        setCronPreset(preset ? preset.value : 'custom');
+      }
+      if (service.activationConfig.poll_interval) {
+        setPollInterval(service.activationConfig.poll_interval);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [service.activationConfig]);
 
   // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
@@ -177,6 +213,122 @@ export default function ActivationConfigStep({ service, onServiceChange }: Activ
           {activationType === 'poll' && 'Periodically checks for changes'}
           {activationType === 'chain' && 'Triggered by another action completion'}
         </Text>
+
+        {/* CRON Configuration */}
+        {activationType === 'cron' && (
+          <Stack gap="sm" mt="md">
+            <Alert icon={<IconClock size={16} />} title="Schedule Configuration" color="blue">
+              <Text size="sm">Configure when this action should run</Text>
+            </Alert>
+
+            <Select
+              label="Schedule Preset"
+              placeholder="Choose a preset schedule"
+              value={cronPreset}
+              onChange={(value) => {
+                if (value) {
+                  setCronPreset(value);
+                  if (value !== 'custom') {
+                    setCronExpression(value);
+                    updateActivationConfig('cron', { cron_expression: value });
+                  }
+                }
+              }}
+              data={cronPresets}
+            />
+
+            {cronPreset === 'custom' && (
+              <TextInput
+                label="Custom CRON Expression"
+                placeholder="0 0 * * *"
+                value={cronExpression}
+                onChange={(e) => {
+                  const value = e.currentTarget.value;
+                  setCronExpression(value);
+                  updateActivationConfig('cron', { cron_expression: value });
+                }}
+                description="Format: minute hour day month weekday"
+              />
+            )}
+
+            <Text size="xs" c="dimmed">
+              Current schedule: {cronExpression}
+            </Text>
+          </Stack>
+        )}
+
+        {/* Poll Configuration */}
+        {activationType === 'poll' && (
+          <Stack gap="sm" mt="md">
+            <Alert icon={<IconClock size={16} />} title="Polling Configuration" color="blue">
+              <Text size="sm">Configure how often to check for changes</Text>
+            </Alert>
+
+            <SegmentedControl
+              value={pollInterval.toString()}
+              onChange={(value) => {
+                const interval = parseInt(value);
+                setPollInterval(interval);
+                updateActivationConfig('poll', { poll_interval: interval });
+              }}
+              data={[
+                { label: '1 min', value: '60' },
+                { label: '5 min', value: '300' },
+                { label: '15 min', value: '900' },
+                { label: '30 min', value: '1800' },
+                { label: '1 hour', value: '3600' }
+              ]}
+            />
+
+            <NumberInput
+              label="Custom Interval (seconds)"
+              placeholder="300"
+              value={pollInterval}
+              onChange={(value) => {
+                const interval = typeof value === 'number' ? value : 300;
+                setPollInterval(interval);
+                updateActivationConfig('poll', { poll_interval: interval });
+              }}
+              min={60}
+              max={86400}
+              description="Minimum: 60 seconds, Maximum: 24 hours (86400 seconds)"
+            />
+          </Stack>
+        )}
+
+        {/* Webhook Configuration */}
+        {activationType === 'webhook' && (
+          <Stack gap="sm" mt="md">
+            <Alert icon={<IconWebhook size={16} />} title="Webhook Configuration" color="blue">
+              <Text size="sm">
+                This action will be triggered when a webhook is received.
+                The webhook URL will be generated after creating the area.
+              </Text>
+            </Alert>
+
+            <TextInput
+              label="Secret Token (Optional)"
+              placeholder="Enter a secret token for webhook validation"
+              onChange={(e) => {
+                const value = e.currentTarget.value;
+                updateActivationConfig('webhook', {
+                  secret_token: value || undefined
+                });
+              }}
+              description="Optional: Add a secret token to validate incoming webhooks"
+            />
+          </Stack>
+        )}
+
+        {/* Manual Configuration */}
+        {activationType === 'manual' && (
+          <Alert icon={<IconInfoCircle size={16} />} title="Manual Trigger" color="gray" mt="md">
+            <Text size="sm">
+              This action can be triggered manually from the dashboard.
+              No additional configuration required.
+            </Text>
+          </Alert>
+        )}
       </Stack>
 
       {/* Modal de confirmation pour changer depuis CHAIN */}

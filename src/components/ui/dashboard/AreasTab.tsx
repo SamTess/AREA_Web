@@ -26,8 +26,14 @@ interface AreaRun {
   duration: string;
 }
 
+interface AreaStat {
+  title: string;
+  value: string;
+  icon: React.ComponentType<{ size?: number }>;
+}
+
 export function AreasTab() {
-  const [areaStats, setAreaStats] = useState([]);
+  const [areaStats, setAreaStats] = useState<AreaStat[]>([]);
   const [areas, setAreas] = useState<Area[]>([]);
   const [areaRuns, setAreaRuns] = useState<AreaRun[]>([]);
   const [searchAreas, setSearchAreas] = useState('');
@@ -45,9 +51,21 @@ export function AreasTab() {
 
   useEffect(() => {
     const fetchData = async () => {
-      setAreas(await getAreas());
-      setAreaRuns(await getAreaRuns());
-      setAreaStats(await getAreaStats());
+      try {
+        const areasData = await getAreas();
+        setAreas(Array.isArray(areasData) ? areasData : []);
+
+        const areaRunsData = await getAreaRuns();
+        setAreaRuns(Array.isArray(areaRunsData) ? areaRunsData : []);
+
+        const areaStatsData = await getAreaStats();
+        setAreaStats(Array.isArray(areaStatsData) ? areaStatsData : []);
+      } catch (error) {
+        console.error('Error fetching areas data:', error);
+        setAreas([]);
+        setAreaRuns([]);
+        setAreaStats([]);
+      }
     };
     fetchData();
   }, []);
