@@ -3,9 +3,8 @@ import { Image, Anchor, Group, Flex } from '@mantine/core';
 import './Footer.css';
 
 const links = [
-  { link: '#', label: 'About' },
-  { link: '#', label: 'Features' },
-  { link: '#', label: 'Support' },
+  { link: '/about', label: 'About' },
+  { link: '/contact', label: 'Contact' },
 ];
 
 export function Footer() {
@@ -15,7 +14,10 @@ export function Footer() {
       key={link.label}
       href={link.link}
       lh={1}
-      onClick={(event) => event.preventDefault()}
+      onClick={(event) => {
+        if (link.link === '#')
+          event.preventDefault();
+      }}
       size="sm"
     >
       {link.label}

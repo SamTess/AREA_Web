@@ -133,10 +133,8 @@ export default function AreaListPage() {
                         placeholder="Filter by status"
                         data={[
                             { value: '', label: 'All' },
-                            { value: 'failed', label: 'Failed' },
-                            { value: 'not started', label: 'Not Started' },
-                            { value: 'in progress', label: 'In Progress' },
-                            { value: 'success', label: 'Success' },
+                            { value: 'active', label: 'Active' },
+                            { value: 'inactive', label: 'Inactive' },
                         ]}
                         value={statusFilter}
                         onChange={(value) => setStatusFilter(value || '')}

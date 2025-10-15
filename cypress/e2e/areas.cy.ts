@@ -20,10 +20,10 @@ describe('Areas page', () => {
     // Click on status select input
     cy.get('input[placeholder="Filter by status"]').click();
 
-    // Select "Success" status from dropdown using force click
-    cy.get('[role="option"]').contains('Success').click({ force: true });
+    // Select "Active" status from dropdown using force click
+    cy.get('[role="option"]').contains('Active').click({ force: true });
 
-    // Should show areas with success status
+    // Should show areas with active status
     cy.contains('GitHub PR Monitor').should('be.visible');
   });
 
@@ -31,7 +31,7 @@ describe('Areas page', () => {
     // Check that status badges are visible using Mantine Badge class
     cy.get('.mantine-Badge-root').should('exist').and('be.visible');
     // Check that at least one badge contains status text
-    cy.get('.mantine-Badge-root').should('contain.text', 'success');
+    cy.get('.mantine-Badge-root').should('contain.text', 'active');
   });
 
   it('should have pagination when there are many areas', () => {
