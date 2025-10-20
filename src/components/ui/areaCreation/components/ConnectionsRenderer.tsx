@@ -6,6 +6,7 @@ interface ConnectionsRendererProps {
   connections: ConnectionData[];
   services: ServiceData[];
   onRemoveConnection: (connectionId: string) => void;
+  onEditConnection: (connectionId: string) => void;
 }
 
 const getLinkStyle = (linkType: LinkData['type']) => {
@@ -22,6 +23,7 @@ export default function ConnectionsRenderer({
   connections,
   services,
   onRemoveConnection,
+  onEditConnection,
 }: ConnectionsRendererProps) {
   const handlePathMouseEnter = useCallback((e: React.MouseEvent<SVGPathElement>) => {
     const target = e.target as SVGPathElement;
@@ -35,29 +37,19 @@ export default function ConnectionsRenderer({
     target.style.filter = 'drop-shadow(0 2px 4px rgba(0,0,0,0.1))';
   }, []);
 
-  const handleDeleteMouseEnter = useCallback((e: React.MouseEvent<SVGGElement | SVGElement>, midX: number, midY: number) => {
+  const handleButtonMouseEnter = useCallback((e: React.MouseEvent<SVGGElement | SVGElement>, midX: number, midY: number) => {
     const circle = e.currentTarget.querySelector('circle');
-    const text = e.currentTarget.querySelector('text');
     if (circle) {
       circle.style.transformOrigin = `${midX}px ${midY}px`;
       circle.style.transform = 'scale(1.2)';
-      circle.style.fill = '#FA5252';
-    }
-    if (text) {
-      text.style.fontSize = '16px';
     }
   }, []);
 
-  const handleDeleteMouseLeave = useCallback((e: React.MouseEvent<SVGGElement | SVGElement>, midX: number, midY: number) => {
+  const handleButtonMouseLeave = useCallback((e: React.MouseEvent<SVGGElement | SVGElement>, midX: number, midY: number) => {
     const circle = e.currentTarget.querySelector('circle');
-    const text = e.currentTarget.querySelector('text');
     if (circle) {
       circle.style.transformOrigin = `${midX}px ${midY}px`;
       circle.style.transform = 'scale(1)';
-      circle.style.fill = '#FF6B6B';
-    }
-    if (text) {
-      text.style.fontSize = '14px';
     }
   }, []);
 
@@ -116,15 +108,15 @@ export default function ConnectionsRenderer({
             />
             <g
               style={{ cursor: 'pointer' }}
-              onClick={() => onRemoveConnection(connection.id)}
-              onMouseEnter={(e) => handleDeleteMouseEnter(e, midX, midY)}
-              onMouseLeave={(e) => handleDeleteMouseLeave(e, midX, midY)}
+              onClick={() => onEditConnection(connection.id)}
+              onMouseEnter={(e) => handleButtonMouseEnter(e, midX, midY)}
+              onMouseLeave={(e) => handleButtonMouseLeave(e, midX, midY)}
             >
               <circle
                 cx={midX}
                 cy={midY}
-                r={14}
-                fill="#FF6B6B"
+                r={16}
+                fill={linkColor}
                 stroke="#FFF"
                 strokeWidth={2}
                 style={{
@@ -135,10 +127,10 @@ export default function ConnectionsRenderer({
               />
               <text
                 x={midX}
-                y={midY + 5}
+                y={midY + 1}
                 textAnchor="middle"
                 fill="white"
-                fontSize={14}
+                fontSize={12}
                 fontWeight="bold"
                 style={{
                   userSelect: 'none',
@@ -146,7 +138,7 @@ export default function ConnectionsRenderer({
                   pointerEvents: 'none'
                 }}
               >
-                ×
+                ⚙
               </text>
             </g>
             <g style={{ pointerEvents: 'none' }}>

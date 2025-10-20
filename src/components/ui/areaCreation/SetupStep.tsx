@@ -177,7 +177,7 @@ export default function SetupStep({ service, onServiceChange }: Omit<SetupStepPr
                     </Combobox.Target>
 
                     <Combobox.Dropdown>
-                        <Combobox.Options>{options}</Combobox.Options>
+                        <Combobox.Options mah={500} style={{ overflowY: 'auto' }}>{options}</Combobox.Options>
                     </Combobox.Dropdown>
                 </Combobox>
                 <Text size="sm" fw={500}>Account <span style={{color: 'red'}}>*</span></Text>

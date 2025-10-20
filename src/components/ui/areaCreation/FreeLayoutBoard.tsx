@@ -1,9 +1,7 @@
-'use client';
-
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { Text } from '@mantine/core';
 import ServiceCard from './ServiceCard';
-import { ServiceState } from '../../../types';
+import { ServiceState, ConnectionData } from '../../../types';
 import styles from './FreeLayoutBoard.module.css';
 
 // Import types
@@ -19,6 +17,7 @@ import BoardToolbar from './components/BoardToolbar';
 import ZoomControls from './components/ZoomControls';
 import ConnectionsRenderer from './components/ConnectionsRenderer';
 import LinkConfigModal from './components/LinkConfigModal';
+import LinkEditModal from './components/LinkEditModal';
 import SVGDefinitions from './components/SVGDefinitions';
 
 export default function FreeLayoutBoard({
@@ -34,6 +33,9 @@ export default function FreeLayoutBoard({
 }: FreeLayoutBoardProps) {
   const boardRef = useRef<HTMLDivElement>(null);
   const boardInnerRef = useRef<HTMLDivElement>(null);
+
+  const [editModalOpened, setEditModalOpened] = useState(false);
+  const [editingConnection, setEditingConnection] = useState<ConnectionData | null>(null);
 
   const { canvasState, handleBoardMouseDown, zoomIn, zoomOut, screenToCanvas } =
     useCanvasControls(boardRef);
@@ -72,6 +74,23 @@ export default function FreeLayoutBoard({
     setLinkModalOpened(false);
     setTempConnection(null);
     cancelLinking();
+  };
+
+  const handleEditConnection = (connectionId: string) => {
+    const connection = connections.find(c => c.id === connectionId);
+    if (connection) {
+      setEditingConnection(connection);
+      setEditModalOpened(true);
+    }
+  };
+
+  const handleUpdateConnection = (updatedConnection: ConnectionData) => {
+    onRemoveConnection(updatedConnection.id);
+    onCreateConnection(updatedConnection);
+  };
+
+  const handleDeleteConnection = (connectionId: string) => {
+    onRemoveConnection(connectionId);
   };
 
   return (
@@ -222,6 +241,7 @@ export default function FreeLayoutBoard({
                 connections={connections}
                 services={services}
                 onRemoveConnection={onRemoveConnection}
+                onEditConnection={handleEditConnection}
               />
             </svg>
           </div>
@@ -240,6 +260,15 @@ export default function FreeLayoutBoard({
         services={services}
         onConnectionChange={setTempConnection}
         onConfirm={confirmLink}
+      />
+
+      <LinkEditModal
+        opened={editModalOpened}
+        onClose={() => setEditModalOpened(false)}
+        connection={editingConnection}
+        services={services}
+        onUpdate={handleUpdateConnection}
+        onDelete={handleDeleteConnection}
       />
     </div>
   );
