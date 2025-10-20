@@ -35,7 +35,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <MantineProvider>
-          <Notifications position="top-right" />
+          <Notifications position="bottom-right" />
           <div>
         <NavbarMinimal />
           </div>

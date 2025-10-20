@@ -194,9 +194,7 @@ export default function AreaEditorBoard({
                     service={service}
                     onRemove={() => onRemoveService(service.id)}
                     onClick={() => onEditService(service)}
-                    onAdd={onAddService}
-                    isLast={index === services.length - 1}
-                    isFirst={index === 0}
+                    onAdd={index === services.length - 1 ? onAddService : undefined}
                     isDragging={isDragging}
                     onUp={onMoveUp ? () => onMoveUp(service.id) : undefined}
                     onDown={onMoveDown ? () => onMoveDown(service.id) : undefined}

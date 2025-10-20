@@ -134,7 +134,7 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
 
     return (
         <Stack gap="md">
-            {needsServiceToken && (
+            {service.serviceKey && (
                 <Stack gap="xs">
                     <Alert color="blue" variant="light">
                         <Group>
@@ -146,7 +146,7 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
                         </Group>
                     </Alert>
                     <TextInput
-                        label={`${service.serviceName} Token *`}
+                        label={`${service.serviceName} Token`}
                         placeholder={`Enter your ${service.serviceName} access token`}
                         type="password"
                         description={`Please provide your ${service.serviceName} access token to use this action`}
@@ -172,7 +172,7 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
 
             {data.map((field, index) => {
                 const commonProps = {
-                    label: field.name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') + (field.mandatory ? ' *' : ''),
+                    label: field.name.split('_').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
                     placeholder: field.placeholder || field.description,
                     required: field.mandatory,
                     description: field.description,

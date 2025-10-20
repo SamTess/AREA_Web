@@ -1,6 +1,5 @@
 import { Service, Area } from '../types';
 
-// Simplified Action type for mocks
 interface SimplifiedAction {
   id: string;
   serviceId: string;
@@ -13,7 +12,7 @@ export const services: Service[] = [
     { id: '2', name: 'Google', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg' },
     { id: '3', name: 'Bitbucket', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Bitbucket-blue-logomark-only.svg' },
     { id: '4', name: 'Spotify', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg' },
-    { id: '5', name: 'Jira', logo: 'https://cdn.worldvectorlogo.com/logos/jira-1.svg' },
+    { id: '5', name: 'Jira', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Jira_%28Software%29_logo.svg' },
     { id: '6', name: 'Slack', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png' },
 ];
 
@@ -54,25 +53,25 @@ export const whiteboardCards = [
     { id: '2', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', serviceName: 'Google Drive', event: 'File uploaded', cardName: 'File uploaded', state: 'success', x: 300, y: 100, actionId: '7', serviceId: '2', areaId: '3' },
     { id: '3', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Bitbucket-blue-logomark-only.svg', serviceName: 'Bitbucket', event: 'PR merged', cardName: 'PR merged', state: 'failed', x: 500, y: 100, actionId: '9', serviceId: '3', areaId: '4' },
     { id: '4', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg', serviceName: 'Spotify', event: 'New playlist', cardName: 'New playlist', state: 'success', x: 700, y: 100, actionId: 11, serviceId: 4, areaId: 5 },
-    { id: '5', logo: 'https://cdn.worldvectorlogo.com/logos/jira-1.svg', serviceName: 'Jira', event: 'Issue created', cardName: 'Issue created', state: 'configuration', x: 100, y: 250, actionId: 14, serviceId: 5, areaId: 1 },
+    { id: '5', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Jira_%28Software%29_logo.svg', serviceName: 'Jira', event: 'Issue created', cardName: 'Issue created', state: 'configuration', x: 100, y: 250, actionId: 14, serviceId: 5, areaId: 1 },
     { id: '6', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png', serviceName: 'Slack', event: 'Message sent', cardName: 'Message sent', state: 'in_progress', x: 300, y: 250, actionId: 17, serviceId: 6, areaId: 2 },
     { id: '7', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg', serviceName: 'GitHub', event: 'Issue closed', cardName: 'Issue closed', state: 'success', x: 500, y: 250, actionId: 2, serviceId: 1, areaId: 1 },
     { id: '8', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', serviceName: 'Google Calendar', event: 'Event created', cardName: 'Event created', state: 'in_progress', x: 700, y: 250, actionId: 6, serviceId: 2, areaId: 3 },
     { id: '9', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Bitbucket-blue-logomark-only.svg', serviceName: 'Bitbucket', event: 'Repo created', cardName: 'Repo created', state: 'success', x: 100, y: 400, actionId: 10, serviceId: 3, areaId: 4 },
     { id: '10', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg', serviceName: 'Spotify', event: 'Song added', cardName: 'Song added', state: 'failed', x: 300, y: 400, actionId: 12, serviceId: 4, areaId: 5 },
-    { id: '11', logo: 'https://cdn.worldvectorlogo.com/logos/jira-1.svg', serviceName: 'Jira', event: 'Issue updated', cardName: 'Issue updated', state: 'success', x: 500, y: 400, actionId: 15, serviceId: 5, areaId: 1 },
+    { id: '11', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Jira_%28Software%29_logo.svg', serviceName: 'Jira', event: 'Issue updated', cardName: 'Issue updated', state: 'success', x: 500, y: 400, actionId: 15, serviceId: 5, areaId: 1 },
     { id: '12', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png', serviceName: 'Slack', event: 'Channel created', cardName: 'Channel created', state: 'configuration', x: 700, y: 400, actionId: 18, serviceId: 6, areaId: 2 },
     { id: '13', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg', serviceName: 'GitHub', event: 'Repo created', cardName: 'Repo created', state: 'in_progress', x: 100, y: 550, actionId: 4, serviceId: 1, areaId: 1 },
     { id: '14', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', serviceName: 'Gmail', event: 'Email sent', cardName: 'Email sent', state: 'success', x: 300, y: 550, actionId: 5, serviceId: 2, areaId: 3 },
     { id: '15', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Bitbucket-blue-logomark-only.svg', serviceName: 'Bitbucket', event: 'PR created', cardName: 'PR created', state: 'failed', x: 500, y: 550, actionId: 8, serviceId: 3, areaId: 4 },
     { id: '16', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg', serviceName: 'Spotify', event: 'Playlist created', cardName: 'Playlist created', state: 'success', x: 700, y: 550, actionId: 11, serviceId: 4, areaId: 5 },
-    { id: '17', logo: 'https://cdn.worldvectorlogo.com/logos/jira-1.svg', serviceName: 'Jira', event: 'Issue assigned', cardName: 'Issue assigned', state: 'in_progress', x: 100, y: 700, actionId: 16, serviceId: 5, areaId: 1 },
+    { id: '17', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Jira_%28Software%29_logo.svg', serviceName: 'Jira', event: 'Issue assigned', cardName: 'Issue assigned', state: 'in_progress', x: 100, y: 700, actionId: 16, serviceId: 5, areaId: 1 },
     { id: '18', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png', serviceName: 'Slack', event: 'User invited', cardName: 'User invited', state: 'success', x: 300, y: 700, actionId: 19, serviceId: 6, areaId: 2 },
     { id: '19', logo: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg', serviceName: 'GitHub', event: 'Commit pushed', cardName: 'Commit pushed', state: 'success', x: 500, y: 700, actionId: 3, serviceId: 1, areaId: 1 },
     { id: '20', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg', serviceName: 'Google Drive', event: 'File shared', cardName: 'File shared', state: 'in_progress', x: 100, y: 850, actionId: 7, serviceId: 2, areaId: 3 },
     { id: '21', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Bitbucket-blue-logomark-only.svg', serviceName: 'Bitbucket', event: 'Branch created', cardName: 'Branch created', state: 'success', x: 300, y: 850, actionId: 10, serviceId: 3, areaId: 4 },
     { id: '22', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg', serviceName: 'Spotify', event: 'Song played', cardName: 'Song played', state: 'failed', x: 500, y: 850, actionId: 13, serviceId: 4, areaId: 5 },
-    { id: '23', logo: 'https://cdn.worldvectorlogo.com/logos/jira-1.svg', serviceName: 'Jira', event: 'Sprint started', cardName: 'Sprint started', state: 'configuration', x: 700, y: 850, actionId: 14, serviceId: 5, areaId: 1 },
+    { id: '23', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Jira_%28Software%29_logo.svg', serviceName: 'Jira', event: 'Sprint started', cardName: 'Sprint started', state: 'configuration', x: 700, y: 850, actionId: 14, serviceId: 5, areaId: 1 },
     { id: '24', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png', serviceName: 'Slack', event: 'File uploaded', cardName: 'File uploaded', state: 'success', x: 100, y: 1000, actionId: 17, serviceId: 6, areaId: 2 },
 ];
 

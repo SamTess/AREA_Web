@@ -30,10 +30,8 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
     connections,
     createConnection,
     removeConnection,
-    updateConnection,
+    duplicateService,
   } = useAreaEditor(areaId);
-
-
 
   return (
     <div className={styles.container}>
@@ -58,7 +56,7 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
           onUpdateService={updateService}
           onCreateConnection={createConnection}
           onRemoveConnection={removeConnection}
-          onUpdateConnection={updateConnection}
+          onDuplicateService={duplicateService}
         />
       </div>
 
