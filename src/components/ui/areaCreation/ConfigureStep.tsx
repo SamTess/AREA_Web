@@ -130,8 +130,6 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
         setTimeout(() => onFieldsChangeRef.current?.(formValues), 0);
     }, [formValues]);
 
-    const needsServiceToken = service.serviceKey && !serviceTokens[service.serviceKey];
-
     return (
         <Stack gap="md">
             {service.serviceKey && (

@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { CanvasState, INITIAL_CANVAS_OFFSET_X, INITIAL_CANVAS_OFFSET_Y } from '../types';
 
-export function useCanvasControls(boardRef: React.RefObject<HTMLDivElement>) {
+export function useCanvasControls(boardRef: React.RefObject<HTMLDivElement | null>) {
   const [canvasState, setCanvasState] = useState<CanvasState>(() => ({
     scale: 1,
     offsetX: INITIAL_CANVAS_OFFSET_X,
@@ -34,7 +34,7 @@ export function useCanvasControls(boardRef: React.RefObject<HTMLDivElement>) {
     });
   }, [boardRef]);
 
-  const handleBoardMouseDown = useCallback((e: React.MouseEvent, boardInnerRef: React.RefObject<HTMLDivElement>) => {
+  const handleBoardMouseDown = useCallback((e: React.MouseEvent, boardInnerRef: React.RefObject<HTMLDivElement | null>) => {
     const isMiddleButton = e.button === 1;
     const isLeftButton = e.button === 0;
     const isOnBoard = e.target === boardRef.current || e.target === boardInnerRef.current;

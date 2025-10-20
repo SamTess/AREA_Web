@@ -22,7 +22,6 @@ const getLinkStyle = (linkType: LinkData['type']) => {
 export default function ConnectionsRenderer({
   connections,
   services,
-  onRemoveConnection,
   onEditConnection,
 }: ConnectionsRendererProps) {
   const handlePathMouseEnter = useCallback((e: React.MouseEvent<SVGPathElement>) => {
