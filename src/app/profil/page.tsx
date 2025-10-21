@@ -1,7 +1,7 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { PasswordInput, TextInput, Title, Avatar, Button, Container, Card, Stack, Group, Menu, Modal, Text, Loader } from '@mantine/core';
+import { PasswordInput, TextInput, Title, Avatar, Button, Container, Card, Stack, Group, Menu, Text, Loader, Alert } from '@mantine/core';
 import { IconCamera } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { z } from 'zod';
@@ -12,15 +12,14 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 const profileSchema = z.object({
   email: z.string().email('Invalid email address'),
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
+  firstName: z.string().min(1, 'First name is required').max(100, 'First name must be at most 100 characters'),
+  lastName: z.string().min(1, 'Last name is required').max(100, 'Last name must be at most 100 characters'),
   password: z.string().optional().refine((val: string | undefined) => !val || val.length >= 6, {
     message: 'Password must be at least 6 characters',
   }),
 });
 
 export default function ProfilPage() {
-  const [opened, setOpened] = useState(false);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<UserContent | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -28,6 +27,7 @@ export default function ProfilPage() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [userId, setUserId] = useState<string | " ">(" ");
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
 
   const form = useForm<ProfileData>({
     initialValues: {
@@ -84,25 +84,46 @@ export default function ProfilPage() {
         await getCurrentUser();
       } catch (authError) {
         console.error('User not authenticated:', authError);
-        alert('Your session has expired. Please log in again.');
+        setNotification({ message: 'Your session has expired. Please log in again.', type: 'error' });
+        setLoading(false);
         return;
       }
 
       let avatarUrl = user?.avatarSrc;
       if (avatarFile) {
-        avatarUrl = await uploadAvatar(avatarFile);
-        setUser(prev => prev ? { ...prev, avatarSrc: avatarUrl! } : null);
+        try {
+          avatarUrl = await uploadAvatar(avatarFile);
+          setOriginalAvatarSrc(avatarUrl);
+        } catch (uploadError) {
+          console.error('Failed to upload avatar:', uploadError);
+          setNotification({ message: 'Failed to upload avatar. Profile will be updated without avatar change.', type: 'warning' });
+          avatarUrl = user?.avatarSrc;
+        }
       }
-      await updateProfile(userId, form.values);
-      form.resetDirty();
+
+      const updatedUser = await updateProfile(userId, form.values, avatarFile ? avatarUrl : undefined);
+      setUser(updatedUser);
+      setOriginalAvatarSrc(updatedUser.avatarSrc);
+      form.setValues(updatedUser.profileData);
+      form.resetDirty(updatedUser.profileData);
       setAvatarFile(null);
-      setOpened(false);
+      setNotification({ message: 'Profile updated successfully!', type: 'success' });
+      window.location.reload();
     } catch (error) {
       console.error('Failed to update profile', error);
-      if (error instanceof AxiosError && error.response?.status === 403) {
-        alert('You are not authorized to update your profile. Please check your authentication.');
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 403) {
+          setNotification({ message: 'You are not authorized to update your profile. Please check your authentication.', type: 'error' });
+        } else if (error.response?.status === 404) {
+          setNotification({ message: 'User not found. Please try logging in again.', type: 'error' });
+        } else if (error.response?.status === 400) {
+          const errorMessage = error.response?.data?.error || 'Invalid request. Please check your input.';
+          setNotification({ message: errorMessage, type: 'error' });
+        } else {
+          setNotification({ message: 'Failed to update profile. Please try again.', type: 'error' });
+        }
       } else {
-        alert('Failed to update profile. Please try again.');
+        setNotification({ message: 'Failed to update profile. Please try again.', type: 'error' });
       }
     } finally {
       setLoading(false);
@@ -144,6 +165,16 @@ export default function ProfilPage() {
       <Card shadow="sm" padding="lg" radius="md" withBorder>
         <Stack gap="md">
           <Title order={1} ta="center">Profile</Title>
+          {notification && (
+            <Alert
+              variant="light"
+              color={notification.type === 'success' ? 'green' : notification.type === 'error' ? 'red' : 'yellow'}
+              withCloseButton
+              onClose={() => setNotification(null)}
+            >
+              {notification.message}
+            </Alert>
+          )}
           <Group justify="center">
             <div style={{ position: 'relative' }}>
               <Avatar size="xl" src={user.avatarSrc} />
@@ -169,25 +200,37 @@ export default function ProfilPage() {
             placeholder="New Password"
             {...form.getInputProps('password')}
           />
-          <TextInput
-            label="First Name"
-            placeholder="First Name"
-            {...form.getInputProps('firstName')}
-          />
-          <TextInput
-            label="Last Name"
-            placeholder="Last Name"
-            {...form.getInputProps('lastName')}
-          />
+          <div>
+            <TextInput
+              label="First Name"
+              placeholder="First Name"
+              maxLength={100}
+              {...form.getInputProps('firstName')}
+            />
+            <Text size="xs" c="dimmed" mt={4} ta="right">
+              {form.values.firstName.length}/100 characters
+            </Text>
+          </div>
+          <div>
+            <TextInput
+              label="Last Name"
+              placeholder="Last Name"
+              maxLength={100}
+              {...form.getInputProps('lastName')}
+            />
+            <Text size="xs" c="dimmed" mt={4} ta="right">
+              {form.values.lastName.length}/100 characters
+            </Text>
+          </div>
           <Group justify="flex-end">
             <Menu shadow="md" width={200}>
               <Menu.Target>
-                <Button disabled={!isDirty} variant="filled">
+                <Button disabled={!isDirty} variant="filled" loading={loading}>
                   Save Changes
                 </Button>
               </Menu.Target>
               <Menu.Dropdown>
-                <Menu.Item onClick={() => setOpened(true)}>
+                <Menu.Item onClick={handleSave}>
                   Confirm Save
                 </Menu.Item>
                 <Menu.Item onClick={() => {
@@ -204,17 +247,6 @@ export default function ProfilPage() {
         </Stack>
       </Card>
 
-      <Modal opened={opened} onClose={() => setOpened(false)} title="Confirm Save">
-        <Text>Are you sure you want to save the changes?</Text>
-        <Group justify="flex-end" mt="md">
-          <Button variant="default" onClick={() => setOpened(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} loading={loading}>
-            Save
-          </Button>
-        </Group>
-      </Modal>
       <input
         type="file"
         ref={fileInputRef}
@@ -224,7 +256,7 @@ export default function ProfilPage() {
           const file = e.target.files?.[0];
           if (file) {
             if (file.size > 5 * 1024 * 1024) {
-              alert('File size must be less than 5MB');
+              setNotification({ message: 'File size must be less than 5MB', type: 'error' });
               return;
             }
             handleAvatarChange(file);

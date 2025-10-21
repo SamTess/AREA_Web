@@ -1,10 +1,10 @@
 import { Card, Text, Menu, ActionIcon, Badge, Loader } from '@mantine/core';
 import Image from 'next/image';
 import styles from './ServiceCard.module.css';
-import { IconDotsVertical, IconClipboardCopy, IconTrash, IconSettings, IconX, IconCheck, IconEdit, IconArrowBigUpLine, IconArrowBigDownLine } from '@tabler/icons-react';
+import { IconDotsVertical, IconClipboardCopy, IconTrash, IconSettings, IconX, IconCheck, IconEdit } from '@tabler/icons-react';
 import { ServiceState, ServiceCardProps } from '../../../types';
 
-export default function ServiceCard({ logo, serviceName, cardName, event, state, onRemove, onEdit, onUp, onDown, onDuplicate, isFirst, isLast, linkInfo }: ServiceCardProps) {
+export default function ServiceCard({ logo, serviceName, cardName, event, state, onRemove, onEdit, onDuplicate, linkInfo }: ServiceCardProps) {
     return (
         <Card radius="md" withBorder className={styles.card} style={{ width: 300 }}>
             <div className={styles.leftStripe} />
@@ -37,8 +37,6 @@ export default function ServiceCard({ logo, serviceName, cardName, event, state,
                             </ActionIcon>
                         </Menu.Target>
                         <Menu.Dropdown>
-                            { isFirst ? <Menu.Item leftSection={<IconArrowBigUpLine size={16} />} disabled>Move up</Menu.Item> : onUp && <Menu.Item leftSection={<IconArrowBigUpLine size={16} />} onClick={onUp}>Move up</Menu.Item>}
-                            {isLast ? <Menu.Item leftSection={<IconArrowBigDownLine size={16} />} disabled>Move down</Menu.Item> : onDown && <Menu.Item leftSection={<IconArrowBigDownLine size={16} />} onClick={onDown}>Move down</Menu.Item>}
                             {onEdit && <Menu.Item leftSection={<IconEdit size={16} />} onClick={onEdit}>Edit</Menu.Item>}
                             {onDuplicate && <Menu.Item leftSection={<IconClipboardCopy size={16} />} onClick={onDuplicate}>Duplicate</Menu.Item>}
                             {onRemove && <Menu.Item color="red" leftSection={<IconTrash size={16} />} onClick={onRemove}>Delete</Menu.Item>}
@@ -49,27 +47,27 @@ export default function ServiceCard({ logo, serviceName, cardName, event, state,
                     <div style={{ marginTop: 8, padding: 8, backgroundColor: '#f8f9fa', borderRadius: 4 }}>
                         {linkInfo.type === 'chain' && linkInfo.sourceService && (
                             <Badge size="xs" color="blue" variant="light" style={{ marginRight: 4 }}>
-                                🔗 Chain from {linkInfo.sourceService}
+                                Chain from {linkInfo.sourceService}
                             </Badge>
                         )}
                         {linkInfo.type === 'conditional' && linkInfo.sourceService && (
                             <Badge size="xs" color="yellow" variant="light" style={{ marginRight: 4 }}>
-                                ❓ Conditional from {linkInfo.sourceService}
+                                Conditional from {linkInfo.sourceService}
                             </Badge>
                         )}
                         {linkInfo.type === 'parallel' && linkInfo.sourceService && (
                             <Badge size="xs" color="green" variant="light" style={{ marginRight: 4 }}>
-                                ⚡ Parallel with {linkInfo.sourceService}
+                                Parallel with {linkInfo.sourceService}
                             </Badge>
                         )}
                         {linkInfo.type === 'sequential' && linkInfo.sourceService && (
                             <Badge size="xs" color="purple" variant="light" style={{ marginRight: 4 }}>
-                                ⏭️ Sequential from {linkInfo.sourceService}
+                                Sequential from {linkInfo.sourceService}
                             </Badge>
                         )}
                         {linkInfo.hasChainTarget && (
                             <Badge size="xs" color="cyan" variant="light">
-                                🎯 Has chain target
+                                Has chain target
                             </Badge>
                         )}
                     </div>

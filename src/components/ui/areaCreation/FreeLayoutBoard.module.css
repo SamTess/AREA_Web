@@ -22,12 +22,17 @@
   width: 100%;
   height: 100%;
   background-color: #f8f9fa;
-  background-image: 
+  background-image:
     radial-gradient(circle, #dee2e6 1px, transparent 1px);
   background-size: 20px 20px;
   flex: 1;
   overflow: hidden;
   min-height: 600px;
+  cursor: grab;
+}
+
+.board.panning {
+  cursor: grabbing;
 }
 
 .transformWrapper {
@@ -41,13 +46,19 @@
 }
 
 .boardInner {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform-origin: 0 0;
+  background-color: transparent;
+  pointer-events: none;
+}
+
+.boardContent {
   position: relative;
-  width: 3000px;
-  height: 3000px;
-  background-color: #f8f9fa;
-  background-image: 
-    radial-gradient(circle, #dee2e6 1px, transparent 1px);
-  background-size: 20px 20px;
+  pointer-events: auto;
+  min-width: 10000px;
+  min-height: 10000px;
 }
 
 .connectionsOverlay {
@@ -66,12 +77,12 @@
   left: 0;
   width: 100%;
   height: 100%;
-  pointer-events: none;
-  z-index: 5;
+  overflow: visible;
+  z-index: 1;
 }
 
 .connections circle,
-.connections text {
+.connections g[style*="cursor"] {
   pointer-events: all;
   cursor: pointer;
 }
@@ -139,9 +150,19 @@
 .serviceWrapper {
   position: absolute;
   transition: none;
-  z-index: 3;
+  z-index: 10;
   transform-origin: center;
   user-select: none;
+}
+
+.panMode .serviceWrapper {
+  cursor: grab !important;
+  pointer-events: auto;
+}
+
+.panMode.panning .serviceWrapper {
+  cursor: grabbing !important;
+  pointer-events: none;
 }
 
 .serviceWrapper:hover {
@@ -259,4 +280,103 @@
 
 .serviceWrapper.notConfigured::after {
   display: none !important;
+}
+
+.minimap {
+  position: absolute;
+  bottom: 20px;
+  right: 20px;
+  width: 200px;
+  height: 150px;
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 2px solid #dee2e6;
+  border-radius: 8px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  overflow: hidden;
+  backdrop-filter: blur(10px);
+}
+
+.minimapCanvas {
+  width: 100%;
+  height: 100%;
+}
+
+.minimapViewport {
+  position: absolute;
+  border: 2px solid #4dabf7;
+  background-color: rgba(77, 171, 247, 0.2);
+  cursor: move;
+  border-radius: 2px;
+}
+
+.zoomControls {
+  position: absolute;
+  bottom: 20px;
+  left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 1000;
+}
+
+.zoomButton {
+  width: 40px;
+  height: 40px;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  font-size: 20px;
+  font-weight: bold;
+  color: #495057;
+}
+
+.zoomButton:hover {
+  background-color: #f8f9fa;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: scale(1.05);
+}
+
+.zoomButton:active {
+  transform: scale(0.95);
+}
+
+.zoomLevel {
+  width: 40px;
+  height: 30px;
+  background-color: white;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  font-size: 12px;
+  font-weight: 600;
+  color: #495057;
+}
+
+.panHint {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: rgba(255, 255, 255, 0.95);
+  padding: 8px 16px;
+  border-radius: 20px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  backdrop-filter: blur(10px);
+  border: 1px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.panHint:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }

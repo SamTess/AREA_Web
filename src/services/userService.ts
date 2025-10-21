@@ -43,7 +43,22 @@ export const getUserInfo = async (): Promise<UserContent> => {
 
   try {
     const response = await axios.get(API_CONFIG.endpoints.user.getUser);
-    return response.data;
+    const backendUser = response.data;
+    return {
+      id: backendUser.id,
+      name: `${backendUser.firstname || ''} ${backendUser.lastname || ''}`.trim() || backendUser.email,
+      email: backendUser.email,
+      avatarSrc: backendUser.avatarUrl || '',
+      password: '',
+      isAdmin: backendUser.isAdmin || false,
+      isVerified: backendUser.isActive || false,
+      profileData: {
+        email: backendUser.email,
+        firstName: backendUser.firstname || '',
+        lastName: backendUser.lastname || '',
+        language: 'en'
+      }
+    };
   } catch (error) {
     console.error('Get user info error:', error);
     throw error;
@@ -55,7 +70,22 @@ export const getUserById = async (id: string): Promise<UserContent> => {
     return mockUser;
   try {
     const response = await axios.get(`${API_CONFIG.endpoints.user.getUserById}/${id}`);
-    return response.data;
+    const backendUser = response.data;
+    return {
+      id: backendUser.id,
+      name: `${backendUser.firstname || ''} ${backendUser.lastname || ''}`.trim() || backendUser.email,
+      email: backendUser.email,
+      avatarSrc: backendUser.avatarUrl || '',
+      password: '',
+      isAdmin: backendUser.isAdmin || false,
+      isVerified: backendUser.isActive || false,
+      profileData: {
+        email: backendUser.email,
+        firstName: backendUser.firstname || '',
+        lastName: backendUser.lastname || '',
+        language: 'en'
+      }
+    };
   } catch (error) {
     console.error('Get user by id error:', error);
     throw error;

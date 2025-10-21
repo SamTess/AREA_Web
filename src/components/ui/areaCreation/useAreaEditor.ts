@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { notifications } from '@mantine/notifications';
@@ -322,7 +322,6 @@ export function useAreaEditor(areaId?: string) {
   const [areaDescription, setAreaDescription] = useState('');
 
   const [connections, setConnections] = useState<ConnectionData[]>([]);
-  const [layoutMode, setLayoutMode] = useState<'linear' | 'free'>('linear');
 
   useEffect(() => {
     const loadData = async () => {
@@ -528,9 +527,7 @@ export function useAreaEditor(areaId?: string) {
       const duplicatedService = {
         ...serviceToDuplicate,
         id: newId,
-        position: layoutMode === 'free' ?
-          { x: (serviceToDuplicate.position?.x || 0) + 50, y: (serviceToDuplicate.position?.y || 0) + 50 } :
-          undefined
+        position: { x: (serviceToDuplicate.position?.x || 0) + 50, y: (serviceToDuplicate.position?.y || 0) + 50 }
       };
       const index = prev.findIndex(service => service.id === id);
       const newServices = [...prev];
@@ -722,57 +719,6 @@ export function useAreaEditor(areaId?: string) {
     setConnections(prev => prev.map(c => c.id === connection.id ? connection : c));
   };
 
-  const createLinearConnections = useCallback(() => {
-    if (layoutMode !== 'linear' || servicesState.length < 2) return;
-
-    const newConnections: ConnectionData[] = [];
-
-    for (let i = 0; i < servicesState.length - 1; i++) {
-      const sourceService = servicesState[i];
-      const targetService = servicesState[i + 1];
-
-      newConnections.push({
-        id: `linear-link-${sourceService.id}-${targetService.id}`,
-        sourceId: sourceService.id,
-        targetId: targetService.id,
-        linkData: {
-          type: 'chain',
-          order: i,
-          mapping: {},
-          condition: {}
-        }
-      });
-    }
-
-    setConnections(newConnections);
-  }, [servicesState, layoutMode]);
-
-  useEffect(() => {
-    if (layoutMode === 'linear') {
-      createLinearConnections();
-    }
-  }, [servicesState, layoutMode, createLinearConnections]);
-
-  const toggleLayoutMode = () => {
-    setLayoutMode(prev => {
-      const newMode = prev === 'linear' ? 'free' : 'linear';
-
-      if (newMode === 'free') {
-        setServicesState(prev => prev.map((service, index) => ({
-          ...service,
-          position: service.position || {
-            x: 100 + (index % 3) * 200,
-            y: 100 + Math.floor(index / 3) * 150
-          }
-        })));
-      } else {
-        createLinearConnections();
-      }
-
-      return newMode;
-    });
-  };
-
   return {
     servicesState,
     selectedService,
@@ -798,7 +744,5 @@ export function useAreaEditor(areaId?: string) {
     createConnection,
     removeConnection,
     updateConnection,
-    layoutMode,
-    toggleLayoutMode,
   };
 }

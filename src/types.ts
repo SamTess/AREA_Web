@@ -244,8 +244,6 @@ export interface ServiceCardProps {
   cardName: string;
   event: string;
   state: ServiceState;
-  isFirst: boolean;
-  isLast: boolean;
   onRemove?: () => void;
   onEdit?: () => void;
   onUp?: () => void;

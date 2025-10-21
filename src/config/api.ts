@@ -21,8 +21,8 @@ export const API_CONFIG = {
     },
     user: {
       getUserById: '/api/users/',
-      profile: '/api/auth/profile',
-      avatar: '/api/user/avatar',
+      profile: '/api/users',
+      avatar: '/api/users/avatar',
       getUser: '/api/auth/me',
       serviceConnection: '/api/user/service-connection',
       connectedServices: '/api/user/connected-services'
