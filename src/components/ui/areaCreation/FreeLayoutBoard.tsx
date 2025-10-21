@@ -3,16 +3,10 @@ import { Text } from '@mantine/core';
 import ServiceCard from './ServiceCard';
 import { ServiceState, ConnectionData } from '../../../types';
 import styles from './FreeLayoutBoard.module.css';
-
-// Import types
 import { FreeLayoutBoardProps } from './types';
-
-// Import hooks
 import { useCanvasControls } from './hooks/useCanvasControls';
 import { useDragAndDrop } from './hooks/useDragAndDrop';
 import { useLinkManagement } from './hooks/useLinkManagement';
-
-// Import components
 import BoardToolbar from './components/BoardToolbar';
 import ZoomControls from './components/ZoomControls';
 import ConnectionsRenderer from './components/ConnectionsRenderer';
@@ -33,13 +27,9 @@ export default function FreeLayoutBoard({
 }: FreeLayoutBoardProps) {
   const boardRef = useRef<HTMLDivElement>(null);
   const boardInnerRef = useRef<HTMLDivElement>(null);
-
   const [editModalOpened, setEditModalOpened] = useState(false);
   const [editingConnection, setEditingConnection] = useState<ConnectionData | null>(null);
-
-  const { canvasState, handleBoardMouseDown, zoomIn, zoomOut, screenToCanvas } =
-    useCanvasControls(boardRef);
-
+  const { canvasState, handleBoardMouseDown, zoomIn, zoomOut, screenToCanvas } = useCanvasControls(boardRef);
   const {
     linkingState,
     linkModalOpened,
@@ -52,7 +42,6 @@ export default function FreeLayoutBoard({
     setLinkModalOpened,
     setTempConnection,
   } = useLinkManagement(services, onCreateConnection);
-
   const { dragState, handleMouseDown } = useDragAndDrop(
     services,
     onUpdateService,

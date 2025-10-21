@@ -23,7 +23,6 @@ export default function LinkForm({
       ...connection,
       linkData: {
         type: value as LinkData['type'] || 'chain',
-        mapping: connection.linkData?.mapping || {},
         order: connection.linkData?.order || 0,
         metadata: connection.linkData?.metadata || {},
         condition: connection.linkData?.condition || {
@@ -40,7 +39,6 @@ export default function LinkForm({
       ...connection,
       linkData: {
         type: connection.linkData?.type || 'chain',
-        mapping: connection.linkData?.mapping || {},
         condition: connection.linkData?.condition || {},
         metadata: connection.linkData?.metadata || {},
         order: parseInt(e.target.value) || 0
@@ -56,7 +54,6 @@ export default function LinkForm({
         ...connection,
         linkData: {
           type: connection.linkData?.type || 'chain',
-          mapping: connection.linkData?.mapping || {},
           order: connection.linkData?.order || 0,
           metadata: connection.linkData?.metadata || {},
           condition
@@ -64,30 +61,6 @@ export default function LinkForm({
       });
     } catch (error) {
       console.error('Invalid JSON for condition', error);
-    }
-  };
-
-  const handleMappingChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    try {
-       const mapping = JSON.parse(e.target.value);
-       // const mapping = e.target.value;
-
-      onChange({
-        ...connection,
-        linkData: {
-          type: connection.linkData?.type || 'chain',
-          order: connection.linkData?.order || 0,
-          metadata: connection.linkData?.metadata || {},
-          condition: connection.linkData?.condition || {
-            field: '',
-            operator: 'equals',
-            value: ''
-          },
-          mapping
-        }
-      });
-    } catch (error) {
-      console.error('Invalid JSON for mapping', error);
     }
   };
 
@@ -142,16 +115,6 @@ export default function LinkForm({
           placeholder='{"field": "status", "operator": "equals", "value": "success"}'
           value={JSON.stringify(connection.linkData?.condition || {}, null, 2)}
           onChange={handleConditionChange}
-          minRows={3}
-        />
-      )}
-
-      {(connection.linkData?.type === 'chain' || connection.linkData?.type === 'sequential') && (
-        <Textarea
-          label="Data Mapping (JSON format)"
-          placeholder='{"sourceField": "targetField", "result": "input"}'
-          value={JSON.stringify(connection.linkData?.mapping || {}, null, 2)}
-          onChange={handleMappingChange}
           minRows={3}
         />
       )}
