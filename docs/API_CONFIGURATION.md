@@ -25,122 +25,108 @@ NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
 NEXT_PUBLIC_GITHUB_CLIENT_ID=your_github_client_id
 NEXT_PUBLIC_MICROSOFT_CLIENT_ID=your_microsoft_client_id
 ```
+## API configuration & environment
 
-## Configuration API
+This document explains the environment variables, API endpoints and client configuration used by the AREA Web frontend.
 
-### Endpoints disponibles
+Quick summary:
 
-La configuration des endpoints se trouve dans `src/config/api.ts` :
+- Use `.env.local` for local environment variables.
+- The client supports a mock-data mode (frontend-only) and a mode that calls a backend API.
+- API endpoints are configured in `src/config/api.ts`. Axios behavior is centralized in `src/config/axios.ts`.
 
-- **Authentication**
-  - `POST /api/auth/login` - Connexion
-  - `POST /api/auth/register` - Inscription
-  - `POST /api/auth/logout` - Déconnexion
-  - `POST /api/auth/refresh` - Refresh token
-  - `GET /api/auth/me` - Utilisateur actuel
-  - `GET /api/auth/status` - Statut d'authentification
+Environment variables
+---------------------
 
-- **User Management**
-  - `PUT /api/auth/profile` - Mise à jour du profil
-  - `POST /api/user/avatar` - Upload d'avatar
-  - `GET /api/user/{email}` - Informations utilisateur
+Create `.env.local` from a template (if present):
 
-- **Areas & Services**
-  - `GET /api/areas` - Liste des areas
-  - `POST /api/areas` - Créer une area
-  - `GET /api/services` - Liste des services
+```bash
+cp .env.example .env.local
+```
 
-### Configuration Axios
+Important variables
+-------------------
 
-L'intercepteur Axios (`src/config/axios.ts`) gère automatiquement :
+| Variable | Description | Default / Example |
+|---|---:|---|
+| `NEXT_PUBLIC_API_URL` | Backend API base URL | `http://localhost:8080` |
+| `NEXT_PUBLIC_USE_MOCK_DATA` | Enable frontend mock data (no backend calls) | `false` (set `true` for offline frontend dev) |
+| `NEXT_PUBLIC_ENVIRONMENT` | Runtime environment | `development`, `staging`, `production` |
 
-- **Cookies d'authentification** : Inclus automatiquement dans toutes les requêtes
-- **Gestion des erreurs 401** : Tentative automatique de refresh token
-- **Redirection automatique** : Vers la page de login si l'authentification échoue
-- **Logging** : En mode développement pour faciliter le debug
-- **Gestion des erreurs réseau** : Messages d'erreur appropriés
+Optional OAuth client IDs (if you integrate social login providers):
 
-## Modes de développement
+```env
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your_google_client_id
+NEXT_PUBLIC_GITHUB_CLIENT_ID=your_github_client_id
+NEXT_PUBLIC_MICROSOFT_CLIENT_ID=your_microsoft_client_id
+```
 
-### Mode Mock (développement sans backend)
+API endpoints
+-------------
+
+All endpoints are listed in `src/config/api.ts`. Primary groups include:
+
+- Authentication: login, register, logout, refresh, me, status
+- User: profile, avatar upload, get user info
+- Areas & Services: list/create/update areas, list services, action definitions
+
+Axios configuration
+-------------------
+
+The Axios instance in `src/config/axios.ts` centralizes HTTP behavior. Key features:
+
+- Sends credentials/cookies when needed
+- Automatically attempts token refresh on 401 responses (if implemented)
+- Logs requests/responses in development
+- Centralized error handling and user-friendly error messages
+
+Development modes
+-----------------
+
+Mock mode (frontend-only):
 
 ```env
 NEXT_PUBLIC_USE_MOCK_DATA=true
 ```
 
-Dans ce mode :
-- Toutes les requêtes API retournent des données mockées
-- Pas de communication avec le backend
-- Utile pour le développement frontend uniquement
+In this mode API calls are intercepted and resolved with mock responses from `src/mocks/` or `cypress/fixtures/`.
 
-### Mode API (développement avec backend)
+API mode (backend calls):
 
 ```env
 NEXT_PUBLIC_USE_MOCK_DATA=false
 NEXT_PUBLIC_API_URL=http://localhost:8080
 ```
 
-Dans ce mode :
-- Communication directe avec l'API backend
-- Gestion automatique des tokens d'authentification
-- Gestion des erreurs et retry automatique
+Deployment environments
+-----------------------
 
-## Déploiement
+Examples for environment variable values per environment:
 
-### Environnements de déploiement
+- Development: `NEXT_PUBLIC_API_URL=http://localhost:8080`, `NEXT_PUBLIC_ENVIRONMENT=development`
+- Staging: `NEXT_PUBLIC_API_URL=https://api-staging.example.com`, `NEXT_PUBLIC_ENVIRONMENT=staging`
+- Production: `NEXT_PUBLIC_API_URL=https://api.example.com`, `NEXT_PUBLIC_ENVIRONMENT=production`
 
-#### Développement local
-```env
-NEXT_PUBLIC_API_URL=http://localhost:8080
-NEXT_PUBLIC_ENVIRONMENT=development
-```
+Security notes
+--------------
 
-#### Staging
-```env
-NEXT_PUBLIC_API_URL=https://api-staging.example.com
-NEXT_PUBLIC_ENVIRONMENT=staging
-```
+- Variables prefixed with `NEXT_PUBLIC_` are exposed to client-side code — never store secrets there.
+- Use HTTPS in staging/production.
+- Configure CORS on the backend so the frontend origin is allowed.
 
-#### Production
-```env
-NEXT_PUBLIC_API_URL=https://api.example.com
-NEXT_PUBLIC_ENVIRONMENT=production
-```
+Troubleshooting tips
+--------------------
 
-### Sécurité
+Common issues and quick checks:
 
-- Les variables `NEXT_PUBLIC_*` sont exposées côté client
-- Ne jamais mettre de secrets dans ces variables
-- Utiliser HTTPS en production
-- Configurer CORS correctement sur le backend
+- CORS errors: verify backend CORS configuration.
+- 401 Unauthorized: check cookies and token flow; verify `NEXT_PUBLIC_USE_MOCK_DATA` if you expected mocks.
+- Network errors: verify `NEXT_PUBLIC_API_URL` and that the backend is running.
 
-## Troubleshooting
-
-### Erreurs courantes
-
-1. **CORS Error** : Vérifier la configuration CORS du backend
-2. **401 Unauthorized** : Vérifier que les cookies sont activés
-3. **Network Error** : Vérifier l'URL de l'API et que le backend est démarré
-4. **Mock Data** : Vérifier la variable `NEXT_PUBLIC_USE_MOCK_DATA`
-
-### Debug
-
-En mode développement, les logs Axios sont activés automatiquement :
-- 🚀 pour les requêtes sortantes
-- ✅ pour les réponses réussies  
-- ❌ pour les erreurs
-
-### Test de configuration
-
-Pour tester votre configuration :
+Quick connectivity test:
 
 ```bash
-# Vérifier les variables d'environnement
-npm run build
-
-# Démarrer en mode développement
-npm run dev
-
-# Vérifier la connectivité API
-curl http://localhost:8080/api/auth/status
+# Start dev server and then check login status endpoint
+yarn dev
+curl $NEXT_PUBLIC_API_URL/api/auth/status
 ```

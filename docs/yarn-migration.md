@@ -40,46 +40,38 @@ rm -f package-lock.json
 # 3. Install Yarn globally (if not already installed)
 npm install -g yarn
 # OR if you have Node 16.10+
-corepack enable
+# Yarn migration notes
 
-# 4. Install dependencies with Yarn
-yarn install
+If your environment still uses npm, switch to Yarn for consistent installs and caching.
 
-# 5. Verify installation
-yarn --version
-yarn dev  # Should start successfully
-```
-
-### **For New Team Members**
-
-If you're cloning the project for the first time:
+Install Yarn
+------------
 
 ```bash
-# 1. Install Yarn globally first
 npm install -g yarn
-# OR
+# or enable Corepack (Node 16+)
 corepack enable
-
-# 2. Clone the repository
-git clone <repository-url>
-cd AREA_Web
-
-# 3. Install dependencies
-yarn install
-
-# 4. Start development
-yarn dev
 ```
 
----
+Migration steps
+---------------
 
-## 📋 **Command Changes**
+```bash
+rm -rf node_modules package-lock.json
+yarn install
+```
 
-**Old npm commands** ➜ **New Yarn commands**
+CI recommendations
+------------------
 
-| Task | Old (npm) | New (Yarn) |
-|------|-----------|------------|
-| Install dependencies | `npm install` | `yarn install` |
+- Replace `npm install` steps with `yarn install`.
+- Cache `~/.yarn/cache` and `node_modules` to speed builds.
+
+If problems occur
+------------------
+
+- Try `yarn install --check-files` or delete `yarn.lock` and regenerate it carefully.
+
 | Add package | `npm install package` | `yarn add package` |
 | Add dev dependency | `npm install -D package` | `yarn add --dev package` |
 | Remove package | `npm uninstall package` | `yarn remove package` |

@@ -1,41 +1,47 @@
 # 🛠️ Troubleshooting Guide
+# Troubleshooting
 
-## 🚨 **Common Issues & Solutions**
+Short troubleshooting guide for common issues while running AREA Web locally.
 
-This guide covers the most frequent issues encountered during development and their solutions.
+Dev server issues
+-----------------
 
----
+- Port in use: free the port `lsof -ti:3000 | xargs kill -9` or run `yarn dev --port 3001`.
+- App won't start: delete `.next`, `node_modules` and reinstall: `rm -rf .next node_modules yarn.lock && yarn install`.
 
-## 📦 **Package Manager Issues**
+Module and build errors
+-----------------------
 
-### **npm vs Yarn Conflicts**
+- Module not found: ensure path aliases in `tsconfig.json` are resolved by your editor; reinstall dependencies.
+- Type errors during `yarn build`: fix TypeScript complaints or adjust `tsconfig` if necessary.
 
-**❌ Problem:** Mixed package managers causing conflicts
-```bash
-Error: Cannot resolve dependency tree
-Error: Package-lock.json and yarn.lock exist simultaneously
-```
+API / network errors
+--------------------
 
-**✅ Solution:**
-```bash
-# Clean everything
-rm -rf node_modules package-lock.json
+- CORS: verify the backend allows requests from the frontend origin.
+- 401 Unauthorized: check auth cookies, token refresh flow, and `NEXT_PUBLIC_USE_MOCK_DATA` setting.
 
-# Use Yarn exclusively
-yarn install
+Tests
+-----
 
-# Verify no package-lock.json is created
-ls -la | grep -E "(package-lock|yarn.lock)"
-```
+- Jest failures: run single test with `yarn test Button.test.tsx --runInBand` and update snapshots if expected.
+- Cypress flakes: use `cy.get(..., { timeout: 10000 })` and prefer stable selectors (data-testid or data-cy). Use `cy.pause()` to investigate interactively.
 
-### **Dependency Resolution Errors**
+Logs and diagnostics
+-------------------
 
-**❌ Problem:** Version conflicts during installation
-```bash
-error: Package "react@19.0.0" has unmet peer dependency
-```
+- Check browser console for runtime errors.
+- Axios logs are enabled in development by default; inspect network requests for failing endpoints.
 
-**✅ Solution:**
+If you still need help
+---------------------
+
+Open an issue in the repository and attach:
+
+- Steps to reproduce
+- Error logs and screenshots
+- Commands you ran and environment variables
+
 ```bash
 # Option 1: Update dependencies
 yarn upgrade react react-dom
