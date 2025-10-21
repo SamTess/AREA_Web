@@ -1,3 +1,53 @@
+# Testing strategy
+
+This document explains the testing approach used by AREA Web: unit tests, integration tests, and end-to-end (E2E) tests.
+
+Overview
+--------
+
+- Unit tests (Jest + Testing Library) for components and pure logic
+- Integration tests for services and hooks
+- E2E tests (Cypress) for critical user flows
+
+Unit tests
+----------
+
+- Location: `__tests__/` and `src/**/__tests__` files
+- Run: `yarn test` (Jest)
+- Aim for targeted, fast tests. Mock network calls where appropriate.
+
+Coverage
+--------
+
+- Coverage target: aim for >80% overall. Focus on meaningful coverage (critical paths).
+- Generate coverage with `yarn test --coverage`.
+
+E2E tests
+---------
+
+- Location: `cypress/e2e/` with fixtures in `cypress/fixtures/`.
+- Run locally with `yarn cypress:open` or headless via `yarn cypress:run`.
+- Prefer a small set of stable E2E tests covering login, area creation, and critical admin flows.
+
+CI considerations
+----------------
+
+- Run unit tests and lint on every PR.
+- Run E2E tests conditionally (e.g., nightly or when label `run-e2e` is set) to keep feedback fast.
+
+Writing tests
+-------------
+
+- Use `@testing-library/react` for component tests (render+assert user-visible output).
+- Mock external APIs in unit tests; for E2E use fixtures or a test backend.
+- Keep tests deterministic and avoid flaky timing-based assertions.
+
+Debugging failing tests
+----------------------
+
+- Run failing tests with `--runInBand` and increase timeouts for Cypress/Jest when investigating.
+- Capture Cypress artifacts (screenshots, videos) in CI to speed debugging.
+
 # 🧪 Testing Strategy Guide
 
 ## 🎯 **Testing Philosophy**
