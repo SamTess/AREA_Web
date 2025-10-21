@@ -1,14 +1,15 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { PasswordInput, TextInput, Title, Avatar, Button, Container, Card, Stack, Group, Menu, Text, Loader, Alert } from '@mantine/core';
-import { IconCamera } from '@tabler/icons-react';
+import { PasswordInput, TextInput, Avatar, Button, Container, Card, Stack, Group, Menu, Text, Loader, Alert, Tabs, Space } from '@mantine/core';
+import { IconCamera, IconUser, IconPlug } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { z } from 'zod';
 import { getCurrentUser, updateProfile } from '../../services/authService';
 import {  uploadAvatar } from '../../services/userService';
 import { ProfileData, UserContent } from '../../types';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import ServicesTabProfile from '../../components/user/ServicesTabProfile';
 
 const profileSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -162,9 +163,19 @@ export default function ProfilPage() {
 
   return (
     <Container size="sm" py="xl">
+      <Tabs variant="pills" radius="xl" defaultValue="profile">
+        <Tabs.List justify="center">
+          <Tabs.Tab value="profile" leftSection={<IconUser size={16} />}>
+            Profile
+          </Tabs.Tab>
+          <Tabs.Tab value="services" leftSection={<IconPlug size={16} />}>
+            Services
+          </Tabs.Tab>
+        </Tabs.List>
+        <Space h="md" />
+      <Tabs.Panel value="profile">
       <Card shadow="sm" padding="lg" radius="md" withBorder>
         <Stack gap="md">
-          <Title order={1} ta="center">Profile</Title>
           {notification && (
             <Alert
               variant="light"
@@ -263,6 +274,13 @@ export default function ProfilPage() {
           }
         }}
       />
+      </Tabs.Panel>
+      <Tabs.Panel value="services">
+        <Card shadow="sm" padding="lg" radius="md" withBorder>
+          <ServicesTabProfile />
+        </Card>
+      </Tabs.Panel>
+      </Tabs>
     </Container>
   );
 }
