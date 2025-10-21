@@ -132,7 +132,7 @@ export const services = [
   { id: 2, name: 'Google', logo: 'https://upload.wikimedia.org/wikipedia/commons/c/c1/Google_%22G%22_logo.svg' },
   { id: 3, name: 'Bitbucket', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/0e/Bitbucket-blue-logomark-only.svg' },
   { id: 4, name: 'Spotify', logo: 'https://upload.wikimedia.org/wikipedia/commons/1/19/Spotify_logo_without_text.svg' },
-  { id: 5, name: 'Jira', logo: 'https://cdn.worldvectorlogo.com/logos/jira-1.svg' },
+  { id: 5, name: 'Jira', logo: 'https://upload.wikimedia.org/wikipedia/commons/8/82/Jira_%28Software%29_logo.svg' },
   { id: 6, name: 'Slack', logo: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png' },
   { id: 7, name: 'Discord', logo: 'https://upload.wikimedia.org/wikipedia/commons/0/05/Discord_logo.svg' },
   { id: 8, name: 'Twitter', logo: 'https://upload.wikimedia.org/wikipedia/commons/6/6f/Logo_of_Twitter.svg' },

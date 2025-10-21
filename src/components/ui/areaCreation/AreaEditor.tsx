@@ -1,8 +1,8 @@
 'use client';
 
-import { Drawer} from '@mantine/core';
+import { Drawer } from '@mantine/core';
+import { useMediaQuery } from '@mantine/hooks';
 import AreaEditorToolbar from './AreaEditorToolbar';
-import AreaEditorBoard from './AreaEditorBoard';
 import FreeLayoutBoard from './FreeLayoutBoard';
 import InfoServiceCard from './InfoServiceCard';
 import { useAreaEditor } from './useAreaEditor';
@@ -18,31 +18,24 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
     selectedService,
     modalOpened,
     setModalOpened,
-    isDragging,
-    setIsDragging,
     areaName,
     setAreaName,
     areaDescription,
     setAreaDescription,
-    handleDragEnd,
     handleSave,
     handleRun,
     addNewServiceBelow,
     removeService,
     editService,
     updateService,
-    moveServiceUp,
-    moveServiceDown,
-    duplicateService,
     connections,
     createConnection,
     removeConnection,
-    updateConnection,
-    layoutMode,
-    toggleLayoutMode,
+    duplicateService,
   } = useAreaEditor(areaId);
-
-
+  const isSmall = useMediaQuery('(max-width: 768px)');
+  const isMedium = useMediaQuery('(max-width: 992px)');
+  const drawerSize = isSmall ? '80%' : isMedium ? '50%' : '35%';
 
   return (
     <div className={styles.container}>
@@ -54,42 +47,30 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
           onDescriptionChange={setAreaDescription}
           onSave={handleSave}
           onRun={handleRun}
-          layoutMode={layoutMode}
-          onToggleLayoutMode={toggleLayoutMode}
         />
       </div>
 
       <div className={styles.boardContainer}>
-        {layoutMode === 'linear' ? (
-          <AreaEditorBoard
-            services={servicesState}
-            connections={connections}
-            onDragEnd={handleDragEnd}
-            onAddService={addNewServiceBelow}
-            onRemoveService={removeService}
-            onEditService={editService}
-            isDragging={isDragging}
-            setIsDragging={setIsDragging}
-            onMoveUp={moveServiceUp}
-            onMoveDown={moveServiceDown}
-            onDuplicate={duplicateService}
-          />
-        ) : (
-          <FreeLayoutBoard
-            services={servicesState}
-            connections={connections}
-            onAddService={() => addNewServiceBelow()}
-            onRemoveService={removeService}
-            onEditService={editService}
-            onUpdateService={updateService}
-            onCreateConnection={createConnection}
-            onRemoveConnection={removeConnection}
-            onUpdateConnection={updateConnection}
-          />
-        )}
+        <FreeLayoutBoard
+          services={servicesState}
+          connections={connections}
+          onAddService={() => addNewServiceBelow()}
+          onRemoveService={removeService}
+          onEditService={editService}
+          onUpdateService={updateService}
+          onCreateConnection={createConnection}
+          onRemoveConnection={removeConnection}
+          onDuplicateService={duplicateService}
+        />
       </div>
 
-      <Drawer opened={modalOpened} onClose={() => setModalOpened(false)} title="Action Details" position="right" size="35%">
+      <Drawer
+        opened={modalOpened}
+        onClose={() => setModalOpened(false)}
+        title="Action Details"
+        position="right"
+        size={drawerSize}
+      >
         {selectedService && <InfoServiceCard service={selectedService} onServiceChange={updateService} />}
       </Drawer>
     </div>

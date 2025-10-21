@@ -1,5 +1,5 @@
 import { Button, TextInput, Group, Popover, Textarea, Title, Space } from '@mantine/core';
-import { IconDeviceFloppy, IconPlayerPlay, IconFileText, IconTable, IconVectorTriangle } from '@tabler/icons-react';
+import { IconDeviceFloppy, IconPlayerPlay, IconFileText } from '@tabler/icons-react';
 import { useState } from 'react';
 import styles from './AreaEditor.module.css';
 
@@ -10,8 +10,6 @@ interface AreaEditorToolbarProps {
   onDescriptionChange: (description: string) => void;
   onSave: () => void;
   onRun: () => void;
-  layoutMode: 'linear' | 'free';
-  onToggleLayoutMode: () => void;
 }
 
 export default function AreaEditorToolbar({
@@ -20,9 +18,7 @@ export default function AreaEditorToolbar({
   areaDescription,
   onDescriptionChange,
   onSave,
-  onRun,
-  layoutMode,
-  onToggleLayoutMode
+  onRun
 }: AreaEditorToolbarProps) {
   const [opened, setOpened] = useState(false);
 
@@ -58,24 +54,6 @@ export default function AreaEditorToolbar({
           </Popover>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Group gap="xs">
-            <Button
-              variant={layoutMode === 'linear' ? 'filled' : 'outline'}
-              size="sm"
-              onClick={onToggleLayoutMode}
-              leftSection={<IconTable size={16} />}
-            >
-              Linear
-            </Button>
-            <Button
-              variant={layoutMode === 'free' ? 'filled' : 'outline'}
-              size="sm"
-              onClick={onToggleLayoutMode}
-              leftSection={<IconVectorTriangle size={16} />}
-            >
-              Free
-            </Button>
-          </Group>
           <Button onClick={onSave}><IconDeviceFloppy /></Button>
           <Button onClick={onRun}><IconPlayerPlay /></Button>
         </div>
