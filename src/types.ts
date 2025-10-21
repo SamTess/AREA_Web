@@ -24,8 +24,22 @@ export interface BackendArea {
   userEmail: string;
   actions: BackendAction[];
   reactions: BackendReaction[];
+  links?: ActionLinkResponse[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ActionLinkResponse {
+  sourceActionInstanceId: string;
+  targetActionInstanceId: string;
+  sourceActionName: string;
+  targetActionName: string;
+  areaId: string;
+  linkType: string;
+  mapping?: Record<string, unknown>;
+  condition?: Record<string, unknown>;
+  order?: number;
+  createdAt: string;
 }
 
 export interface BackendAction {
