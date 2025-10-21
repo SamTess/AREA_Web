@@ -86,12 +86,50 @@ export const resetPassword = async (token: string, newPassword: string): Promise
   }
 };
 
-export const updateProfile = async (userId: string, data: ProfileData): Promise<void> => {
+export const updateProfile = async (userId: string, data: ProfileData, avatarUrl?: string): Promise<UserContent> => {
   if (USE_MOCK_DATA)
-    return Promise.resolve();
+    return Promise.resolve({
+      id: userId,
+      name: `${data.firstName} ${data.lastName}`,
+      email: data.email,
+      avatarSrc: avatarUrl || 'https://mock.jpg',
+      password: '',
+      isAdmin: false,
+      isVerified: true,
+      profileData: data
+    });
 
   try {
-    await axios.put(`${API_CONFIG.endpoints.user.profile}/${userId}`, data);
+    const updateData: any = {
+      firstname: data.firstName,
+      lastname: data.lastName,
+    };
+
+    if (data.password && data.password.trim() !== '') {
+      updateData.password = data.password;
+    }
+
+    if (avatarUrl) {
+      updateData.avatarUrl = avatarUrl;
+    }
+
+    const response = await axios.put(`${API_CONFIG.endpoints.user.profile}/${userId}`, updateData);
+    const backendUser = response.data;
+    return {
+      id: backendUser.id,
+      name: `${backendUser.firstname || ''} ${backendUser.lastname || ''}`.trim(),
+      email: backendUser.email,
+      avatarSrc: backendUser.avatarUrl || '',
+      password: '',
+      isAdmin: backendUser.isAdmin || false,
+      isVerified: backendUser.isActive || false,
+      profileData: {
+        email: backendUser.email,
+        firstName: backendUser.firstname || '',
+        lastName: backendUser.lastname || '',
+        language: data.language || 'en'
+      }
+    };
   } catch (error) {
     console.error('Update profile error:', error);
     throw error;
@@ -128,7 +166,22 @@ export const getCurrentUser = async (): Promise<UserContent> => {
 
   try {
     const response = await axios.get(API_CONFIG.endpoints.auth.me);
-    return response.data;
+    const backendUser = response.data;
+    return {
+      id: backendUser.id,
+      name: `${backendUser.firstname || ''} ${backendUser.lastname || ''}`.trim() || backendUser.email,
+      email: backendUser.email,
+      avatarSrc: backendUser.avatarUrl || '',
+      password: '',
+      isAdmin: backendUser.isAdmin || false,
+      isVerified: backendUser.isActive || false,
+      profileData: {
+        email: backendUser.email,
+        firstName: backendUser.firstname || '',
+        lastName: backendUser.lastname || '',
+        language: 'en'
+      }
+    };
   } catch (error) {
     console.error('Get current user error:', error);
     throw error;

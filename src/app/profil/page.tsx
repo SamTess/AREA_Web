@@ -1,7 +1,7 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { PasswordInput, TextInput, Title, Avatar, Button, Container, Card, Stack, Group, Menu, Modal, Text, Loader } from '@mantine/core';
+import { PasswordInput, TextInput, Title, Avatar, Button, Container, Card, Stack, Group, Menu, Text, Loader } from '@mantine/core';
 import { IconCamera } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { z } from 'zod';
@@ -20,7 +20,6 @@ const profileSchema = z.object({
 });
 
 export default function ProfilPage() {
-  const [opened, setOpened] = useState(false);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<UserContent | null>(null);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
@@ -85,22 +84,43 @@ export default function ProfilPage() {
       } catch (authError) {
         console.error('User not authenticated:', authError);
         alert('Your session has expired. Please log in again.');
+        setLoading(false);
         return;
       }
 
       let avatarUrl = user?.avatarSrc;
       if (avatarFile) {
-        avatarUrl = await uploadAvatar(avatarFile);
-        setUser(prev => prev ? { ...prev, avatarSrc: avatarUrl! } : null);
+        try {
+          avatarUrl = await uploadAvatar(avatarFile);
+          setOriginalAvatarSrc(avatarUrl);
+        } catch (uploadError) {
+          console.error('Failed to upload avatar:', uploadError);
+          alert('Failed to upload avatar. Profile will be updated without avatar change.');
+          avatarUrl = user?.avatarSrc;
+        }
       }
-      await updateProfile(userId, form.values);
-      form.resetDirty();
+
+      const updatedUser = await updateProfile(userId, form.values, avatarFile ? avatarUrl : undefined);
+      setUser(updatedUser);
+      setOriginalAvatarSrc(updatedUser.avatarSrc);
+      form.setValues(updatedUser.profileData);
+      form.resetDirty(updatedUser.profileData);
       setAvatarFile(null);
-      setOpened(false);
+      alert('Profile updated successfully!');
+      window.location.reload();
     } catch (error) {
       console.error('Failed to update profile', error);
-      if (error instanceof AxiosError && error.response?.status === 403) {
-        alert('You are not authorized to update your profile. Please check your authentication.');
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 403) {
+          alert('You are not authorized to update your profile. Please check your authentication.');
+        } else if (error.response?.status === 404) {
+          alert('User not found. Please try logging in again.');
+        } else if (error.response?.status === 400) {
+          const errorMessage = error.response?.data?.error || 'Invalid request. Please check your input.';
+          alert(errorMessage);
+        } else {
+          alert('Failed to update profile. Please try again.');
+        }
       } else {
         alert('Failed to update profile. Please try again.');
       }
@@ -182,12 +202,12 @@ export default function ProfilPage() {
           <Group justify="flex-end">
             <Menu shadow="md" width={200}>
               <Menu.Target>
-                <Button disabled={!isDirty} variant="filled">
+                <Button disabled={!isDirty} variant="filled" loading={loading}>
                   Save Changes
                 </Button>
               </Menu.Target>
               <Menu.Dropdown>
-                <Menu.Item onClick={() => setOpened(true)}>
+                <Menu.Item onClick={handleSave}>
                   Confirm Save
                 </Menu.Item>
                 <Menu.Item onClick={() => {
@@ -204,17 +224,6 @@ export default function ProfilPage() {
         </Stack>
       </Card>
 
-      <Modal opened={opened} onClose={() => setOpened(false)} title="Confirm Save">
-        <Text>Are you sure you want to save the changes?</Text>
-        <Group justify="flex-end" mt="md">
-          <Button variant="default" onClick={() => setOpened(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleSave} loading={loading}>
-            Save
-          </Button>
-        </Group>
-      </Modal>
       <input
         type="file"
         ref={fileInputRef}
