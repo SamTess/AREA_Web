@@ -100,18 +100,14 @@ export const updateProfile = async (userId: string, data: ProfileData, avatarUrl
     });
 
   try {
-    const updateData: any = {
+    const updateData: Record<string, string | undefined> = {
       firstname: data.firstName,
       lastname: data.lastName,
     };
-
-    if (data.password && data.password.trim() !== '') {
+    if (data.password && data.password.trim() !== '')
       updateData.password = data.password;
-    }
-
-    if (avatarUrl) {
+    if (avatarUrl)
       updateData.avatarUrl = avatarUrl;
-    }
 
     const response = await axios.put(`${API_CONFIG.endpoints.user.profile}/${userId}`, updateData);
     const backendUser = response.data;
