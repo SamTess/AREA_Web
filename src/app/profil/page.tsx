@@ -1,7 +1,7 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { PasswordInput, TextInput, Title, Avatar, Button, Container, Card, Stack, Group, Menu, Text, Loader, Alert, Tabs, Space } from '@mantine/core';
+import { PasswordInput, TextInput, Avatar, Button, Container, Card, Stack, Group, Menu, Text, Loader, Alert, Tabs, Space } from '@mantine/core';
 import { IconCamera, IconUser, IconPlug } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { z } from 'zod';

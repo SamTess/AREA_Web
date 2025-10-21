@@ -40,7 +40,7 @@ export default function ServicesTabProfile() {
     }
   };
 
-  const handleDisconnect = async (serviceKey: string) => {
+  const handleDisconnect = async () => {
     try {
         // a metre la route de samuel
       await loadServices();

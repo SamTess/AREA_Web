@@ -322,7 +322,6 @@ export interface ConnectedService {
   userName: string;
   avatarUrl: string;
   providerUserId: string;
-  connected: boolean;
   isConnected: boolean;
 }
 
