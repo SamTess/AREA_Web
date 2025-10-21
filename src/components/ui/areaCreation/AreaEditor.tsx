@@ -10,9 +10,10 @@ import styles from './AreaEditor.module.css';
 
 interface AreaEditorProps {
   areaId?: string;
+  draftId?: string;
 }
 
-export default function AreaEditor({ areaId }: AreaEditorProps) {
+export default function AreaEditor({ areaId, draftId }: AreaEditorProps) {
   const {
     servicesState,
     selectedService,
@@ -22,7 +23,9 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
     setAreaName,
     areaDescription,
     setAreaDescription,
-    handleSave,
+    currentDraftId,
+    handleSaveDraft,
+    handleCommit,
     handleRun,
     addNewServiceBelow,
     removeService,
@@ -32,7 +35,7 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
     createConnection,
     removeConnection,
     duplicateService,
-  } = useAreaEditor(areaId);
+  } = useAreaEditor(areaId, draftId);
   const isSmall = useMediaQuery('(max-width: 768px)');
   const isMedium = useMediaQuery('(max-width: 992px)');
   const drawerSize = isSmall ? '80%' : isMedium ? '50%' : '35%';
@@ -45,8 +48,10 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
           onNameChange={setAreaName}
           areaDescription={areaDescription}
           onDescriptionChange={setAreaDescription}
-          onSave={handleSave}
+          onSaveDraft={handleSaveDraft}
+          onCommit={handleCommit}
           onRun={handleRun}
+          isDraft={!!currentDraftId}
         />
       </div>
 
