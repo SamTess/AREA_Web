@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { notifications } from '@mantine/notifications';
@@ -15,6 +15,7 @@ import {
   saveDraft,
   getDraft,
   commitDraft,
+  getUserDrafts,
   AreaDraft
 } from '../../../services/areaDraftService';
 import { ServiceState, ServiceData, BackendArea, BackendService, BackendAction, BackendReaction, ConnectionData, ActivationConfig } from '../../../types';
@@ -210,6 +211,53 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
   return serviceData;
 };
 
+const extractConnectionsFromServices = (services: ServiceData[]): ConnectionData[] => {
+  const connections: ConnectionData[] = [];
+
+  services.forEach(service => {
+    const params = service.fields as Record<string, unknown> || {};
+
+    if (params._chainTargets && Array.isArray(params._chainTargets)) {
+      params._chainTargets.forEach((targetId: unknown) => {
+        if (typeof targetId === 'string') {
+          connections.push({
+            id: `conn-${service.id}-${targetId}`,
+            sourceId: service.id,
+            targetId: targetId,
+            linkData: {
+              type: 'chain',
+              mapping: (params._chainMapping as Record<string, string>) || {},
+              condition: {},
+              order: 0,
+            }
+          });
+        }
+      });
+    }
+
+    if (params._chainSourceId && typeof params._chainSourceId === 'string') {
+      const existingConn = connections.find(
+        c => c.sourceId === params._chainSourceId && c.targetId === service.id
+      );
+      if (!existingConn) {
+        connections.push({
+          id: `conn-${params._chainSourceId}-${service.id}`,
+          sourceId: params._chainSourceId as string,
+          targetId: service.id,
+          linkData: {
+            type: 'chain',
+            mapping: (params._chainMapping as Record<string, string>) || {},
+            condition: {},
+            order: 0,
+          }
+        });
+      }
+    }
+  });
+
+  return connections;
+};
+
 const transformServiceDataToPayload = async (services: ServiceData[], areaName: string, areaDescription: string, connections: ConnectionData[] = []): Promise<CreateAreaPayload> => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const actions: any[] = [];
@@ -330,6 +378,63 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
 
   const [connections, setConnections] = useState<ConnectionData[]>([]);
 
+  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const autoSaveDraft = useCallback(async () => {
+    if (!areaName && servicesState.length === 0) {
+      return;
+    }
+
+    try {
+      const payload = await transformServiceDataToPayload(servicesState, areaName || 'Untitled Draft', areaDescription, connections);
+
+      const transformedConnections = connections.map(conn => ({
+        id: conn.id,
+        sourceServiceId: conn.sourceId,
+        targetServiceId: conn.targetId,
+        linkType: conn.linkData.type,
+        mapping: conn.linkData.mapping || {},
+        condition: conn.linkData.condition || {},
+        order: conn.linkData.order || 0,
+      }));
+
+      const draftPayload: AreaDraft = {
+        name: payload.name,
+        description: payload.description || '',
+        actions: payload.actions || [],
+        reactions: payload.reactions || [],
+        connections: transformedConnections,
+        layoutMode: 'vertical',
+        draftId: currentDraftId,
+      };
+
+      console.log('Auto-saving draft with connections:', transformedConnections);
+      console.log('Draft payload:', draftPayload);
+
+      const savedDraftId = await saveDraft(draftPayload);
+      setCurrentDraftId(savedDraftId);
+      console.log('Draft auto-saved:', savedDraftId);
+    } catch (error) {
+      console.error('Auto-save error:', error);
+    }
+  }, [areaName, areaDescription, servicesState, connections, currentDraftId]);
+
+  useEffect(() => {
+    if (autoSaveTimeoutRef.current) {
+      clearTimeout(autoSaveTimeoutRef.current);
+    }
+
+    autoSaveTimeoutRef.current = setTimeout(() => {
+      autoSaveDraft();
+    }, 2000);
+
+    return () => {
+      if (autoSaveTimeoutRef.current) {
+        clearTimeout(autoSaveTimeoutRef.current);
+      }
+    };
+  }, [areaName, areaDescription, servicesState, connections, autoSaveDraft]);
+
   useEffect(() => {
     const loadData = async () => {
       if (draftId) {
@@ -360,8 +465,26 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
             console.log('Transformed services from draft:', transformedServices);
             setServicesState(transformedServices);
 
-            if (draft.connections) {
-              setConnections(draft.connections as ConnectionData[]);
+            if (draft.connections && Array.isArray(draft.connections)) {
+              console.log('Loading connections from draft:', draft.connections);
+              const transformedConnections = draft.connections.map((conn: unknown) => {
+                const c = conn as { id?: string; sourceServiceId?: string; sourceId?: string; targetServiceId?: string; targetId?: string; linkType?: string; mapping?: Record<string, unknown>; condition?: Record<string, unknown>; order?: number };
+                return {
+                  id: c.id || `conn-${Math.random()}`,
+                  sourceId: c.sourceServiceId || c.sourceId || '',
+                  targetId: c.targetServiceId || c.targetId || '',
+                  linkData: {
+                    type: (c.linkType || 'chain') as 'chain' | 'conditional' | 'parallel' | 'sequential',
+                    mapping: (c.mapping || {}) as Record<string, string>,
+                    condition: c.condition || {},
+                    order: c.order || 0,
+                  }
+                };
+              });
+              setConnections(transformedConnections as ConnectionData[]);
+            } else {
+              console.log('No connections found in draft');
+              setConnections([]);
             }
           }
         } catch (error) {
@@ -383,14 +506,76 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
             const transformedServices = await transformBackendDataToServiceData(area);
             console.log('Transformed services:', transformedServices);
             setServicesState(transformedServices);
+
+            const extractedConnections = extractConnectionsFromServices(transformedServices);
+            console.log('Extracted connections from area:', extractedConnections);
+            setConnections(extractedConnections);
           }
         } catch (error) {
           console.error('Error loading area data:', error);
         }
+      } else if (isNewArea) {
+        try {
+          console.log('New AREA: checking for existing drafts');
+          const drafts = await getUserDrafts();
+          console.log('User drafts:', drafts);
+
+          if (drafts && drafts.length > 0) {
+            const latestDraft = drafts.sort((a, b) =>
+              new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime()
+            )[0];
+
+            console.log('Loading latest draft:', latestDraft.draftId);
+            setAreaName(latestDraft.name);
+            setAreaDescription(latestDraft.description);
+            setCurrentDraftId(latestDraft.draftId);
+
+            const mockArea: BackendArea = {
+              id: latestDraft.draftId,
+              name: latestDraft.name,
+              description: latestDraft.description,
+              enabled: true,
+              userId: latestDraft.userId,
+              userEmail: '',
+              actions: latestDraft.actions as BackendAction[],
+              reactions: latestDraft.reactions as BackendReaction[],
+              createdAt: latestDraft.savedAt,
+              updatedAt: latestDraft.savedAt,
+            };
+
+            const transformedServices = await transformBackendDataToServiceData(mockArea);
+            console.log('Transformed services from latest draft:', transformedServices);
+            setServicesState(transformedServices);
+
+            if (latestDraft.connections && Array.isArray(latestDraft.connections)) {
+              console.log('Loading connections from latest draft:', latestDraft.connections);
+              const transformedConnections = latestDraft.connections.map((conn: unknown) => {
+                const c = conn as { id?: string; sourceServiceId?: string; sourceId?: string; targetServiceId?: string; targetId?: string; linkType?: string; mapping?: Record<string, unknown>; condition?: Record<string, unknown>; order?: number };
+                return {
+                  id: c.id || `conn-${Math.random()}`,
+                  sourceId: c.sourceServiceId || c.sourceId || '',
+                  targetId: c.targetServiceId || c.targetId || '',
+                  linkData: {
+                    type: (c.linkType || 'chain') as 'chain' | 'conditional' | 'parallel' | 'sequential',
+                    mapping: (c.mapping || {}) as Record<string, string>,
+                    condition: c.condition || {},
+                    order: c.order || 0,
+                  }
+                };
+              });
+              setConnections(transformedConnections as ConnectionData[]);
+            } else {
+              console.log('No connections found in latest draft');
+              setConnections([]);
+            }
+          }
+        } catch (error) {
+          console.error('Error loading user drafts:', error);
+        }
       }
     };
     loadData();
-  }, [areaId, draftId]);
+  }, [areaId, draftId, isNewArea]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;

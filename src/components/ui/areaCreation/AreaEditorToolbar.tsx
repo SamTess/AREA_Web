@@ -29,7 +29,7 @@ export default function AreaEditorToolbar({
   return (
     <div className={styles.header}>
       <Group style={{ flex: 1, justifyContent: 'space-between', width: '100%' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
         <Space w="15%" />
         <TextInput
           placeholder="Nom de l'area"
@@ -38,7 +38,7 @@ export default function AreaEditorToolbar({
           style={{ width: '300px', marginLeft: '3%' }}
         />
         {isDraft && (
-          <Badge color="blue" variant="light">Draft</Badge>
+          <Badge color="blue" variant="light" style={{ flexShrink: 0 }}>Draft</Badge>
         )}
         <Popover opened={opened} onChange={setOpened} position="bottom" withArrow>
             <Popover.Target>
