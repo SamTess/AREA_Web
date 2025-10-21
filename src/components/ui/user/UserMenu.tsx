@@ -31,7 +31,9 @@ export function UserMenu({ user }: { user: UserContent }) {
               />
 
               <div>
-                <Text fw={500}>{user.name}</Text>
+                <Text fw={500}>
+                  {user.name.length > 20 ? user.name.slice(0, 20) + "..." : user.name}
+                </Text>
                 <Text size="xs" c="dimmed">
                   {user.email}
                 </Text>

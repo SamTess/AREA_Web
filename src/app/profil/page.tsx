@@ -12,8 +12,8 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 const profileSchema = z.object({
   email: z.string().email('Invalid email address'),
-  firstName: z.string().min(1, 'First name is required'),
-  lastName: z.string().min(1, 'Last name is required'),
+  firstName: z.string().min(1, 'First name is required').max(100, 'First name must be at most 100 characters'),
+  lastName: z.string().min(1, 'Last name is required').max(100, 'Last name must be at most 100 characters'),
   password: z.string().optional().refine((val: string | undefined) => !val || val.length >= 6, {
     message: 'Password must be at least 6 characters',
   }),
@@ -200,16 +200,28 @@ export default function ProfilPage() {
             placeholder="New Password"
             {...form.getInputProps('password')}
           />
-          <TextInput
-            label="First Name"
-            placeholder="First Name"
-            {...form.getInputProps('firstName')}
-          />
-          <TextInput
-            label="Last Name"
-            placeholder="Last Name"
-            {...form.getInputProps('lastName')}
-          />
+          <div>
+            <TextInput
+              label="First Name"
+              placeholder="First Name"
+              maxLength={100}
+              {...form.getInputProps('firstName')}
+            />
+            <Text size="xs" c="dimmed" mt={4} ta="right">
+              {form.values.firstName.length}/100 characters
+            </Text>
+          </div>
+          <div>
+            <TextInput
+              label="Last Name"
+              placeholder="Last Name"
+              maxLength={100}
+              {...form.getInputProps('lastName')}
+            />
+            <Text size="xs" c="dimmed" mt={4} ta="right">
+              {form.values.lastName.length}/100 characters
+            </Text>
+          </div>
           <Group justify="flex-end">
             <Menu shadow="md" width={200}>
               <Menu.Target>
