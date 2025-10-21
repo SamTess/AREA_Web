@@ -1,7 +1,7 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { PasswordInput, TextInput, Title, Avatar, Button, Container, Card, Stack, Group, Menu, Text, Loader } from '@mantine/core';
+import { PasswordInput, TextInput, Title, Avatar, Button, Container, Card, Stack, Group, Menu, Text, Loader, Alert } from '@mantine/core';
 import { IconCamera } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { z } from 'zod';
@@ -27,6 +27,7 @@ export default function ProfilPage() {
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [userId, setUserId] = useState<string | " ">(" ");
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
 
   const form = useForm<ProfileData>({
     initialValues: {
@@ -83,7 +84,7 @@ export default function ProfilPage() {
         await getCurrentUser();
       } catch (authError) {
         console.error('User not authenticated:', authError);
-        alert('Your session has expired. Please log in again.');
+        setNotification({ message: 'Your session has expired. Please log in again.', type: 'error' });
         setLoading(false);
         return;
       }
@@ -95,7 +96,7 @@ export default function ProfilPage() {
           setOriginalAvatarSrc(avatarUrl);
         } catch (uploadError) {
           console.error('Failed to upload avatar:', uploadError);
-          alert('Failed to upload avatar. Profile will be updated without avatar change.');
+          setNotification({ message: 'Failed to upload avatar. Profile will be updated without avatar change.', type: 'warning' });
           avatarUrl = user?.avatarSrc;
         }
       }
@@ -106,23 +107,23 @@ export default function ProfilPage() {
       form.setValues(updatedUser.profileData);
       form.resetDirty(updatedUser.profileData);
       setAvatarFile(null);
-      alert('Profile updated successfully!');
+      setNotification({ message: 'Profile updated successfully!', type: 'success' });
       window.location.reload();
     } catch (error) {
       console.error('Failed to update profile', error);
       if (error instanceof AxiosError) {
         if (error.response?.status === 403) {
-          alert('You are not authorized to update your profile. Please check your authentication.');
+          setNotification({ message: 'You are not authorized to update your profile. Please check your authentication.', type: 'error' });
         } else if (error.response?.status === 404) {
-          alert('User not found. Please try logging in again.');
+          setNotification({ message: 'User not found. Please try logging in again.', type: 'error' });
         } else if (error.response?.status === 400) {
           const errorMessage = error.response?.data?.error || 'Invalid request. Please check your input.';
-          alert(errorMessage);
+          setNotification({ message: errorMessage, type: 'error' });
         } else {
-          alert('Failed to update profile. Please try again.');
+          setNotification({ message: 'Failed to update profile. Please try again.', type: 'error' });
         }
       } else {
-        alert('Failed to update profile. Please try again.');
+        setNotification({ message: 'Failed to update profile. Please try again.', type: 'error' });
       }
     } finally {
       setLoading(false);
@@ -164,6 +165,16 @@ export default function ProfilPage() {
       <Card shadow="sm" padding="lg" radius="md" withBorder>
         <Stack gap="md">
           <Title order={1} ta="center">Profile</Title>
+          {notification && (
+            <Alert
+              variant="light"
+              color={notification.type === 'success' ? 'green' : notification.type === 'error' ? 'red' : 'yellow'}
+              withCloseButton
+              onClose={() => setNotification(null)}
+            >
+              {notification.message}
+            </Alert>
+          )}
           <Group justify="center">
             <div style={{ position: 'relative' }}>
               <Avatar size="xl" src={user.avatarSrc} />
@@ -233,7 +244,7 @@ export default function ProfilPage() {
           const file = e.target.files?.[0];
           if (file) {
             if (file.size > 5 * 1024 * 1024) {
-              alert('File size must be less than 5MB');
+              setNotification({ message: 'File size must be less than 5MB', type: 'error' });
               return;
             }
             handleAvatarChange(file);
