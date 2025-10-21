@@ -312,6 +312,20 @@ export interface ConnectionData {
   targetInput?: string;
   linkData: LinkData;
 }
+
+export interface ConnectedService {
+  serviceKey: string;
+  serviceName: string;
+  iconUrl: string;
+  connectionType: string;
+  userEmail: string;
+  userName: string;
+  avatarUrl: string;
+  providerUserId: string;
+  connected: boolean;
+  isConnected: boolean;
+}
+
 export interface SetupStepProps {
   service: ServiceData;
   onRemove: () => void;
