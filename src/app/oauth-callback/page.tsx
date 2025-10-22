@@ -24,6 +24,7 @@ function isProbablyMobileApp(): boolean {
 const DEEPLINK_WAIT_MS = 800;
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const DEFAULT_APP_REDIRECT = 'areamobile://oauthredirect';
 
 function parseState(raw: string | null): { app_redirect_uri?: string; returnUrl?: string; provider?: string } | null {
   if (!raw) return null;
@@ -106,19 +107,10 @@ export default function OAuthCallbackPage() {
         window.location.replace(safe);
         return;
       }
-      try {
-        const stored = localStorage.getItem('oauth_return_url');
-        if (stored && stored === returnUrl) {
-          window.location.replace(returnUrl);
-          return;
-        }
-      } catch (e) {
-        console.warn('Error reading oauth_return_url from localStorage:', e);
-      }
 
       console.warn('Blocked unsafe returnUrl redirect:', returnUrl);
       window.location.replace('/');
-    }, 800);
+    }, DEEPLINK_WAIT_MS);
   }, [refreshAuth]);
 
   function validateReturnUrl(url: string | undefined | null): string | null {
@@ -237,7 +229,7 @@ export default function OAuthCallbackPage() {
           setStatus('processing');
           setMessage('Returning to the app...');
 
-          const appRedirect = state?.app_redirect_uri || 'areamobile://oauthredirect';
+          const appRedirect = state?.app_redirect_uri || DEFAULT_APP_REDIRECT;
           const dl = `${appRedirect}?code=${encodeURIComponent(code)}&provider=${encodeURIComponent(provider)}`;
           try {
             window.location.href = dl;
