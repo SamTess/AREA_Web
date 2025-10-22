@@ -1,5 +1,5 @@
 import { Button, TextInput, Group, Popover, Textarea, Title, Space, Badge } from '@mantine/core';
-import { IconDeviceFloppy, IconPlayerPlay, IconFileText, IconCheck } from '@tabler/icons-react';
+import { IconPlayerPlay, IconFileText, IconDeviceFloppy } from '@tabler/icons-react';
 import { useState } from 'react';
 import styles from './AreaEditor.module.css';
 
@@ -8,10 +8,10 @@ interface AreaEditorToolbarProps {
   onNameChange: (name: string) => void;
   areaDescription: string;
   onDescriptionChange: (description: string) => void;
-  onSaveDraft: () => void;
   onCommit: () => void;
   onRun: () => void;
   isDraft?: boolean;
+  isCommitting?: boolean;
 }
 
 export default function AreaEditorToolbar({
@@ -19,10 +19,10 @@ export default function AreaEditorToolbar({
   onNameChange,
   areaDescription,
   onDescriptionChange,
-  onSaveDraft,
   onCommit,
   onRun,
-  isDraft = false
+  isDraft = false,
+  isCommitting = false
 }: AreaEditorToolbarProps) {
   const [opened, setOpened] = useState(false);
 
@@ -32,7 +32,7 @@ export default function AreaEditorToolbar({
       <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
         <Space w="15%" />
         <TextInput
-          placeholder="Nom de l'area"
+          placeholder="AREA Name"
           value={areaName}
           onChange={(e) => onNameChange(e.target.value)}
           style={{ width: '300px', marginLeft: '3%' }}
@@ -62,18 +62,13 @@ export default function AreaEditorToolbar({
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Button 
-            onClick={onSaveDraft} 
-            variant="light"
-            leftSection={<IconDeviceFloppy size={16} />}
-          >
-            {isDraft ? 'Update Draft' : 'Save Draft'}
-          </Button>
-          <Button 
             onClick={onCommit}
             color="green"
-            leftSection={<IconCheck size={16} />}
+            leftSection={<IconDeviceFloppy size={16} />}
+            disabled={isCommitting}
+            loading={isCommitting}
           >
-            Commit
+            Save
           </Button>
           <Button onClick={onRun}>
             <IconPlayerPlay />

@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import { DragEndEvent } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
 import { notifications } from '@mantine/notifications';
@@ -11,14 +12,8 @@ import {
   runAreaById,
   getActionDefinitionById
 } from '../../../services/areasService';
-import {
-  saveDraft,
-  getDraft,
-  commitDraft,
-  getUserDrafts,
-  AreaDraft
-} from '../../../services/areaDraftService';
-import { ServiceState, ServiceData, BackendArea, BackendService, BackendAction, BackendReaction, ConnectionData, ActivationConfig } from '../../../types';
+import { ServiceState, ServiceData, BackendArea, BackendService, ConnectionData, ActivationConfig } from '../../../types';
+import { useDraftManager } from './useDraftManager';
 
 let servicesCache: BackendService[] | null = null;
 
@@ -367,6 +362,7 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
 
 export function useAreaEditor(areaId?: string, draftId?: string) {
   const isNewArea = areaId === undefined;
+  const router = useRouter();
 
   const [servicesState, setServicesState] = useState<ServiceData[]>([]);
   const [selectedService, setSelectedService] = useState<ServiceData | null>(null);
@@ -374,212 +370,84 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
   const [isDragging, setIsDragging] = useState(false);
   const [areaName, setAreaName] = useState('');
   const [areaDescription, setAreaDescription] = useState('');
-  const [currentDraftId, setCurrentDraftId] = useState<string | undefined>(draftId);
-  const [draftSavedAt, setDraftSavedAt] = useState<string | undefined>(undefined);
+  const [isCommitting, setIsCommitting] = useState(false);
+  const [showDraftModal, setShowDraftModal] = useState(false);
+  const [pendingDraft, setPendingDraft] = useState<{ draftId: string; name: string; savedAt: string } | null>(null);
+  const [draftModalActions, setDraftModalActions] = useState<{ onAccept: () => void; onReject: () => void } | null>(null);
 
   const [connections, setConnections] = useState<ConnectionData[]>([]);
 
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const handleDraftLoaded = useCallback((data: {
+    name: string;
+    description: string;
+    services: ServiceData[];
+    connections: ConnectionData[];
+    draftId: string;
+    savedAt: string;
+  }) => {
+    setAreaName(data.name);
+    setAreaDescription(data.description);
+    setServicesState(data.services);
+    setConnections(data.connections);
+  }, []);
 
-  const autoSaveDraft = useCallback(async () => {
-    if (!areaName && servicesState.length === 0) {
-      return;
-    }
+  const handleDraftRejected = useCallback(() => {
+    setAreaName('');
+    setAreaDescription('');
+    setServicesState([]);
+    setConnections([]);
+  }, []);
 
-    try {
-      const payload = await transformServiceDataToPayload(servicesState, areaName || 'Untitled Draft', areaDescription, connections);
+  const handleShowDraftModal = useCallback((
+    draftData: { draftId: string; name: string; savedAt: string },
+    onAccept: () => void,
+    onReject: () => void
+  ) => {
+    setPendingDraft(draftData);
+    setDraftModalActions({ onAccept, onReject });
+    setShowDraftModal(true);
+  }, []);
 
-      const transformedConnections = connections.map(conn => ({
-        id: conn.id,
-        sourceServiceId: conn.sourceId,
-        targetServiceId: conn.targetId,
-        linkType: conn.linkData.type,
-        mapping: conn.linkData.mapping || {},
-        condition: conn.linkData.condition || {},
-        order: conn.linkData.order || 0,
-      }));
-
-      const draftPayload: AreaDraft = {
-        name: payload.name,
-        description: payload.description || '',
-        actions: payload.actions || [],
-        reactions: payload.reactions || [],
-        connections: transformedConnections,
-        layoutMode: 'vertical',
-        draftId: currentDraftId,
-        savedAt: draftSavedAt,
-      };
-
-      console.log('Auto-saving draft with connections:', transformedConnections);
-      console.log('Draft payload:', draftPayload);
-
-      const savedDraftId = await saveDraft(draftPayload);
-      setCurrentDraftId(savedDraftId);
-      console.log('Draft auto-saved:', savedDraftId);
-    } catch (error) {
-      console.error('Auto-save error:', error);
-    }
-  }, [areaName, areaDescription, servicesState, connections, currentDraftId, draftSavedAt]);
-
-  useEffect(() => {
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
-
-    autoSaveTimeoutRef.current = setTimeout(() => {
-      autoSaveDraft();
-    }, 2000);
-
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
-  }, [areaName, areaDescription, servicesState, connections, autoSaveDraft]);
+  const {
+    currentDraftId,
+    setCurrentDraftId,
+    handleDeleteDraft,
+  } = useDraftManager({
+    areaName,
+    areaDescription,
+    servicesState,
+    connections,
+    draftId,
+    areaId,
+    isNewArea,
+    transformServiceDataToPayload,
+    transformBackendDataToServiceData,
+    onDraftLoaded: handleDraftLoaded,
+    onDraftRejected: handleDraftRejected,
+    onShowDraftModal: handleShowDraftModal,
+  });
 
   useEffect(() => {
     const loadData = async () => {
-      if (draftId) {
+      if (areaId !== undefined) {
         try {
-          console.log('Loading draft with ID:', draftId);
-          const draft = await getDraft(draftId);
-          console.log('Loaded draft data:', draft);
-
-          if (draft) {
-            setAreaName(draft.name);
-            setAreaDescription(draft.description);
-            setCurrentDraftId(draft.draftId);
-            setDraftSavedAt(draft.savedAt);
-
-            const mockArea: BackendArea = {
-              id: draft.draftId,
-              name: draft.name,
-              description: draft.description,
-              enabled: true,
-              userId: draft.userId,
-              userEmail: '',
-              actions: draft.actions as BackendAction[],
-              reactions: draft.reactions as BackendReaction[],
-              createdAt: draft.savedAt,
-              updatedAt: draft.savedAt,
-            };
-
-            const transformedServices = await transformBackendDataToServiceData(mockArea);
-            console.log('Transformed services from draft:', transformedServices);
-            setServicesState(transformedServices);
-
-            if (draft.connections && Array.isArray(draft.connections)) {
-              console.log('Loading connections from draft:', draft.connections);
-              const transformedConnections = draft.connections.map((conn: unknown) => {
-                const c = conn as { id?: string; sourceServiceId?: string; sourceId?: string; targetServiceId?: string; targetId?: string; linkType?: string; mapping?: Record<string, unknown>; condition?: Record<string, unknown>; order?: number };
-                return {
-                  id: c.id || `conn-${Math.random()}`,
-                  sourceId: c.sourceServiceId || c.sourceId || '',
-                  targetId: c.targetServiceId || c.targetId || '',
-                  linkData: {
-                    type: (c.linkType || 'chain') as 'chain' | 'conditional' | 'parallel' | 'sequential',
-                    mapping: (c.mapping || {}) as Record<string, string>,
-                    condition: c.condition || {},
-                    order: c.order || 0,
-                  }
-                };
-              });
-              setConnections(transformedConnections as ConnectionData[]);
-            } else {
-              console.log('No connections found in draft');
-              setConnections([]);
-            }
-          }
-        } catch (error) {
-          console.error('Error loading draft data:', error);
-        }
-      } else if (areaId !== undefined) {
-        try {
-          console.log('Loading area with ID:', areaId);
           const area = await getAreaById(areaId);
-          console.log('Loaded area data:', area);
 
           if (area) {
             setAreaName(area.name);
             setAreaDescription(area.description);
-
-            console.log('Raw actions from backend:', area.actions);
-            console.log('Raw reactions from backend:', area.reactions);
-
             const transformedServices = await transformBackendDataToServiceData(area);
-            console.log('Transformed services:', transformedServices);
             setServicesState(transformedServices);
-
             const extractedConnections = extractConnectionsFromServices(transformedServices);
-            console.log('Extracted connections from area:', extractedConnections);
             setConnections(extractedConnections);
           }
         } catch (error) {
           console.error('Error loading area data:', error);
         }
-      } else if (isNewArea) {
-        try {
-          console.log('New AREA: checking for existing drafts');
-          const drafts = await getUserDrafts();
-          console.log('User drafts:', drafts);
-
-          if (drafts && drafts.length > 0) {
-            const latestDraft = drafts.sort((a, b) =>
-              new Date(b.savedAt).getTime() - new Date(a.savedAt).getTime()
-            )[0];
-
-            console.log('Loading latest draft:', latestDraft.draftId);
-            setAreaName(latestDraft.name);
-            setAreaDescription(latestDraft.description);
-            setCurrentDraftId(latestDraft.draftId);
-            setDraftSavedAt(latestDraft.savedAt);
-
-            const mockArea: BackendArea = {
-              id: latestDraft.draftId,
-              name: latestDraft.name,
-              description: latestDraft.description,
-              enabled: true,
-              userId: latestDraft.userId,
-              userEmail: '',
-              actions: latestDraft.actions as BackendAction[],
-              reactions: latestDraft.reactions as BackendReaction[],
-              createdAt: latestDraft.savedAt,
-              updatedAt: latestDraft.savedAt,
-            };
-
-            const transformedServices = await transformBackendDataToServiceData(mockArea);
-            console.log('Transformed services from latest draft:', transformedServices);
-            setServicesState(transformedServices);
-
-            if (latestDraft.connections && Array.isArray(latestDraft.connections)) {
-              console.log('Loading connections from latest draft:', latestDraft.connections);
-              const transformedConnections = latestDraft.connections.map((conn: unknown) => {
-                const c = conn as { id?: string; sourceServiceId?: string; sourceId?: string; targetServiceId?: string; targetId?: string; linkType?: string; mapping?: Record<string, unknown>; condition?: Record<string, unknown>; order?: number };
-                return {
-                  id: c.id || `conn-${Math.random()}`,
-                  sourceId: c.sourceServiceId || c.sourceId || '',
-                  targetId: c.targetServiceId || c.targetId || '',
-                  linkData: {
-                    type: (c.linkType || 'chain') as 'chain' | 'conditional' | 'parallel' | 'sequential',
-                    mapping: (c.mapping || {}) as Record<string, string>,
-                    condition: c.condition || {},
-                    order: c.order || 0,
-                  }
-                };
-              });
-              setConnections(transformedConnections as ConnectionData[]);
-            } else {
-              console.log('No connections found in latest draft');
-              setConnections([]);
-            }
-          }
-        } catch (error) {
-          console.error('Error loading user drafts:', error);
-        }
       }
     };
     loadData();
-  }, [areaId, draftId, isNewArea]);
+  }, [areaId]);
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
@@ -592,52 +460,12 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
     });
   };
 
-  const handleSaveDraft = async () => {
+  const handleCommit = async () => {
     try {
-      if (!areaName || areaName.trim() === '') {
-        notifications.show({
-          title: 'Error',
-          message: 'AREA name is required',
-          color: 'red',
-        });
+      if (isCommitting) {
         return;
       }
 
-      console.log('Services state before draft save:', servicesState);
-      const payload = await transformServiceDataToPayload(servicesState, areaName, areaDescription, connections);
-      console.log('Draft payload:', payload);
-
-      const draft: AreaDraft = {
-        name: areaName,
-        description: areaDescription,
-        actions: payload.actions || [],
-        reactions: payload.reactions || [],
-        connections: payload.connections || [],
-        layoutMode: payload.layoutMode || 'linear',
-        draftId: currentDraftId,
-      };
-
-      const newDraftId = await saveDraft(draft);
-      setCurrentDraftId(newDraftId);
-
-      notifications.show({
-        title: 'Success',
-        message: currentDraftId ? 'Draft updated successfully!' : 'Draft saved successfully!',
-        color: 'blue',
-      });
-    } catch (error) {
-      console.error('Error saving draft:', error);
-      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
-      notifications.show({
-        title: 'Error',
-        message: `Failed to save draft: ${errorMessage}`,
-        color: 'red',
-      });
-    }
-  };
-
-  const handleCommit = async () => {
-    try {
       if (!areaName || areaName.trim() === '') {
         notifications.show({
           title: 'Error',
@@ -656,44 +484,30 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
         return;
       }
 
-      if (currentDraftId) {
-        console.log('Committing draft:', currentDraftId);
-        const area = await commitDraft(currentDraftId);
-        console.log('Draft committed, area created:', area);
-        setCurrentDraftId(undefined);
+      setIsCommitting(true);
 
+      const payload = await transformServiceDataToPayload(servicesState, areaName, areaDescription, connections);
+
+      if (isNewArea) {
+        await createAreaWithActions(payload);
+        await handleDeleteDraft();
+        
         notifications.show({
           title: 'Success',
           message: `AREA "${areaName}" was created successfully!`,
           color: 'green',
         });
+
+        setTimeout(() => router.push('/dashboard/areas'), 1000);
       } else {
-        if (isNewArea) {
-          console.log('Services state before transform:', servicesState);
-          const payload = await transformServiceDataToPayload(servicesState, areaName, areaDescription, connections);
-          console.log('Creating area with payload:', payload);
+        await updateAreaComplete(areaId!, payload);
+        await handleDeleteDraft();
 
-          const newArea = await createAreaWithActions(payload);
-          console.log('New area created:', newArea);
-          notifications.show({
-            title: 'Success',
-            message: `AREA "${areaName}" was created successfully!`,
-            color: 'green',
-          });
-        } else {
-          console.log('Services state before transform:', servicesState);
-          const payload = await transformServiceDataToPayload(servicesState, areaName, areaDescription, connections);
-          console.log('Updating area with payload:', payload);
-
-          await updateAreaComplete(areaId!, payload);
-          console.log('Area updated successfully');
-
-          notifications.show({
-            title: 'Success',
-            message: `AREA "${areaName}" was updated successfully!`,
-            color: 'green',
-          });
-        }
+        notifications.show({
+          title: 'Success',
+          message: `AREA "${areaName}" was updated successfully!`,
+          color: 'green',
+        });
       }
     } catch (error) {
       console.error('Error committing area:', error);
@@ -703,6 +517,8 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
         message: `Failed to save AREA: ${errorMessage}`,
         color: 'red',
       });
+    } finally {
+      setIsCommitting(false);
     }
   };
 
@@ -1018,10 +834,15 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
     areaDescription,
     setAreaDescription,
     currentDraftId,
+    isCommitting,
+    showDraftModal,
+    setShowDraftModal,
+    pendingDraft,
+    draftModalActions,
     handleDragEnd,
-    handleSaveDraft,
     handleCommit,
     handleRun,
+    handleDeleteDraft,
     addNewServiceBelow,
     removeService,
     editService,

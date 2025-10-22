@@ -1,6 +1,6 @@
 'use client';
 
-import { Drawer } from '@mantine/core';
+import { Drawer, Modal, Button, Text, Group, Stack } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import AreaEditorToolbar from './AreaEditorToolbar';
 import FreeLayoutBoard from './FreeLayoutBoard';
@@ -24,7 +24,11 @@ export default function AreaEditor({ areaId, draftId }: AreaEditorProps) {
     areaDescription,
     setAreaDescription,
     currentDraftId,
-    handleSaveDraft,
+    isCommitting,
+    showDraftModal,
+    setShowDraftModal,
+    pendingDraft,
+    draftModalActions,
     handleCommit,
     handleRun,
     addNewServiceBelow,
@@ -42,16 +46,52 @@ export default function AreaEditor({ areaId, draftId }: AreaEditorProps) {
 
   return (
     <div className={styles.container}>
+      <Modal
+        opened={showDraftModal}
+        onClose={() => setShowDraftModal(false)}
+        title="Draft Found"
+        centered
+      >
+        <Stack>
+          <Text>
+            You have an unsaved draft from a previous session:
+          </Text>
+          <Text fw={500}>{pendingDraft?.name || 'Untitled Draft'}</Text>
+          <Text size="sm" c="dimmed">
+            Last saved: {pendingDraft?.savedAt ? new Date(pendingDraft.savedAt).toLocaleString() : 'Unknown'}
+          </Text>
+          <Group mt="md" justify="flex-end">
+            <Button
+              variant="default"
+              onClick={() => {
+                draftModalActions?.onReject();
+                setShowDraftModal(false);
+              }}
+            >
+              Start Fresh
+            </Button>
+            <Button
+              onClick={() => {
+                draftModalActions?.onAccept();
+                setShowDraftModal(false);
+              }}
+            >
+              Continue Editing
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
       <div className={styles.header}>
         <AreaEditorToolbar
           areaName={areaName}
           onNameChange={setAreaName}
           areaDescription={areaDescription}
           onDescriptionChange={setAreaDescription}
-          onSaveDraft={handleSaveDraft}
           onCommit={handleCommit}
           onRun={handleRun}
           isDraft={!!currentDraftId}
+          isCommitting={isCommitting}
         />
       </div>
 

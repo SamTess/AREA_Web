@@ -25,15 +25,31 @@ export interface AreaDraftResponse {
   ttlSeconds: number;
 }
 
-export const saveDraft = async (draft: AreaDraft): Promise<string> => {
+export const saveDraft = async (draft: AreaDraft, areaId?: string): Promise<string> => {
   try {
-    const response = await axios.post(
-      `${API_CONFIG.endpoints.areas.list}/drafts`,
-      draft
-    );
+    const url = areaId
+      ? `${API_CONFIG.endpoints.areas.list}/drafts?areaId=${areaId}`
+      : `${API_CONFIG.endpoints.areas.list}/drafts`;
+
+    const response = await axios.post(url, draft);
     return response.data.draftId;
   } catch (error) {
     console.error('Error saving draft:', error);
+    throw error;
+  }
+};
+
+export const getEditDraft = async (areaId: string): Promise<AreaDraftResponse | null> => {
+  try {
+    const response = await axios.get(
+      `${API_CONFIG.endpoints.areas.list}/drafts/edit/${areaId}`
+    );
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 404) {
+      return null;
+    }
+    console.error('Error getting edit draft:', error);
     throw error;
   }
 };
@@ -52,12 +68,15 @@ export const getDraft = async (draftId: string): Promise<AreaDraftResponse> => {
 
 export const getUserDrafts = async (): Promise<AreaDraftResponse[]> => {
   try {
-    const response = await axios.get(
-      `${API_CONFIG.endpoints.areas.list}/drafts`
-    );
+    const url = `${API_CONFIG.endpoints.areas.list}/drafts`;
+    const response = await axios.get(url);
     return response.data;
   } catch (error) {
     console.error('Error getting user drafts:', error);
+    if (axios.isAxiosError(error)) {
+      console.error('Status:', error.response?.status);
+      console.error('Data:', error.response?.data);
+    }
     throw error;
   }
 };
