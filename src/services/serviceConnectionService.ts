@@ -11,6 +11,8 @@ export interface ServiceConnectionStatus {
   userName: string;
   avatarUrl?: string;
   providerUserId?: string;
+  canDisconnect?: boolean;
+  isPrimaryAuth?: boolean;
 }
 
 const mockConnectionStatus: ServiceConnectionStatus = {
@@ -18,6 +20,8 @@ const mockConnectionStatus: ServiceConnectionStatus = {
   serviceName: 'GitHub',
   iconUrl: 'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg',
   isConnected: true,
+  canDisconnect: true,
+  isPrimaryAuth: false,
   connectionType: 'OAUTH',
   userEmail: 'user@example.com',
   userName: 'Test User',
@@ -35,7 +39,9 @@ const mockConnectedServices: ServiceConnectionStatus[] = [
     userEmail: 'user@example.com',
     userName: 'Test User',
     avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png',
-    providerUserId: 'github123'
+    providerUserId: 'github123',
+    canDisconnect: false,
+    isPrimaryAuth: true
   },
   {
     serviceKey: 'google',
@@ -46,7 +52,9 @@ const mockConnectedServices: ServiceConnectionStatus[] = [
     userEmail: 'user@example.com',
     userName: 'Test User',
     avatarUrl: 'https://upload.wikimedia.org/wikipedia/commons/7/76/Slack_Icon.png',
-    providerUserId: 'google123'
+    providerUserId: 'google123',
+    canDisconnect: true,
+    isPrimaryAuth: false
   }
 ];
 
@@ -102,6 +110,21 @@ export const initiateServiceConnection = async (serviceKey: string, returnUrl?: 
     window.location.href = oauthUrl;
   } catch (error) {
     console.error('Initiate service connection error:', error);
+    throw error;
+  }
+};
+
+export const disconnectService = async (serviceKey: string): Promise<void> => {
+  if (USE_MOCK_DATA) {
+    console.log(`Mock service disconnection for ${serviceKey}`);
+    return;
+  }
+
+  try {
+    const response = await axios.delete(`${API_CONFIG.endpoints.user.serviceConnection}/${serviceKey}`);
+    return response.data;
+  } catch (error) {
+    console.error('Disconnect service error:', error);
     throw error;
   }
 };
