@@ -2,11 +2,11 @@
 
 import { useSearchParams } from 'next/navigation';
 import AreaEditor from '../../../components/ui/areaCreation/AreaEditor';
-import { useEffect } from 'react';
+import { useEffect, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import { getCurrentUser } from '@/services/authService';
 
-export default function NewAreaPage() {
+function NewAreaContent() {
   const searchParams = useSearchParams();
   const draftId = searchParams.get('draft') || undefined;
   const router = useRouter();
@@ -27,4 +27,12 @@ export default function NewAreaPage() {
   }, [router]);
   
   return <AreaEditor draftId={draftId} />;
+}
+
+export default function NewAreaPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewAreaContent />
+    </Suspense>
+  );
 }
