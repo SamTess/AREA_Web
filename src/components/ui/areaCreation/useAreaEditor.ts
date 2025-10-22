@@ -15,6 +15,8 @@ import {
 import { ServiceState, ServiceData, BackendArea, BackendService, ConnectionData, ActivationConfig, LinkData} from '../../../types';
 import { useDraftManager } from './useDraftManager';
 
+const WAIT_NOTIFICATION_TIMEOUT = 1500;
+
 let servicesCache: BackendService[] | null = null;
 const transformBackendDataToServiceData = async (area: BackendArea): Promise<ServiceData[]> => {
   const serviceData: ServiceData[] = [];
@@ -569,7 +571,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
           message: `AREA "${areaName}" was created successfully!`,
           color: 'green',
         });
-        setTimeout(() => router.push('/areas'));
+        setTimeout(() => router.push('/areas'), WAIT_NOTIFICATION_TIMEOUT);
       } else {
         await updateAreaComplete(areaId!, payload);
         await handleDeleteDraft();

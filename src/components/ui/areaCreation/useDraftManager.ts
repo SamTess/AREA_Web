@@ -5,12 +5,28 @@ import {
   getUserDrafts,
   getEditDraft,
   deleteDraft,
-  AreaDraft
+  AreaDraft,
+  AreaDraftResponse
 } from '../../../services/areaDraftService';
 import { CreateAreaPayload } from '../../../services/areasService';
 import { ServiceData, BackendArea, BackendAction, BackendReaction, ConnectionData } from '../../../types';
 
 const DRAFT_AGE_THRESHOLD_MS = 15 * 60 * 1000;
+
+/**
+ * Generates a UUID using crypto.randomUUID() with a fallback for environments
+ * where it's not available (e.g., older browsers or non-secure contexts).
+ */
+const generateUUID = (): string => {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) {
+    return crypto.randomUUID();
+  }
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+};
 
 interface UseDraftManagerProps {
   areaName: string;
@@ -71,11 +87,27 @@ export function useDraftManager({
         order: conn.linkData.order || 0,
       }));
 
+      const actionsWithIds = (payload.actions || []).map((a) => ({
+        ...a,
+        id: generateUUID(),
+        parameters: a.parameters || {},
+        activationConfig: (a.activationConfig as unknown as BackendAction['activationConfig']) || { type: 'manual' as const },
+      })) as BackendAction[];
+      const reactionsWithIds = (payload.reactions || []).map((r) => ({
+        ...r,
+        id: generateUUID(),
+        parameters: r.parameters || {},
+        mapping: (r.mapping || {}) as Record<string, string>,
+        condition: r.condition as unknown as BackendReaction['condition'],
+        order: r.order || 0,
+        continue_on_error: false,
+        activationConfig: r.activationConfig as unknown as BackendReaction['activationConfig'],
+      })) as BackendReaction[];
       const draftPayload: AreaDraft = {
         name: payload.name,
         description: payload.description || '',
-        actions: payload.actions || [],
-        reactions: payload.reactions || [],
+        actions: actionsWithIds,
+        reactions: reactionsWithIds,
         connections: transformedConnections,
         layoutMode: 'vertical',
         draftId: currentDraftId,
@@ -104,7 +136,7 @@ export function useDraftManager({
     };
   }, [areaName, areaDescription, servicesState, connections, autoSaveDraft]);
 
-  const loadDraftFromData = useCallback(async (draft: { draftId: string; name: string; description: string; userId: string; actions: unknown[]; reactions: unknown[]; connections: unknown[]; savedAt: string }) => {
+  const loadDraftFromData = useCallback(async (draft: AreaDraftResponse) => {
     const mockArea: BackendArea = {
       id: draft.draftId,
       name: draft.name,
@@ -112,29 +144,26 @@ export function useDraftManager({
       enabled: true,
       userId: draft.userId,
       userEmail: '',
-      actions: draft.actions as BackendAction[],
-      reactions: draft.reactions as BackendReaction[],
+      actions: draft.actions,
+      reactions: draft.reactions,
       createdAt: draft.savedAt,
       updatedAt: draft.savedAt,
     };
 
     const transformedServices = await transformBackendDataToServiceData(mockArea);
 
-    const transformedConnections = draft.connections && Array.isArray(draft.connections)
-      ? draft.connections.map((conn: unknown) => {
-          const c = conn as { id?: string; sourceServiceId?: string; sourceId?: string; targetServiceId?: string; targetId?: string; linkType?: string; mapping?: Record<string, unknown>; condition?: Record<string, unknown>; order?: number };
-          return {
-            id: c.id || crypto.randomUUID(),
-            sourceId: c.sourceServiceId || c.sourceId || '',
-            targetId: c.targetServiceId || c.targetId || '',
-            linkData: {
-              type: (c.linkType || 'chain') as 'chain' | 'conditional' | 'parallel' | 'sequential',
-              mapping: (c.mapping || {}) as Record<string, string>,
-              condition: c.condition || {},
-              order: c.order || 0,
-            }
-          };
-        })
+    const transformedConnections: ConnectionData[] = draft.connections
+      ? draft.connections.map((conn) => ({
+          id: conn.id || generateUUID(),
+          sourceId: conn.sourceServiceId,
+          targetId: conn.targetServiceId,
+          linkData: {
+            type: conn.linkType,
+            mapping: conn.mapping || {},
+            condition: conn.condition || {},
+            order: conn.order,
+          }
+        }))
       : [];
 
     setCurrentDraftId(draft.draftId);
@@ -144,7 +173,7 @@ export function useDraftManager({
       name: draft.name,
       description: draft.description,
       services: transformedServices,
-      connections: transformedConnections as ConnectionData[],
+      connections: transformedConnections,
       draftId: draft.draftId,
       savedAt: draft.savedAt,
     });
