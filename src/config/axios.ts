@@ -25,6 +25,13 @@ export const axios = Axios.create({
   withCredentials: true,
 });
 
+try {
+  Axios.defaults.baseURL = API_CONFIG.baseURL;
+  Axios.defaults.withCredentials = true;
+} catch (e) {
+  console.warn('Failed to set global axios defaults:', e);
+}
+
 axios.interceptors.request.use(
   (config) => {
     config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json';
