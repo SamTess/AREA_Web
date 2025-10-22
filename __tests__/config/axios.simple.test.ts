@@ -28,17 +28,15 @@ delete (window as any).location;
 window.location = mockLocation as any;
 
 describe('axios configuration', () => {
-  let axios: typeof import('axios').default;
+  let axios: typeof import('../../src/config/axios').default;
 
   beforeEach(async () => {
     localStorageMock.clear();
     jest.clearAllMocks();
     mockLocation.pathname = '/test';
     jest.resetModules();
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    axios = require('axios').default;
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    require('../../src/config/axios');
+  // eslint-disable-next-line @typescript-eslint/no-require-imports
+  axios = require('../../src/config/axios').default;
   });
 
   afterAll(() => {
