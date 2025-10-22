@@ -63,9 +63,14 @@ export default function AreaListPage() {
             }
         };
         const checkLogin = async () => {
-            const user = await getCurrentUser();
-            if (!user) {
-                router.push('/');
+            try {
+                const user = await getCurrentUser();
+                if (!user) {
+                    await router.replace('/login');
+                }
+            } catch (err) {
+                console.error('Auth check failed:', err);
+                await router.replace('/login');
             }
         };
         checkLogin();
