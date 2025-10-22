@@ -19,10 +19,6 @@ jest.mock('../src/components/ui/dashboard/ServicesTab', () => ({
   ServicesTab: () => <div data-testid="services-tab">Services Tab Content</div>,
 }));
 
-jest.mock('../src/components/ui/dashboard/LogsTab', () => ({
-  LogsTab: () => <div data-testid="logs-tab">Logs Tab Content</div>,
-}));
-
 describe('DashboardPage', () => {
   it('renders the dashboard with tabs', () => {
     render(<DashboardPage />, { wrapper: AllTheProviders });
@@ -30,7 +26,6 @@ describe('DashboardPage', () => {
     expect(screen.getByText('Users')).toBeInTheDocument();
     expect(screen.getByText('Areas')).toBeInTheDocument();
     expect(screen.getByText('Services')).toBeInTheDocument();
-    expect(screen.getByText('Logs')).toBeInTheDocument();
   });
 
   it('renders tabs with correct icons', () => {
