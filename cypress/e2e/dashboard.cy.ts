@@ -8,12 +8,11 @@ describe('Dashboard page', () => {
     cy.contains('Users').should('be.visible');
     cy.contains('Areas').should('be.visible');
     cy.contains('Services').should('be.visible');
-    cy.contains('Logs').should('be.visible');
   });
 
   it('should display the tabs navigation', () => {
     // Check that tabs are present and Users tab is active by default
-    cy.get('[role="tab"]').should('have.length', 4);
+    cy.get('[role="tab"]').should('have.length', 3);
     cy.get('[role="tab"]').first().should('have.attr', 'aria-selected', 'true');
   });
 
@@ -47,17 +46,6 @@ describe('Dashboard page', () => {
     cy.get('body').then($body => {
       if ($body.text().includes('Services')) {
         cy.contains('Services').should('be.visible');
-      }
-    });
-  });
-
-  it('should switch to Logs tab and display content', () => {
-    cy.contains('Logs').click();
-    cy.get('[role="tabpanel"]').should('be.visible');
-    // Check for logs-related elements
-    cy.get('body').then($body => {
-      if ($body.text().includes('Logs')) {
-        cy.contains('Logs').should('be.visible');
       }
     });
   });
