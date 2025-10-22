@@ -55,12 +55,9 @@ export default function OAuthCallbackPage() {
 
   async function fetchCurrentUser() {
     try {
-      console.debug('[oauth] GET /api/auth/me (check)');
       const me = await axios.get('/api/auth/me');
-      console.debug('[oauth] /api/auth/me ->', me?.status);
       if (me?.status === 200) return me?.data;
     } catch (e) {
-      console.debug('[oauth] /api/auth/me -> error', e);
     }
     return null;
   }
@@ -85,14 +82,11 @@ export default function OAuthCallbackPage() {
     try {
       setStatus('processing');
       setMessage('Completing authentication in browser...');
-      console.debug('[oauth] POST', url);
       const response = await axios.post(url, { code });
-      console.debug('[oauth] POST', url, '->', response?.status);
 
       if (response.status === 200) {
         await handleSuccess(isLinkMode ? 'Account linked successfully! Redirecting...' : 'Authentication successful! Redirecting...', returnUrl);
       } else {
-        // Unexpected status: check /me as fallback
         const me = await fetchCurrentUser();
         if (me) {
           await handleSuccess('Authentication completed (verified). Redirecting...', returnUrl);
@@ -103,10 +97,8 @@ export default function OAuthCallbackPage() {
       }
     } catch (err: unknown) {
       console.error('OAuth exchange error (forced web):', err);
-      // Try fallback to /me
       const me = await fetchCurrentUser();
       if (me) {
-        console.debug('[oauth] fallback /me after failed exchange -> success');
         await handleSuccess('Authentication completed (verified). Redirecting...', returnUrl);
         return;
       }
@@ -203,9 +195,7 @@ export default function OAuthCallbackPage() {
       try {
         setStatus('processing');
         setMessage('Exchanging authorization code...');
-        console.debug('[oauth] POST', url);
         const response = await axios.post(url, { code });
-        console.debug('[oauth] POST', url, '->', response?.status);
 
         if (response.status === 200) {
           await handleSuccess(isLinkMode ? 'Account linked successfully! Redirecting...' : 'Authentication successful! Redirecting...', returnUrl);
@@ -222,7 +212,6 @@ export default function OAuthCallbackPage() {
         console.error('OAuth exchange error:', err);
         const me = await fetchCurrentUser();
         if (me) {
-          console.debug('[oauth] fallback /me after failed exchange -> success');
           await handleSuccess('Authentication completed (verified). Redirecting...', returnUrl);
           return;
         }
