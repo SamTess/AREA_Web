@@ -225,7 +225,7 @@ export const enableDisableArea = async (id: string, enable: boolean) => {
 
 export const addService = async (service: Service) => {
   if (USE_MOCK_DATA) {
-    return { ...service, id: Math.random().toString(36).substr(2, 9) };
+    return { ...service, id: "1" };
   }
 
   try {
