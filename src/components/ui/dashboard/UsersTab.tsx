@@ -86,8 +86,6 @@ export function UsersTab() {
   const handleEditUser = (user: User) => {
     setSelectedUserId(user.id.toString());
     setModaleOpened(true);
-    // ouvrir la modale du edit
-    // appeler la route de edit
   };
 
   const handleDeleteUser = (user: User) => {

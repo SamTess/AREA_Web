@@ -42,8 +42,7 @@ export function ServicesTable({ services, onAddService, onEditService, onDeleteS
       itemsPerPage={5}
       onAdd={onAddService}
       onEdit={onEditService}
-      onDelete={onDeleteService}
-      addButtonText="Add Service"
+      showActions={false}
     />
   );
 }

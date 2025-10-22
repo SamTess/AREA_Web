@@ -1,6 +1,8 @@
 import { Modal, TextInput, PasswordInput, Switch, Button } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { getUserById } from "../../../services/userService"
+import { updateProfile } from "../../../services/authService";
+import { createUser } from "../../../services/adminService";
 
 export function ModaleUser({ opened, onClose, userId }: { opened: boolean; onClose: () => void; userId: string | null; }) {
   const [formData, setFormData] = useState({
@@ -14,8 +16,32 @@ export function ModaleUser({ opened, onClose, userId }: { opened: boolean; onClo
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log('Form submitted:', formData);
-    // put the route call here to save the user profil modification or add user
-    onClose();
+    if  (userId) {
+      updateProfile(userId, {
+        lastName: formData.nom,
+        firstName: formData.prenom,
+        email: formData.email,
+        password: formData.password,
+        isAdmin: formData.isAdmin,
+      }).then(() => {
+        onClose();
+      }).catch((error: Error) => {
+        console.error('Error updating profile:', error);
+      });
+  } else {
+      console.log('Adding new user:', formData);
+      createUser({
+        lastName: formData.nom,
+        firstName: formData.prenom,
+        email: formData.email,
+        password: formData.password,
+        isAdmin: formData.isAdmin,
+      }).then(() => {
+        onClose();
+      }).catch((error: Error) => {
+        console.error('Error creating user:', error);
+      });
+    }
   };
 
   useEffect(() => {
