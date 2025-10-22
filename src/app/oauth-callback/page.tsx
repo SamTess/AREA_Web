@@ -44,6 +44,16 @@ function parseState(raw: string | null): { app_redirect_uri?: string; returnUrl?
   }
 }
 
+function getProviderFromState(state: { provider?: string } | null): string {
+  try {
+    const stored = localStorage.getItem('oauth_provider');
+    return (stored || state?.provider || 'github').toLowerCase();
+  } catch (e) {
+    console.warn('getProviderFromState failed to read localStorage:', e);
+    return (state?.provider || 'github').toLowerCase();
+  }
+}
+
 function getMessageFromUnknown(data: unknown): string | undefined {
   if (!data) return undefined;
   if (typeof data === 'object' && data !== null) {
@@ -207,9 +217,8 @@ export default function OAuthCallbackPage() {
       }
 
       const isLinkMode = localStorage.getItem('oauth_link_mode') === 'true';
-      const storedProvider = (localStorage.getItem('oauth_provider') || state?.provider || 'github').toLowerCase();
-      const provider: string = storedProvider;
-      const returnUrl = (state?.returnUrl && typeof state.returnUrl === 'string' ? state.returnUrl : (localStorage.getItem('oauth_return_url') || '/')) as string;
+      const provider: string = getProviderFromState(state);
+      const returnUrl = (state?.returnUrl ?? localStorage.getItem('oauth_return_url') ?? '/') as string;
       const forceWeb = searchParams.get('forceWeb') === '1';
 
       const deeplinkKey = `oauth_deeplink_attempted_${code}`;
@@ -336,8 +345,7 @@ export default function OAuthCallbackPage() {
           const fallbackCode = searchParams.get('code');
           const rawState = searchParams.get('state');
           const state = parseState(rawState);
-          const storedProvider = (localStorage.getItem('oauth_provider') || state?.provider || 'github').toLowerCase();
-          const provider: string = storedProvider;
+          const provider: string = getProviderFromState(state);
           const isLinkMode = localStorage.getItem('oauth_link_mode') === 'true';
           const returnUrl = state?.returnUrl || localStorage.getItem('oauth_return_url') || '/';
 
@@ -349,7 +357,7 @@ export default function OAuthCallbackPage() {
                   setMessage('No authorization code available. Please retry the flow from the original app.');
                   return;
                 }
-                forceWebExchange(fallbackCode, provider, isLinkMode, returnUrl as string);
+                forceWebExchange(fallbackCode, provider, isLinkMode, returnUrl);
               }}
               disabled={!fallbackCode}
             >
