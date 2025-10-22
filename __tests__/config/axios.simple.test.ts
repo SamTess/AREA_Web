@@ -35,8 +35,7 @@ describe('axios configuration', () => {
     jest.clearAllMocks();
     mockLocation.pathname = '/test';
     jest.resetModules();
-  // eslint-disable-next-line @typescript-eslint/no-require-imports
-  axios = require('../../src/config/axios').default;
+    axios = require('../../src/config/axios').default;
   });
 
   afterAll(() => {
