@@ -27,8 +27,6 @@ export const axios = Axios.create({
 
 axios.interceptors.request.use(
   (config) => {
-    config.withCredentials = true;
-
     config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json';
 
     if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'development') {
