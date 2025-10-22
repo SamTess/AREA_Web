@@ -103,7 +103,7 @@ export default function ContactPage() {
           >
             Get in Touch
           </Title>
-          <Text size="lg" c="dimmed" maw={500} mx="auto">
+          <Text size="lg" c="#1a1a1a" maw={500} mx="auto" fw={500}>
             Questions or need help? We&apos;re here to assist you every step of the way.
           </Text>
         </Box>
@@ -146,18 +146,19 @@ export default function ContactPage() {
                 <Text fw={700} size="lg" ta="center" mb="xs">
                   {method.title}
                 </Text>
-                <Text size="sm" c="dimmed" ta="center" mb="md">
+                <Text size="sm" c="#2c2c2c" ta="center" mb="md" fw={500}>
                   {method.description}
                 </Text>
                 <Badge
                   size="lg"
-                  variant="light"
+                  variant="filled"
                   color={method.color}
                   style={{
                     width: '100%',
                     fontSize: '14px',
                     fontWeight: 600,
-                    padding: '8px 12px'
+                    padding: '8px 12px',
+                    color: 'white'
                   }}
                 >
                   {method.value}
@@ -191,7 +192,7 @@ export default function ContactPage() {
             <Title order={2} size="h2" fw={700} mb="xs">
               Send us a Message
             </Title>
-            <Text size="sm" c="dimmed">
+            <Text size="sm" c="#2c2c2c" fw={500}>
               We&apos;ll respond within 24 hours
             </Text>
           </Box>
@@ -288,7 +289,7 @@ export default function ContactPage() {
             <Text fw={600} size="md" mb="xs">
               Response Time
             </Text>
-            <Text size="sm" c="dimmed">
+            <Text size="sm" c="#2c2c2c" fw={500}>
               Within 24 hours
             </Text>
           </Card>
@@ -300,7 +301,7 @@ export default function ContactPage() {
             <Text fw={600} size="md" mb="xs">
               Phone Support
             </Text>
-            <Text size="sm" c="dimmed">
+            <Text size="sm" c="#2c2c2c" fw={500}>
               +33 6 95 41 16 79
             </Text>
           </Card>
@@ -312,7 +313,7 @@ export default function ContactPage() {
             <Text fw={600} size="md" mb="xs">
               Languages
             </Text>
-            <Text size="sm" c="dimmed">
+            <Text size="sm" c="#2c2c2c" fw={500}>
               English
             </Text>
           </Card>

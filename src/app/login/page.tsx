@@ -4,10 +4,10 @@ import { AuthenticationForm } from '@/components/ui/auth/AuthenticationForm';
 
 export default function LoginPage() {
   return (
-    <div>
+    <main>
         <div style={{ height: '130px' }}></div>
       <AuthenticationForm />
         <div style={{ height: '130px' }}></div>
-    </div>
+    </main>
   );
 }

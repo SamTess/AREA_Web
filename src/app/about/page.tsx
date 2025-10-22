@@ -116,7 +116,7 @@ export default function AboutPage() {
           <Title order={1} size={48} fw={900} mb="md">
             About AREA
           </Title>
-          <Text size="xl" c="dimmed" maw={800} mx="auto">
+          <Text size="xl" c="dark" maw={800} mx="auto">
             Action REAction - The ultimate automation platform that connects your favorite services
             and creates powerful workflows to boost your productivity.
           </Text>
@@ -143,7 +143,7 @@ export default function AboutPage() {
               <Title order={2} mb="md">
                 Our Mission
               </Title>
-              <Text size="lg" c="dimmed">
+              <Text size="lg" c="dark">
                 At AREA, we&apos;re on a mission to democratize automation and make it accessible to everyone.
                 We believe that technology should work for you, not the other way around. Our platform
                 empowers users to create custom workflows that connect their favorite services, automate
@@ -201,7 +201,7 @@ export default function AboutPage() {
                 <Text fw={600} size="lg" mb="xs">
                   {feature.title}
                 </Text>
-                <Text size="sm" c="dimmed">
+                <Text size="sm" c="dark">
                   {feature.description}
                 </Text>
               </Card>
@@ -219,7 +219,7 @@ export default function AboutPage() {
               bullet={<IconBulb size={12} />}
               title="Conception & Planning"
             >
-              <Text c="dimmed" size="sm">
+              <Text c="dark" size="sm">
                 The idea of AREA was born from a vision to simplify digital workflows and make
                 automation accessible to everyone. Our team researched existing solutions and
                 identified opportunities for innovation.
@@ -230,7 +230,7 @@ export default function AboutPage() {
               bullet={<IconCode size={12} />}
               title="Development Phase"
             >
-              <Text c="dimmed" size="sm">
+              <Text c="dark" size="sm">
                 We built AREA using cutting-edge technologies including Next.js, TypeScript, and
                 modern cloud infrastructure. Our focus was on creating a scalable, secure, and
                 user-friendly platform.
@@ -241,7 +241,7 @@ export default function AboutPage() {
               bullet={<IconRocket size={12} />}
               title="Launch & Growth"
             >
-              <Text c="dimmed" size="sm">
+              <Text c="dark" size="sm">
                 After rigorous testing and refinement, we launched AREA to the public. The platform
                 quickly gained traction among individuals and businesses looking to streamline their
                 workflows.
@@ -252,7 +252,7 @@ export default function AboutPage() {
               bullet={<IconUsers size={12} />}
               title="Community & Future"
             >
-              <Text c="dimmed" size="sm">
+              <Text c="dark" size="sm">
                 Today, AREA continues to evolve with new features, integrations, and improvements
                 driven by our growing community. We&apos;re committed to making automation simple,
                 powerful, and accessible to all.
@@ -272,7 +272,7 @@ export default function AboutPage() {
                 <Title order={3} size="h4" mb="sm">
                   {value.title}
                 </Title>
-                <Text c="dimmed">{value.description}</Text>
+                <Text c="dark">{value.description}</Text>
               </Paper>
             ))}
           </SimpleGrid>
@@ -374,7 +374,7 @@ export default function AboutPage() {
           <Title order={2} mb="md">
             Get in Touch
           </Title>
-          <Text size="lg" c="dimmed" mb="xl" maw={600} mx="auto">
+          <Text size="lg" c="dark" mb="xl" maw={600} mx="auto">
             Have questions or feedback? We&apos;d love to hear from you! Join our community, contribute to
             the project, or reach out to our team.
           </Text>

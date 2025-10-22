@@ -380,3 +380,10 @@
 .panHint:hover {
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
+
+.zoomControlsWrapper {
+  background-color: rgba(204, 0, 0, 0.9);
+  top: 16px;
+  right: 16px;
+  pointer-events: auto;
+}

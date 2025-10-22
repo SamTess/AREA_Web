@@ -18,9 +18,10 @@ export function UserMenu({ user }: { user: UserContent }) {
         position="right"
         transitionProps={{ transition: 'pop' }}
         withinPortal
+        zIndex={99999999}
       >
         <Menu.Target>
-          <Avatar size={40} src={user.avatarSrc} radius={40} />
+          <Avatar size={40} src={user.avatarSrc} radius={40} aria-label="User menu" />
         </Menu.Target>
         <Menu.Dropdown>
           <Menu.Item rightSection={<IconChevronRight size={16} stroke={1.5} />}>
@@ -34,7 +35,7 @@ export function UserMenu({ user }: { user: UserContent }) {
                 <Text fw={500}>
                   {user.name.length > 20 ? user.name.slice(0, 20) + "..." : user.name}
                 </Text>
-                <Text size="xs" c="dimmed">
+                <Text size="xs" c="dark.3">
                   {user.email}
                 </Text>
               </div>
