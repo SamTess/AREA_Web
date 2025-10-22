@@ -172,7 +172,7 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
       });
       serviceIndex++;
     } else {
-      console.warn(`no actionDefinitionId found for action:`, action);
+      console.warn(`No actionDefinitionId found for action:`, action);
     }
   }
 
