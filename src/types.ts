@@ -24,8 +24,22 @@ export interface BackendArea {
   userEmail: string;
   actions: BackendAction[];
   reactions: BackendReaction[];
+  links?: ActionLinkResponse[];
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ActionLinkResponse {
+  sourceActionInstanceId: string;
+  targetActionInstanceId: string;
+  sourceActionName: string;
+  targetActionName: string;
+  areaId: string;
+  linkType: string;
+  mapping?: Record<string, unknown>;
+  condition?: Record<string, unknown>;
+  order?: number;
+  createdAt: string;
 }
 
 export interface BackendAction {
@@ -312,6 +326,19 @@ export interface ConnectionData {
   targetInput?: string;
   linkData: LinkData;
 }
+
+export interface ConnectedService {
+  serviceKey: string;
+  serviceName: string;
+  iconUrl: string;
+  connectionType: string;
+  userEmail: string;
+  userName: string;
+  avatarUrl: string;
+  providerUserId: string;
+  isConnected: boolean;
+}
+
 export interface SetupStepProps {
   service: ServiceData;
   onRemove: () => void;

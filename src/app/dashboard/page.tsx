@@ -14,13 +14,18 @@ export default function DashboardPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const checkAdmin = async () => {
-      const user = await getCurrentUser();
-      if (!user || !user.isAdmin) {
-        router.push('/');
+    const checkLogin = async () => {
+      try {
+        const user = await getCurrentUser();
+        if (!user || !user.isAdmin) {
+          await router.replace('/login');
+        }
+      } catch (err) {
+        console.error('Auth check failed:', err);
+        await router.replace('/login');
       }
     };
-    checkAdmin();
+    checkLogin();
   }, [router]);
   return (
     <Container size="xl" py="md">

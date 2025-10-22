@@ -242,8 +242,7 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
                                 value={formValues[field.name] ? new Date(formValues[field.name] as string) : null}
                                 onChange={(value) => {
                                     if (value) {
-                                        const dateValue = value as unknown as Date;
-                                        handleChange(field.name, dateValue.toISOString());
+                                        handleChange(field.name, new Date(value).toISOString());
                                     } else {
                                         handleChange(field.name, null);
                                     }
@@ -262,8 +261,7 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
                                 value={formValues[field.name] ? new Date(formValues[field.name] as string) : null}
                                 onChange={(value) => {
                                     if (value) {
-                                        const dateValue = value as unknown as Date;
-                                        const dateStr = dateValue.toISOString().split('T')[0];
+                                        const dateStr = new Date(value).toISOString().split('T')[0];
                                         handleChange(field.name, dateStr);
                                     } else {
                                         handleChange(field.name, null);

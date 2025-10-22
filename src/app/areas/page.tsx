@@ -63,9 +63,14 @@ export default function AreaListPage() {
             }
         };
         const checkLogin = async () => {
-            const user = await getCurrentUser();
-            if (!user) {
-                router.push('/');
+            try {
+                const user = await getCurrentUser();
+                if (!user) {
+                    await router.replace('/login');
+                }
+            } catch (err) {
+                console.error('Auth check failed:', err);
+                await router.replace('/login');
             }
         };
         checkLogin();
@@ -116,11 +121,12 @@ export default function AreaListPage() {
     };
 
     return (
+        <main>
         <Container size="lg" py="xl">
             <Stack gap="md">
                 <Group justify="space-between">
                     <Title order={1}>Areas</Title>
-                    <Button leftSection={<IconPlus size={18} />} onClick={() => router.push('/areas/new')}>Add Area</Button>
+                    <Button leftSection={<IconPlus size={18} />} onClick={() => router.push('/areas/new')} color="blue">Add Area</Button>
                 </Group>
                 <Divider />
                 <Group grow>
@@ -146,11 +152,11 @@ export default function AreaListPage() {
                             onChange={setSelectedServices}
                         />
                     </div>
-                    <Button onClick={clearFilters} variant="outline">Clear Filters</Button>
+                    <Button onClick={clearFilters} variant="outline" color="blue">Clear Filters</Button>
                 </Group>
                 <AreaListCard areas={paginatedAreas} services={services} onDelete={handleDelete} onRun={handleRun} />
                 {filteredAreas.length === 0 && (
-                    <Text ta="center" c="dimmed">No areas found.</Text>
+                    <Text ta="center" c="black">No areas found.</Text>
                 )}
                 {totalPages > 1 && (
                     <Group justify="center" mt="md">
@@ -164,5 +170,6 @@ export default function AreaListPage() {
                 )}
             </Stack>
         </Container>
+        </main>
     );
 }
