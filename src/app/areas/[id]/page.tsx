@@ -29,8 +29,9 @@ export default function EditAreaPage() {
       try {
         const area = await getAreaById(areaId);
         if (area) {
-          if (area.userId !== user.id)
+          if (area.userId !== user.id) {
             router.push('/areas');
+          }
         } else {
           router.push('/areas');
         }

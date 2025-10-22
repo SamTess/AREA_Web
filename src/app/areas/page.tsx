@@ -52,20 +52,25 @@ export default function AreaListPage() {
                 try {
                     const areasData = await getAreas();
                     setAreas(areasData);
-                    setServices([
-                        { id: '1', name: 'GitHub', logo: '/github.svg' },
-                        { id: '2', name: 'Gmail', logo: '/gmail.svg' },
-                        { id: '3', name: 'Slack', logo: '/slack.svg' }
-                    ]);
+                    // setServices([
+                    //     { id: '1', name: 'GitHub', logo: '/github.svg' },
+                    //     { id: '2', name: 'Gmail', logo: '/gmail.svg' },
+                    //     { id: '3', name: 'Slack', logo: '/slack.svg' }
+                    // ]);
                 } catch (legacyError) {
                     console.error('Both API modes failed:', legacyError);
                 }
             }
         };
         const checkLogin = async () => {
-            const user = await getCurrentUser();
-            if (!user) {
-                router.push('/');
+            try {
+                const user = await getCurrentUser();
+                if (!user) {
+                    await router.replace('/login');
+                }
+            } catch (err) {
+                console.error('Auth check failed:', err);
+                await router.replace('/login');
             }
         };
         checkLogin();
