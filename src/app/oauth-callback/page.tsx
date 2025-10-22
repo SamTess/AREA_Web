@@ -6,8 +6,6 @@ import { useAuth } from '../../hooks/useAuth';
 import axios from '../../config/axios';
 import { isAxiosError } from 'axios';
 
-type Provider = 'github' | 'google';
-
 function isProbablyMobileApp(): boolean {
   try {
     if (typeof window === 'undefined') return false;
@@ -15,20 +13,33 @@ function isProbablyMobileApp(): boolean {
     const expectFlag = localStorage.getItem('oauth_expect_mobile') === 'true';
     const win = window as Window & { ReactNativeWebView?: unknown };
     const hasReactNativeWebView = typeof win.ReactNativeWebView !== 'undefined';
-    return expectFlag || ua.includes('Expo') || hasReactNativeWebView || /Android|iPhone|iPad|iPod/i.test(ua);
-  } catch {
+    const hasExpo = ua.includes('Expo');
+    return Boolean(expectFlag || hasReactNativeWebView || hasExpo);
+  } catch (e) {
+    console.warn('isProbablyMobileApp detection failed:', e);
     return false;
   }
 }
 
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-function parseState(raw: string | null): { app_redirect_uri?: string; returnUrl?: string; provider?: Provider } | null {
+function parseState(raw: string | null): { app_redirect_uri?: string; returnUrl?: string; provider?: string } | null {
   if (!raw) return null;
   try {
     const decoded = decodeURIComponent(raw);
-    return JSON.parse(decoded);
-  } catch {
+    const parsed = JSON.parse(decoded);
+
+    if (typeof parsed !== 'object' || parsed === null) return null;
+
+    const obj = parsed as Record<string, unknown>;
+    const result: { app_redirect_uri?: string; returnUrl?: string; provider?: string } = {};
+    if (typeof obj.app_redirect_uri === 'string') result.app_redirect_uri = obj.app_redirect_uri;
+    if (typeof obj.returnUrl === 'string') result.returnUrl = obj.returnUrl;
+    if (typeof obj.provider === 'string') result.provider = obj.provider.toLowerCase();
+
+    return result;
+  } catch (e) {
+    console.warn('Failed to parse OAuth state:', e);
     return null;
   }
 }
@@ -58,6 +69,7 @@ export default function OAuthCallbackPage() {
       const me = await axios.get('/api/auth/me');
       if (me?.status === 200) return me?.data;
     } catch (e) {
+      console.warn('fetchCurrentUser failed:', e);
     }
     return null;
   }
@@ -70,19 +82,57 @@ export default function OAuthCallbackPage() {
     localStorage.removeItem('oauth_return_url');
     localStorage.removeItem('oauth_expect_mobile');
 
-    try { await refreshAuth?.(); } catch { /* no-op */ }
+    try {
+      await refreshAuth?.();
+    } catch (e) {
+      console.warn('refreshAuth failed after OAuth success:', e);
+    }
 
     setTimeout(() => {
-      window.location.replace(returnUrl);
+      const safe = validateReturnUrl(returnUrl);
+      if (safe) {
+        window.location.replace(safe);
+        return;
+      }
+      try {
+        const stored = localStorage.getItem('oauth_return_url');
+        if (stored && stored === returnUrl) {
+          window.location.replace(returnUrl);
+          return;
+        }
+      } catch (e) {
+        console.warn('Error reading oauth_return_url from localStorage:', e);
+      }
+
+      console.warn('Blocked unsafe returnUrl redirect:', returnUrl);
+      window.location.replace('/');
     }, 800);
   }, [refreshAuth]);
 
-  async function forceWebExchange(code: string, provider: Provider, isLinkMode: boolean, returnUrl: string) {
+  function validateReturnUrl(url: string | undefined | null): string | null {
+    if (!url) return null;
+    try {
+      if (url.startsWith('/')) return url;
+      if (/^\/\//.test(url)) return null;
+      const parsed = new URL(url, window.location.origin);
+      if (parsed.origin === window.location.origin) return parsed.pathname + parsed.search + parsed.hash;
+      const ALLOWLIST: string[] = [];
+      if (ALLOWLIST.includes(parsed.hostname)) return parsed.toString();
+      return null;
+    } catch (e) {
+      console.warn('validateReturnUrl failed:', e);
+      return null;
+    }
+  }
+
+  async function forceWebExchange(code: string, provider: string, isLinkMode: boolean, returnUrl: string) {
     const url = isLinkMode ? `/api/oauth-link/${provider}/exchange` : `/api/oauth/${provider}/exchange`;
+    console.debug('Attempting OAuth exchange', { url, provider, isLinkMode });
     try {
       setStatus('processing');
       setMessage('Completing authentication in browser...');
       const response = await axios.post(url, { code });
+      console.debug('OAuth exchange response', { status: response?.status, data: response?.data });
 
       if (response.status === 200) {
         await handleSuccess(isLinkMode ? 'Account linked successfully! Redirecting...' : 'Authentication successful! Redirecting...', returnUrl);
@@ -107,6 +157,7 @@ export default function OAuthCallbackPage() {
       let errorMessage = 'Server error during authentication';
       if (isAxiosError(err)) {
         const resp = err.response;
+        console.error('Axios error response during OAuth exchange:', resp?.status, resp?.data);
         if (resp) {
           const status = resp.status;
           const data = resp.data as unknown;
@@ -157,7 +208,7 @@ export default function OAuthCallbackPage() {
 
       const isLinkMode = localStorage.getItem('oauth_link_mode') === 'true';
       const storedProvider = (localStorage.getItem('oauth_provider') || state?.provider || 'github').toLowerCase();
-      const provider: Provider = storedProvider === 'google' ? 'google' : 'github';
+      const provider: string = storedProvider;
       const returnUrl = (state?.returnUrl && typeof state.returnUrl === 'string' ? state.returnUrl : (localStorage.getItem('oauth_return_url') || '/')) as string;
       const forceWeb = searchParams.get('forceWeb') === '1';
 
@@ -166,13 +217,22 @@ export default function OAuthCallbackPage() {
 
       if (!forceWeb && isProbablyMobileApp()) {
         if (!alreadyTriedDeepLink) {
-          try { sessionStorage.setItem(deeplinkKey, 'true'); } catch { }
+          try {
+            sessionStorage.setItem(deeplinkKey, 'true');
+          } catch (e) {
+            console.warn('sessionStorage.setItem failed:', e);
+            setShowBrowserFallback(true);
+          }
           setStatus('processing');
           setMessage('Returning to the app...');
 
           const appRedirect = state?.app_redirect_uri || 'areamobile://oauthredirect';
           const dl = `${appRedirect}?code=${encodeURIComponent(code)}&provider=${encodeURIComponent(provider)}`;
-          try { window.location.href = dl; } catch { /* ignore */ }
+          try {
+            window.location.href = dl;
+          } catch (e) {
+            console.warn('Deep link navigation failed:', e, 'dl:', dl);
+          }
 
           await delay(800);
           setShowBrowserFallback(true);
@@ -272,22 +332,31 @@ export default function OAuthCallbackPage() {
         {status === 'error' && <Alert color="red" ta="center">{message}</Alert>}
         {status === 'processing' && <Text ta="center">{message}</Text>}
 
-        {showBrowserFallback && status !== 'success' && (
-          <Button
-            onClick={() => {
-              const code = searchParams.get('code')!;
-              const rawState = searchParams.get('state');
-              const state = parseState(rawState);
-              const storedProvider = (localStorage.getItem('oauth_provider') || state?.provider || 'github').toLowerCase();
-              const provider: Provider = storedProvider === 'google' ? 'google' : 'github';
-              const isLinkMode = localStorage.getItem('oauth_link_mode') === 'true';
-              const returnUrl = state?.returnUrl || localStorage.getItem('oauth_return_url') || '/';
-              forceWebExchange(code, provider, isLinkMode, returnUrl);
-            }}
-          >
-            Continue in browser
-          </Button>
-        )}
+        {showBrowserFallback && status !== 'success' && (() => {
+          const fallbackCode = searchParams.get('code');
+          const rawState = searchParams.get('state');
+          const state = parseState(rawState);
+          const storedProvider = (localStorage.getItem('oauth_provider') || state?.provider || 'github').toLowerCase();
+          const provider: string = storedProvider;
+          const isLinkMode = localStorage.getItem('oauth_link_mode') === 'true';
+          const returnUrl = state?.returnUrl || localStorage.getItem('oauth_return_url') || '/';
+
+          return (
+            <Button
+              onClick={() => {
+                if (!fallbackCode) {
+                  console.warn('Fallback clicked but no code present');
+                  setMessage('No authorization code available. Please retry the flow from the original app.');
+                  return;
+                }
+                forceWebExchange(fallbackCode, provider, isLinkMode, returnUrl as string);
+              }}
+              disabled={!fallbackCode}
+            >
+              Continue in browser
+            </Button>
+          );
+        })()}
       </Stack>
     </Container>
   );
