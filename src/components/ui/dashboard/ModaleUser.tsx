@@ -2,7 +2,7 @@ import { Modal, TextInput, PasswordInput, Switch, Button } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { getUserById } from "../../../services/userService"
 import { updateProfile } from "../../../services/authService";
-import { createUser } from "../../../services/adminService";
+import { API_CONFIG } from "../../../config/api";
 
 export function ModaleUser({ opened, onClose, userId }: { opened: boolean; onClose: () => void; userId: string | null; }) {
   const [formData, setFormData] = useState({
@@ -29,14 +29,25 @@ export function ModaleUser({ opened, onClose, userId }: { opened: boolean; onClo
         console.error('Error updating profile:', error);
       });
   } else {
-      console.log('Adding new user:', formData);
-      createUser({
-        lastName: formData.nom,
-        firstName: formData.prenom,
-        email: formData.email,
-        password: formData.password,
-        isAdmin: formData.isAdmin,
-      }).then(() => {
+      // i dont pass by the service to avoid saving cookies/tokens
+      fetch(`${API_CONFIG.baseURL}${API_CONFIG.endpoints.auth.register}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        credentials: 'omit',
+        body: JSON.stringify({
+          lastName: formData.nom,
+          firstName: formData.prenom,
+          email: formData.email,
+          password: formData.password,
+          isAdmin: formData.isAdmin,
+        }),
+      }).then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        await response.json();
         onClose();
       }).catch((error: Error) => {
         console.error('Error creating user:', error);
