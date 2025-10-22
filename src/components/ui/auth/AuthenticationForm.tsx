@@ -238,14 +238,14 @@ export function AuthenticationForm(props: PaperProps) {
                 variant="default"
                 key={item.providerKey}
                 radius="xl"
-                leftSection={<Image src={item.providerLogoUrl} alt={item.providerLabel} width={20} height={20} />}
+                leftSection={<Image src={item.providerLogoUrl} alt={`icon ${item.providerLabel}`} width={20} height={20} />}
                 onClick={() => handleOAuthClick(item.providerKey)}
               >
                 {item.providerLabel}
               </Button>
                 ))}
             </Stack>
-            <Divider label="Or continue with email" labelPosition="center" my="lg" />
+            <Divider label="Or continue with email" labelPosition="center" my="lg" styles={{ label: { color: 'var(--mantine-color-dark-6)' } }} />
             </>
         )}
         {type === 'forgotPassword' && (
@@ -331,14 +331,14 @@ export function AuthenticationForm(props: PaperProps) {
         </Stack>
 
         <Stack align="flex-start" mt="xl">
-          <Anchor component="button" type="button" c="dimmed" onClick={() => handleTypeChange(type === 'login' ? 'register' : type === 'register' ? 'login' : 'login')} size="xs">
+          <Anchor component="button" type="button" c="dark" onClick={() => handleTypeChange(type === 'login' ? 'register' : type === 'register' ? 'login' : 'login')} size="xs">
             {type === 'register'
               ? 'Already have an account? Login'
               : type === 'forgotPassword'
               ? 'Remember your password? Login'
               : "Don't have an account? Register"}
           </Anchor>
-          <Anchor component="button" type="button" c="dimmed" onClick={() => handleTypeChange('forgotPassword')} size="xs">
+          <Anchor component="button" type="button" c="dark" onClick={() => handleTypeChange('forgotPassword')} size="xs">
             {type === 'login' ? 'Forgot password?' : ''}
           </Anchor>
         </Stack>

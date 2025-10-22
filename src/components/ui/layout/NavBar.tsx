@@ -21,7 +21,7 @@ import { getUserInfo } from '../../../services/userService';
 function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
   return (
     <Tooltip label={label} position="right" transitionProps={{ duration: 0 }}>
-      <UnstyledButton onClick={onClick} className={classes.link} data-active={active || undefined}>
+      <UnstyledButton onClick={onClick} className={classes.link} data-active={active || undefined} aria-label={label}>
         <Icon size={20} stroke={1.5} />
       </UnstyledButton>
     </Tooltip>
@@ -105,7 +105,7 @@ export function NavbarMinimal() {
         </div>
       </nav>
       {isMobile && !isOpen && (
-        <Button variant="light" radius="xl" onClick={() => setIsOpen(!isOpen)} className={classes.hamburger}>
+        <Button variant="light" radius="xl" onClick={() => setIsOpen(!isOpen)} className={classes.hamburger} aria-label="Open navigation menu">
           <IconMenu2 size={20} />
         </Button>
       )}
