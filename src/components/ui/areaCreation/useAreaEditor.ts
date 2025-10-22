@@ -17,6 +17,8 @@ let servicesCache: BackendService[] | null = null;
 const transformBackendDataToServiceData = async (area: BackendArea): Promise<ServiceData[]> => {
   const serviceData: ServiceData[] = [];
   let serviceIndex = 0;
+  const usedIds = new Set<string>();
+
   if (!servicesCache) {
     try {
       servicesCache = await getServices();
@@ -109,7 +111,7 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
   };
 
   const actionsArray = Array.isArray(area.actions) ? area.actions : [];
-  for (const [, action] of actionsArray.entries()) {
+  for (const [index, action] of actionsArray.entries()) {
     let actionDefinitionId = '';
     let actionName = 'Unnamed Action';
     let actionParameters = {};
@@ -128,8 +130,11 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
           console.log('Found action ID from link:', actionId, 'for action:', actionName);
         }
       }
-      if (!actionId)
-        actionId = `action-${Date.now()}-${Math.random()}`;
+      if (!actionId || usedIds.has(actionId)) {
+        actionId = `action-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
+        console.log('Generated new unique action ID:', actionId);
+      }
+      usedIds.add(actionId);
     } else {
       const rawAction = action as unknown as Record<string, unknown>;
       actionDefinitionId = String(rawAction.actionDefinitionId || '');
@@ -144,8 +149,11 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
           console.log('Found action ID from link:', actionId, 'for action:', actionName);
         }
       }
-      if (!actionId)
-        actionId = `action-${Date.now()}-${Math.random()}`;
+      if (!actionId || usedIds.has(actionId)) {
+        actionId = `action-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
+        console.log('Generated new unique action ID:', actionId);
+      }
+      usedIds.add(actionId);
       console.log('Action ID from rawAction:', rawAction.id, 'Final actionId:', actionId);
     }
 
@@ -178,7 +186,7 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
 
   const reactionsArray = Array.isArray(area.reactions) ? area.reactions : [];
 
-  for (const [, reaction] of reactionsArray.entries()) {
+  for (const [index, reaction] of reactionsArray.entries()) {
     let actionDefinitionId = '';
     let reactionName = 'Unnamed Reaction';
     let reactionParameters = {};
@@ -196,8 +204,11 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
         if (linkForThisReaction)
           reactionId = linkForThisReaction.targetActionInstanceId;
       }
-      if (!reactionId)
-        reactionId = `reaction-${Date.now()}-${Math.random()}`;
+      if (!reactionId || usedIds.has(reactionId)) {
+        reactionId = `reaction-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
+        console.log('Generated new unique reaction ID:', reactionId);
+      }
+      usedIds.add(reactionId);
     } else {
       const rawReaction = reaction as unknown as Record<string, unknown>;
       actionDefinitionId = String(rawReaction.actionDefinitionId || '');
@@ -210,8 +221,11 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
         if (linkForThisReaction)
           reactionId = linkForThisReaction.targetActionInstanceId;
       }
-      if (!reactionId)
-        reactionId = `reaction-${Date.now()}-${Math.random()}`;
+      if (!reactionId || usedIds.has(reactionId)) {
+        reactionId = `reaction-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
+        console.log('Generated new unique reaction ID:', reactionId);
+      }
+      usedIds.add(reactionId);
     }
 
     if (actionDefinitionId) {
@@ -523,7 +537,7 @@ export function useAreaEditor(areaId?: string) {
   };
 
   const addNewServiceBelow = () => {
-    const newId = `new-${Date.now()}`;
+    const newId = `new-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
     const newService: ServiceData = {
       id: newId,
       logo: '',
@@ -595,10 +609,30 @@ export function useAreaEditor(areaId?: string) {
       const serviceToDuplicate = prev.find(service => service.id === id);
       if (!serviceToDuplicate)
         return prev;
-      const newId = `new-${Date.now()}`;
+      const newId = `duplicate-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const cleanFields = { ...serviceToDuplicate.fields };
+      delete cleanFields._chainSource;
+      delete cleanFields._chainSourceId;
+      delete cleanFields._chainMapping;
+      delete cleanFields._conditionalSource;
+      delete cleanFields._conditionalSourceId;
+      delete cleanFields._conditions;
+      delete cleanFields._parallelWith;
+      delete cleanFields._parallelSourceId;
+      delete cleanFields._parallelTargetId;
+      delete cleanFields._synchronizedExecution;
+      delete cleanFields._sequentialSource;
+      delete cleanFields._sequentialSourceId;
+      delete cleanFields._waitForCompletion;
+      delete cleanFields._dataMapping;
+      delete cleanFields._hasChainTarget;
+      delete cleanFields._chainTargets;
+
       const duplicatedService = {
         ...serviceToDuplicate,
         id: newId,
+        fields: cleanFields,
         position: { x: (serviceToDuplicate.position?.x || 0) + 50, y: (serviceToDuplicate.position?.y || 0) + 50 }
       };
       const index = prev.findIndex(service => service.id === id);
