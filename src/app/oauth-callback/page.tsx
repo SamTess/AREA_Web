@@ -21,6 +21,8 @@ function isProbablyMobileApp(): boolean {
   }
 }
 
+const DEEPLINK_WAIT_MS = 800;
+
 const delay = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 function parseState(raw: string | null): { app_redirect_uri?: string; returnUrl?: string; provider?: string } | null {
@@ -47,10 +49,10 @@ function parseState(raw: string | null): { app_redirect_uri?: string; returnUrl?
 function getProviderFromState(state: { provider?: string } | null): string {
   try {
     const stored = localStorage.getItem('oauth_provider');
-    return (stored || state?.provider || 'github').toLowerCase();
+    return (stored || state?.provider || '').toLowerCase();
   } catch (e) {
     console.warn('getProviderFromState failed to read localStorage:', e);
-    return (state?.provider || 'github').toLowerCase();
+    return (state?.provider || '').toLowerCase();
   }
 }
 
@@ -243,7 +245,7 @@ export default function OAuthCallbackPage() {
             console.warn('Deep link navigation failed:', e, 'dl:', dl);
           }
 
-          await delay(800);
+          await delay(DEEPLINK_WAIT_MS);
           setShowBrowserFallback(true);
           setMessage('If nothing happens, you can continue in the browser below.');
           return;
