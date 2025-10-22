@@ -10,6 +10,8 @@ import {
 import { CreateAreaPayload } from '../../../services/areasService';
 import { ServiceData, BackendArea, BackendAction, BackendReaction, ConnectionData } from '../../../types';
 
+const DRAFT_AGE_THRESHOLD_MS = 15 * 60 * 1000;
+
 interface UseDraftManagerProps {
   areaName: string;
   areaDescription: string;
@@ -79,9 +81,6 @@ export function useDraftManager({
         draftId: currentDraftId,
         savedAt: draftSavedAt,
       };
-
-      // Si on édite une AREA existante (areaId présent), on envoie l'areaId
-      // Sinon, on utilise le draftId pour les nouvelles AREAs
       const savedDraftId = await saveDraft(draftPayload, areaId);
       setCurrentDraftId(savedDraftId);
     } catch (error) {
@@ -125,7 +124,7 @@ export function useDraftManager({
       ? draft.connections.map((conn: unknown) => {
           const c = conn as { id?: string; sourceServiceId?: string; sourceId?: string; targetServiceId?: string; targetId?: string; linkType?: string; mapping?: Record<string, unknown>; condition?: Record<string, unknown>; order?: number };
           return {
-            id: c.id || `conn-${Math.random()}`,
+            id: c.id || crypto.randomUUID(),
             sourceId: c.sourceServiceId || c.sourceId || '',
             targetId: c.targetServiceId || c.targetId || '',
             linkData: {
@@ -183,9 +182,8 @@ export function useDraftManager({
             setHasShownModal(true);
 
             const draftAge = Date.now() - new Date(latestDraft.savedAt).getTime();
-            const FIVE_MINUTES = 5 * 60 * 1000;
 
-            if (draftAge > FIVE_MINUTES) {
+            if (draftAge > DRAFT_AGE_THRESHOLD_MS) {
               const handleAccept = async () => {
                 await loadDraftFromData(latestDraft);
               };

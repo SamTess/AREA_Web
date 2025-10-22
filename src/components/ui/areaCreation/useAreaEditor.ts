@@ -410,7 +410,6 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
 
   const {
     currentDraftId,
-    setCurrentDraftId,
     handleDeleteDraft,
   } = useDraftManager({
     areaName,
@@ -491,14 +490,12 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
       if (isNewArea) {
         await createAreaWithActions(payload);
         await handleDeleteDraft();
-        
         notifications.show({
           title: 'Success',
           message: `AREA "${areaName}" was created successfully!`,
           color: 'green',
         });
-
-        setTimeout(() => router.push('/dashboard/areas'), 1000);
+        setTimeout(() => router.push('/areas'));
       } else {
         await updateAreaComplete(areaId!, payload);
         await handleDeleteDraft();

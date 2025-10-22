@@ -1,12 +1,23 @@
 import axios from 'axios';
 import { API_CONFIG } from '../config/api';
+import { BackendAction, BackendReaction } from '../types';
+
+export interface DraftConnection {
+  id?: string;
+  sourceServiceId: string;
+  targetServiceId: string;
+  linkType: 'chain' | 'conditional' | 'parallel' | 'sequential';
+  mapping?: Record<string, string>;
+  condition?: Record<string, unknown>;
+  order: number;
+}
 
 export interface AreaDraft {
   name: string;
   description: string;
-  actions: unknown[];
-  reactions: unknown[];
-  connections: unknown[];
+  actions: BackendAction[];
+  reactions: BackendReaction[];
+  connections: DraftConnection[];
   layoutMode: string;
   draftId?: string;
   savedAt?: string;
@@ -17,12 +28,26 @@ export interface AreaDraftResponse {
   name: string;
   description: string;
   userId: string;
-  actions: unknown[];
-  reactions: unknown[];
-  connections: unknown[];
+  actions: BackendAction[];
+  reactions: BackendReaction[];
+  connections: DraftConnection[];
   layoutMode: string;
   savedAt: string;
   ttlSeconds: number;
+}
+
+export interface CommitDraftResponse {
+  id: string;
+  name: string;
+  description: string;
+  enabled: boolean;
+  userId: string;
+  userEmail: string;
+  actions: Record<string, unknown>[];
+  reactions: Record<string, unknown>[];
+  links?: Record<string, unknown>[];
+  createdAt: string;
+  updatedAt: string;
 }
 
 export const saveDraft = async (draft: AreaDraft, areaId?: string): Promise<string> => {
@@ -81,9 +106,9 @@ export const getUserDrafts = async (): Promise<AreaDraftResponse[]> => {
   }
 };
 
-export const commitDraft = async (draftId: string): Promise<unknown> => {
+export const commitDraft = async (draftId: string): Promise<CommitDraftResponse> => {
   try {
-    const response = await axios.post(
+    const response = await axios.post<CommitDraftResponse>(
       `${API_CONFIG.endpoints.areas.list}/drafts/${draftId}/commit`
     );
     return response.data;
