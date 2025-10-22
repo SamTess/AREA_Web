@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Container, Title, Text, Loader, Alert, Button, Stack } from '@mantine/core';
 import { useAuth } from '../../hooks/useAuth';
@@ -76,6 +76,16 @@ export default function OAuthCallbackPage() {
   const [showBrowserFallback, setShowBrowserFallback] = useState(false);
 
   const processedRef = useRef(false);
+
+  const fallbackData = useMemo(() => {
+    const fallbackCode = searchParams.get('code');
+    const rawState = searchParams.get('state');
+    const parsedState = parseState(rawState);
+    const provider = getProviderFromState(parsedState);
+    const isLinkMode = (typeof window !== 'undefined') && (localStorage.getItem('oauth_link_mode') === 'true');
+    const returnUrl = (parsedState?.returnUrl ?? (typeof window !== 'undefined' ? localStorage.getItem('oauth_return_url') : null) ?? '/') as string;
+    return { fallbackCode, rawState, parsedState, provider, isLinkMode, returnUrl };
+  }, [searchParams]);
 
   async function fetchCurrentUser() {
     try {
@@ -336,12 +346,7 @@ export default function OAuthCallbackPage() {
         {status === 'processing' && <Text ta="center">{message}</Text>}
 
         {showBrowserFallback && status !== 'success' && (() => {
-          const fallbackCode = searchParams.get('code');
-          const rawState = searchParams.get('state');
-          const state = parseState(rawState);
-          const provider: string = getProviderFromState(state);
-          const isLinkMode = localStorage.getItem('oauth_link_mode') === 'true';
-          const returnUrl = state?.returnUrl || localStorage.getItem('oauth_return_url') || '/';
+          const { fallbackCode, provider, isLinkMode, returnUrl } = fallbackData;
 
           return (
             <Button
