@@ -11,12 +11,12 @@ import {
   runAreaById,
   getActionDefinitionById
 } from '../../../services/areasService';
-import { ServiceState, ServiceData, BackendArea, BackendService, ConnectionData, ActivationConfig } from '../../../types';
+import { ServiceState, ServiceData, BackendArea, BackendService, ConnectionData, ActivationConfig, LinkData } from '../../../types';
 
 let servicesCache: BackendService[] | null = null;
-
 const transformBackendDataToServiceData = async (area: BackendArea): Promise<ServiceData[]> => {
   const serviceData: ServiceData[] = [];
+  let serviceIndex = 0;
   if (!servicesCache) {
     try {
       servicesCache = await getServices();
@@ -25,6 +25,7 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
       servicesCache = [];
     }
   }
+
   const findServiceInfoByActionDefinitionId = async (actionDefinitionId: string) => {
     try {
       const actionDefinition = await getActionDefinitionById(actionDefinitionId);
@@ -108,29 +109,44 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
   };
 
   const actionsArray = Array.isArray(area.actions) ? area.actions : [];
-
   for (const [, action] of actionsArray.entries()) {
-
-
     let actionDefinitionId = '';
     let actionName = 'Unnamed Action';
     let actionParameters = {};
     let actionId = '';
     let activationConfig: ActivationConfig = { type: 'webhook' };
-
     if ('actionDefinitionId' in action && typeof action.actionDefinitionId === 'string') {
       actionDefinitionId = action.actionDefinitionId;
       actionName = action.name || 'Unnamed Action';
       actionParameters = action.parameters || {};
-      actionId = action.id || `action-${Date.now()}-${Math.random()}`;
       activationConfig = action.activationConfig || { type: 'webhook' };
+      actionId = action.id;
+      if (!actionId && area.links) {
+        const linkForThisAction = area.links.find(link => link.sourceActionName === actionName);
+        if (linkForThisAction) {
+          actionId = linkForThisAction.sourceActionInstanceId;
+          console.log('Found action ID from link:', actionId, 'for action:', actionName);
+        }
+      }
+      if (!actionId)
+        actionId = `action-${Date.now()}-${Math.random()}`;
     } else {
       const rawAction = action as unknown as Record<string, unknown>;
       actionDefinitionId = String(rawAction.actionDefinitionId || '');
       actionName = String(rawAction.name || 'Unnamed Action');
       actionParameters = (rawAction.parameters as Record<string, unknown>) || {};
-      actionId = String(rawAction.id || `action-${Date.now()}-${Math.random()}`);
       activationConfig = (rawAction.activationConfig as ActivationConfig) || { type: 'webhook' };
+      actionId = String(rawAction.id || '');
+      if (!actionId && area.links) {
+        const linkForThisAction = area.links.find(link => link.sourceActionName === actionName);
+        if (linkForThisAction) {
+          actionId = linkForThisAction.sourceActionInstanceId;
+          console.log('Found action ID from link:', actionId, 'for action:', actionName);
+        }
+      }
+      if (!actionId)
+        actionId = `action-${Date.now()}-${Math.random()}`;
+      console.log('Action ID from rawAction:', rawAction.id, 'Final actionId:', actionId);
     }
 
     if (actionDefinitionId) {
@@ -148,10 +164,15 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
         serviceId: serviceInfo.serviceId,
         actionDefinitionId: actionDefinitionId,
         fields: actionParameters,
-        activationConfig: activationConfig
+        activationConfig: activationConfig,
+        position: {
+          x: 4500 + (serviceIndex % 3) * 320,
+          y: 4500 + Math.floor(serviceIndex / 3) * 170
+        }
       });
+      serviceIndex++;
     } else {
-      console.warn(`DEBUG - No actionDefinitionId found for action:`, action);
+      console.warn(`no actionDefinitionId found for action:`, action);
     }
   }
 
@@ -168,15 +189,29 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
       actionDefinitionId = reaction.actionDefinitionId;
       reactionName = reaction.name || 'Unnamed Reaction';
       reactionParameters = reaction.parameters || {};
-      reactionId = reaction.id || `reaction-${Date.now()}-${Math.random()}`;
       activationConfig = reaction.activationConfig || { type: 'chain' };
+      reactionId = reaction.id;
+      if (!reactionId && area.links) {
+        const linkForThisReaction = area.links.find(link => link.targetActionName === reactionName);
+        if (linkForThisReaction)
+          reactionId = linkForThisReaction.targetActionInstanceId;
+      }
+      if (!reactionId)
+        reactionId = `reaction-${Date.now()}-${Math.random()}`;
     } else {
       const rawReaction = reaction as unknown as Record<string, unknown>;
       actionDefinitionId = String(rawReaction.actionDefinitionId || '');
       reactionName = String(rawReaction.name || 'Unnamed Reaction');
       reactionParameters = (rawReaction.parameters as Record<string, unknown>) || {};
-      reactionId = String(rawReaction.id || `reaction-${Date.now()}-${Math.random()}`);
       activationConfig = (rawReaction.activationConfig as ActivationConfig) || { type: 'chain' };
+      reactionId = String(rawReaction.id || '');
+      if (!reactionId && area.links) {
+        const linkForThisReaction = area.links.find(link => link.targetActionName === reactionName);
+        if (linkForThisReaction)
+          reactionId = linkForThisReaction.targetActionInstanceId;
+      }
+      if (!reactionId)
+        reactionId = `reaction-${Date.now()}-${Math.random()}`;
     }
 
     if (actionDefinitionId) {
@@ -194,8 +229,13 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
         serviceId: serviceInfo.serviceId,
         actionDefinitionId: actionDefinitionId,
         fields: reactionParameters,
-        activationConfig: activationConfig
+        activationConfig: activationConfig,
+        position: {
+          x: 4500 + (serviceIndex % 3) * 320,
+          y: 4500 + Math.floor(serviceIndex / 3) * 170
+        }
       });
+      serviceIndex++;
     } else {
       console.warn(`DEBUG - No actionDefinitionId found for reaction:`, reaction);
     }
@@ -335,12 +375,44 @@ export function useAreaEditor(areaId?: string) {
             setAreaName(area.name);
             setAreaDescription(area.description);
 
-            console.log('Raw actions from backend:', area.actions);
-            console.log('Raw reactions from backend:', area.reactions);
 
             const transformedServices = await transformBackendDataToServiceData(area);
-            console.log('Transformed services:', transformedServices);
             setServicesState(transformedServices);
+
+            if (area.links && area.links.length > 0) {
+              const transformedConnections: ConnectionData[] = [];
+              area.links.forEach((link, index) => {
+                const sourceService = transformedServices.find(s => s.id === link.sourceActionInstanceId);
+                const targetService = transformedServices.find(s => s.id === link.targetActionInstanceId);
+                if (sourceService && targetService) {
+                  const mappingConverted: Record<string, string> = {};
+                  if (link.mapping) {
+                    Object.entries(link.mapping).forEach(([key, value]) => {
+                      mappingConverted[key] = String(value);
+                    });
+                  }
+
+                  const connection = {
+                    id: `link-${link.sourceActionInstanceId}-${link.targetActionInstanceId}-${index}`,
+                    sourceId: link.sourceActionInstanceId,
+                    targetId: link.targetActionInstanceId,
+                    linkData: {
+                      type: (link.linkType as LinkData['type']) || 'chain',
+                      mapping: mappingConverted,
+                      condition: link.condition || {},
+                      order: link.order || 0,
+                    }
+                  };
+
+                  transformedConnections.push(connection);
+                } else {
+                  console.warn('Could not find services for link:', link);
+                }
+              });
+              setConnections(transformedConnections);
+            } else {
+              console.log('No links found in area data');
+            }
           }
         } catch (error) {
           console.error('Error loading area data:', error);
