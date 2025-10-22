@@ -52,11 +52,11 @@ export default function AreaListPage() {
                 try {
                     const areasData = await getAreas();
                     setAreas(areasData);
-                    // setServices([
-                    //     { id: '1', name: 'GitHub', logo: '/github.svg' },
-                    //     { id: '2', name: 'Gmail', logo: '/gmail.svg' },
-                    //     { id: '3', name: 'Slack', logo: '/slack.svg' }
-                    // ]);
+                    setServices([
+                        { id: '1', name: 'GitHub', logo: '/github.svg' },
+                        { id: '2', name: 'Gmail', logo: '/gmail.svg' },
+                        { id: '3', name: 'Slack', logo: '/slack.svg' }
+                    ]);
                 } catch (legacyError) {
                     console.error('Both API modes failed:', legacyError);
                 }
