@@ -375,6 +375,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
   const [areaName, setAreaName] = useState('');
   const [areaDescription, setAreaDescription] = useState('');
   const [currentDraftId, setCurrentDraftId] = useState<string | undefined>(draftId);
+  const [draftSavedAt, setDraftSavedAt] = useState<string | undefined>(undefined);
 
   const [connections, setConnections] = useState<ConnectionData[]>([]);
 
@@ -406,6 +407,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
         connections: transformedConnections,
         layoutMode: 'vertical',
         draftId: currentDraftId,
+        savedAt: draftSavedAt,
       };
 
       console.log('Auto-saving draft with connections:', transformedConnections);
@@ -417,7 +419,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
     } catch (error) {
       console.error('Auto-save error:', error);
     }
-  }, [areaName, areaDescription, servicesState, connections, currentDraftId]);
+  }, [areaName, areaDescription, servicesState, connections, currentDraftId, draftSavedAt]);
 
   useEffect(() => {
     if (autoSaveTimeoutRef.current) {
@@ -447,6 +449,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
             setAreaName(draft.name);
             setAreaDescription(draft.description);
             setCurrentDraftId(draft.draftId);
+            setDraftSavedAt(draft.savedAt);
 
             const mockArea: BackendArea = {
               id: draft.draftId,
@@ -529,6 +532,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
             setAreaName(latestDraft.name);
             setAreaDescription(latestDraft.description);
             setCurrentDraftId(latestDraft.draftId);
+            setDraftSavedAt(latestDraft.savedAt);
 
             const mockArea: BackendArea = {
               id: latestDraft.draftId,

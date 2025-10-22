@@ -9,6 +9,7 @@ export interface AreaDraft {
   connections: unknown[];
   layoutMode: string;
   draftId?: string;
+  savedAt?: string;
 }
 
 export interface AreaDraftResponse {
