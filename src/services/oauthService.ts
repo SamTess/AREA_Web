@@ -7,21 +7,21 @@ const mockProviders: OAuthProvider[] = [
     providerKey: 'google',
     providerLabel: 'Google',
     providerLogoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png",
-    userAuthUrl: '#',
+    userAuthUrl: 'mock://oauth-url',
     clientId: 'mock'
   },
   {
     providerKey: 'microsoft',
     providerLabel: 'Microsoft',
     providerLogoUrl: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",
-    userAuthUrl: '#',
+    userAuthUrl: 'mock://oauth-url',
     clientId: 'mock'
   },
   {
     providerKey: 'github',
     providerLabel: 'GitHub',
     providerLogoUrl: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg",
-    userAuthUrl: '#',
+    userAuthUrl: 'mock://oauth-url',
     clientId: 'mock'
   },
 ];
