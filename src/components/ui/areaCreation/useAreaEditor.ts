@@ -127,12 +127,10 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
         const linkForThisAction = area.links.find(link => link.sourceActionName === actionName);
         if (linkForThisAction) {
           actionId = linkForThisAction.sourceActionInstanceId;
-          console.log('Found action ID from link:', actionId, 'for action:', actionName);
         }
       }
       if (!actionId || usedIds.has(actionId)) {
         actionId = `action-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
-        console.log('Generated new unique action ID:', actionId);
       }
       usedIds.add(actionId);
     } else {
@@ -146,15 +144,12 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
         const linkForThisAction = area.links.find(link => link.sourceActionName === actionName);
         if (linkForThisAction) {
           actionId = linkForThisAction.sourceActionInstanceId;
-          console.log('Found action ID from link:', actionId, 'for action:', actionName);
         }
       }
       if (!actionId || usedIds.has(actionId)) {
         actionId = `action-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
-        console.log('Generated new unique action ID:', actionId);
       }
       usedIds.add(actionId);
-      console.log('Action ID from rawAction:', rawAction.id, 'Final actionId:', actionId);
     }
 
     if (actionDefinitionId) {
@@ -206,7 +201,6 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
       }
       if (!reactionId || usedIds.has(reactionId)) {
         reactionId = `reaction-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
-        console.log('Generated new unique reaction ID:', reactionId);
       }
       usedIds.add(reactionId);
     } else {
@@ -223,7 +217,6 @@ const transformBackendDataToServiceData = async (area: BackendArea): Promise<Ser
       }
       if (!reactionId || usedIds.has(reactionId)) {
         reactionId = `reaction-${Date.now()}-${index}-${Math.random().toString(36).substr(2, 9)}`;
-        console.log('Generated new unique reaction ID:', reactionId);
       }
       usedIds.add(reactionId);
     }
