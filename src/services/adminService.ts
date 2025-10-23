@@ -7,7 +7,6 @@ import {
   areas,
   services,
   servicesBarData,
-  logs,
   areaRuns,
   areaStats,
   cardUserData

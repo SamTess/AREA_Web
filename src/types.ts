@@ -251,7 +251,7 @@ export interface AreaListCardProps {
   services: Service[];
   onDelete?: (id: string | number) => void;
   onRun?: (id: string | number) => void;
-  onToggleActivation?: (id: number, enabled: boolean) => void;
+  onEnableDisable?: (id: string | number, enable: boolean) => void;
 }
 
 export interface ServiceCardProps {

@@ -1,12 +1,11 @@
 import React, { useMemo } from 'react';
 import { Card, Text, Badge, Group, Stack, Anchor } from '@mantine/core';
 import { Menu, ActionIcon } from '@mantine/core';
-import { IconDotsVertical, IconEdit, IconPlayerPlay, IconTrash } from '@tabler/icons-react';
+import { IconDotsVertical, IconEdit, IconPlayerPlay, IconTrash, IconActivity } from '@tabler/icons-react';
 import Image from 'next/image';
 import { AreaListCardProps, BackendArea, Area } from '../../../types';
 import { useRouter } from 'next/navigation';
-
-export default function AreaListCard({ areas, services, onDelete, onRun }: AreaListCardProps) {
+export default function AreaListCard({ areas, services, onDelete, onRun, onEnableDisable }: AreaListCardProps) {
   const servicesMap = useMemo(() => {
     return new Map(services.map(s => [s.id, s]));
   }, [services]);
@@ -86,6 +85,9 @@ export default function AreaListCard({ areas, services, onDelete, onRun }: AreaL
                     </Menu.Item>
                     <Menu.Item leftSection={<IconEdit size={16} stroke={1.5} />} onClick={() => router.push(`/areas/${area.id}`)}>
                       Edit area
+                    </Menu.Item>
+                    <Menu.Item leftSection={<IconActivity size={16} stroke={1.5} />} onClick={() => onEnableDisable?.(area.id, getAreaStatus(area) === 'inactive')}>
+                      Enable/Disable area
                     </Menu.Item>
                     <Menu.Item leftSection={<IconTrash size={16} stroke={1.5} />} color="red" onClick={() => onDelete?.(area.id)}>
                       Delete area
