@@ -39,7 +39,7 @@ export function FeaturesCards() {
       <Text fz="lg" fw={500} className={classes.cardTitle} mt="md">
         {feature.title}
       </Text>
-      <Text fz="sm" c="dark.2" mt="sm">
+      <Text fz="sm" c="dark.6" mt="sm">
         {feature.description}
       </Text>
     </Card>
@@ -52,8 +52,8 @@ export function FeaturesCards() {
         Integrate effortlessly with any technology stack
       </Title>
 
-      <Text c="dark.2" className={classes.description} ta="center" mt="md">
-        Every once in a while, you’ll see a Golbat that’s missing some fangs. This happens when
+      <Text c="dark.6" className={classes.description} ta="center" mt="md">
+        Every once in a while, you&apos;ll see a Golbat that&apos;s missing some fangs. This happens when
         hunger drives it to try biting a Steel-type Pokémon.
       </Text>
 

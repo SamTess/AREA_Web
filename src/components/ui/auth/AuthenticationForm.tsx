@@ -331,14 +331,14 @@ export function AuthenticationForm(props: PaperProps) {
         </Stack>
 
         <Stack align="flex-start" mt="xl">
-          <Anchor component="button" type="button" c="dark" onClick={() => handleTypeChange(type === 'login' ? 'register' : type === 'register' ? 'login' : 'login')} size="xs">
+          <Anchor component="button" type="button" c="blue.9" onClick={() => handleTypeChange(type === 'login' ? 'register' : type === 'register' ? 'login' : 'login')} size="xs">
             {type === 'register'
               ? 'Already have an account? Login'
               : type === 'forgotPassword'
               ? 'Remember your password? Login'
               : "Don't have an account? Register"}
           </Anchor>
-          <Anchor component="button" type="button" c="dark" onClick={() => handleTypeChange('forgotPassword')} size="xs">
+          <Anchor component="button" type="button" c="blue.9" onClick={() => handleTypeChange('forgotPassword')} size="xs">
             {type === 'login' ? 'Forgot password?' : ''}
           </Anchor>
         </Stack>
@@ -346,6 +346,7 @@ export function AuthenticationForm(props: PaperProps) {
           <Button
             type="button"
             radius="xl"
+            color="blue.9"
             loading={loading}
             disabled={loading || Object.keys(form.errors).length > 0}
             onClick={(e) => {
