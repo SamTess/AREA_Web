@@ -1,7 +1,7 @@
 'use client';
 
 import { Tabs, Container, Divider } from '@mantine/core';
-import { IconUser, IconMap, IconSettings, IconFileText } from '@tabler/icons-react';
+import { IconUser, IconMap, IconSettings } from '@tabler/icons-react';
 import { UsersTab } from '../../components/ui/dashboard/UsersTab';
 import { AreasTab } from '../../components/ui/dashboard/AreasTab';
 import { ServicesTab } from '../../components/ui/dashboard/ServicesTab';
