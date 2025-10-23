@@ -94,19 +94,6 @@ export const getServicesBarData = async () => {
   }
 };
 
-export const getLogs = async () => {
-  if (USE_MOCK_DATA)
-    return logs;
-
-  try {
-    const response = await axios.get(API_CONFIG.endpoints.admin.logs);
-    return response.data;
-  } catch (error) {
-    console.error(`Get ${API_CONFIG.endpoints.admin.logs} error:`, error);
-    throw error;
-  }
-};
-
 export const getAreaRuns = async () => {
   if (USE_MOCK_DATA)
     return areaRuns;
@@ -148,6 +135,26 @@ export const getCardUserData = async () => {
   }
 };
 
+export const createUser = async (userData: {
+  email: string;
+  firstName: string;
+  lastName: string;
+  password: string;
+  isAdmin: boolean;
+}) => {
+  if (USE_MOCK_DATA) {
+    return { ...userData, id: Math.random().toString(36).substr(2, 9) };
+  }
+
+  try {
+    const response = await axios.post(API_CONFIG.endpoints.auth.register, userData);
+    return response.data;
+  } catch (error) {
+    console.error(`Create user error:`, error);
+    throw error;
+  }
+};
+
 export const addUser = async (user: UserContent) => {
   if (USE_MOCK_DATA) {
     return { ...user, id: Math.random().toString(36).substr(2, 9) };
@@ -183,9 +190,9 @@ export const deleteUser = async (id: string) => {
   }
 
   try {
-    await axios.delete(`${API_CONFIG.endpoints.admin.users}/${id}`);
+    await axios.delete(`${API_CONFIG.endpoints.user.profile}/${id}`);
   } catch (error) {
-    console.error(`Delete ${API_CONFIG.endpoints.admin.users}/${id} error:`, error);
+    console.error(`Delete ${API_CONFIG.endpoints.user.profile}/${id} error:`, error);
     throw error;
   }
 };
@@ -218,7 +225,7 @@ export const enableDisableArea = async (id: string, enable: boolean) => {
 
 export const addService = async (service: Service) => {
   if (USE_MOCK_DATA) {
-    return { ...service, id: Math.random().toString(36).substr(2, 9) };
+    return { ...service, id: "1" };
   }
 
   try {

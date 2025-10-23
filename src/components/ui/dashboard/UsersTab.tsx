@@ -48,28 +48,29 @@ export function UsersTab() {
 
   const comboboxValueUser = ['', 'User', 'Admin'];
 
+  const fetchData = async () => {
+    try {
+      const lineDataResult = await getLineData();
+      setLineData(Array.isArray(lineDataResult) ? lineDataResult : []);
+
+      const barDataResult = await getBarData();
+      setBarData(Array.isArray(barDataResult) ? barDataResult : []);
+
+      const cardUserDataResult = await getCardUserData();
+      setCardUserData(Array.isArray(cardUserDataResult) ? cardUserDataResult : []);
+
+      const usersData = await getUsers();
+      setUsers(Array.isArray(usersData) ? usersData : []);
+    } catch (error) {
+      console.error('Error fetching users data:', error);
+      setLineData([]);
+      setBarData([]);
+      setCardUserData([]);
+      setUsers([]);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const lineDataResult = await getLineData();
-        setLineData(Array.isArray(lineDataResult) ? lineDataResult : []);
-
-        const barDataResult = await getBarData();
-        setBarData(Array.isArray(barDataResult) ? barDataResult : []);
-
-        const cardUserDataResult = await getCardUserData();
-        setCardUserData(Array.isArray(cardUserDataResult) ? cardUserDataResult : []);
-
-        const usersData = await getUsers();
-        setUsers(Array.isArray(usersData) ? usersData : []);
-      } catch (error) {
-        console.error('Error fetching users data:', error);
-        setLineData([]);
-        setBarData([]);
-        setCardUserData([]);
-        setUsers([]);
-      }
-    };
     fetchData();
   }, []);
 
@@ -86,13 +87,17 @@ export function UsersTab() {
   const handleEditUser = (user: User) => {
     setSelectedUserId(user.id.toString());
     setModaleOpened(true);
-    // ouvrir la modale du edit
-    // appeler la route de edit
   };
 
   const handleDeleteUser = (user: User) => {
     setUsers(users.filter(u => u.id !== user.id));
     deleteUser(user.id.toString());
+  };
+
+  const handleModalClose = () => {
+    setModaleOpened(false);
+    setSelectedUserId(null);
+    fetchData();
   };
 
   return (
@@ -172,7 +177,7 @@ export function UsersTab() {
           <UsersTable users={filteredUsers} onAddUser={handleAddUser} onEditUser={handleEditUser} onDeleteUser={handleDeleteUser} />
         </Grid.Col>
       </Grid>
-      <ModaleUser opened={modaleOpened} onClose={() => { setModaleOpened(false); setSelectedUserId(null); }} userId={selectedUserId} />
+      <ModaleUser opened={modaleOpened} onClose={handleModalClose} userId={selectedUserId} />
     </>
   );
 }

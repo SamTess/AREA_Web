@@ -190,6 +190,7 @@ export interface RegisterData {
   firstName: string;
   lastName: string;
   password: string;
+  isAdmin?: boolean;
 }
 
 export interface OAuthProvider {
@@ -217,6 +218,7 @@ export interface ProfileData {
   lastName: string;
   language?: string;
   password?: string;
+  isAdmin?: boolean;
 }
 
 export interface NavbarLinkProps {

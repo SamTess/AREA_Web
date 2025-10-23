@@ -5,7 +5,6 @@ import { IconUser, IconMap, IconSettings, IconFileText } from '@tabler/icons-rea
 import { UsersTab } from '../../components/ui/dashboard/UsersTab';
 import { AreasTab } from '../../components/ui/dashboard/AreasTab';
 import { ServicesTab } from '../../components/ui/dashboard/ServicesTab';
-import { LogsTab } from '../../components/ui/dashboard/LogsTab';
 import { useEffect } from 'react';
 import { getCurrentUser } from '@/services/authService';
 import { useRouter } from 'next/navigation';
@@ -40,9 +39,6 @@ export default function DashboardPage() {
         <Tabs.Tab value="services" leftSection={<IconSettings size={16} />}>
             Services
         </Tabs.Tab>
-        <Tabs.Tab value="logs" leftSection={<IconFileText size={16} />}>
-            Logs
-        </Tabs.Tab>
       </Tabs.List>
 
         <Divider my="lg" />
@@ -59,9 +55,6 @@ export default function DashboardPage() {
           <ServicesTab />
         </Tabs.Panel>
 
-        <Tabs.Panel value="logs" pt="md">
-          <LogsTab />
-        </Tabs.Panel>
       </Tabs>
     </Container>
   );

@@ -20,7 +20,7 @@ export const API_CONFIG = {
       link: '/api/oauth-link/',
     },
     user: {
-      getUserById: '/api/users/',
+      getUserById: '/api/users',
       profile: '/api/users',
       avatar: '/api/users/avatar',
       getUser: '/api/auth/me',
