@@ -1,5 +1,5 @@
-import { Card, Text, Menu, ActionIcon, Flex, Avatar, Button, Stack, Badge } from '@mantine/core';
-import { IconDotsVertical, IconTrash, IconPlug } from '@tabler/icons-react';
+import { Card, Text, Menu, ActionIcon, Flex, Avatar, Button, Stack, Badge, Tooltip } from '@mantine/core';
+import { IconDotsVertical, IconTrash, IconPlug, IconLock } from '@tabler/icons-react';
 import { useState } from 'react';
 import { BackendService, ConnectedService } from '../../types';
 import { initiateServiceConnection } from '../../services/serviceConnectionService';
@@ -17,6 +17,7 @@ export default function ServiceConnectionCard({
 }: ServiceConnectionCardProps) {
   const [loadingConnection, setLoadingConnection] = useState(false);
   const isConnected = connectedService?.isConnected || false;
+  const canDisconnect = connectedService?.canDisconnect === true;
   const iconUrl = service.iconLightUrl || service.iconDarkUrl || '';
 
   const handleServiceConnection = async () => {
@@ -61,14 +62,14 @@ export default function ServiceConnectionCard({
           </div>
 
           {isConnected ? (
-            <Menu width={180} withArrow>
+            <Menu width={220} withArrow>
               <Menu.Target>
                 <ActionIcon variant="subtle" size="lg">
                   <IconDotsVertical size={20} />
                 </ActionIcon>
               </Menu.Target>
               <Menu.Dropdown>
-                {onDisconnect && (
+                {onDisconnect && canDisconnect && (
                   <Menu.Item
                     color="red"
                     leftSection={<IconTrash size={16} />}
@@ -76,6 +77,21 @@ export default function ServiceConnectionCard({
                   >
                     Disconnect
                   </Menu.Item>
+                )}
+                {onDisconnect && !canDisconnect && (
+                  <Tooltip
+                    label="Cannot disconnect your primary authentication method"
+                    position="left"
+                    withArrow
+                  >
+                    <Menu.Item
+                      color="gray"
+                      leftSection={<IconLock size={16} />}
+                      disabled
+                    >
+                      Disconnect (Protected)
+                    </Menu.Item>
+                  </Tooltip>
                 )}
               </Menu.Dropdown>
             </Menu>

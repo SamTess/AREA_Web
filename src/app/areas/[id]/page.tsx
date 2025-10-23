@@ -1,6 +1,6 @@
 'use client';
 
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import AreaEditor from '../../../components/ui/areaCreation/AreaEditor';
 import { getCurrentUser } from '@/services/authService';
 import { useEffect } from 'react';
@@ -9,7 +9,9 @@ import { getAreaById } from '@/services/areasService';
 
 export default function EditAreaPage() {
   const params = useParams();
+  const searchParams = useSearchParams();
   const areaId = params.id as string;
+  const draftId = searchParams.get('draft') || undefined;
   const router = useRouter();
 
   useEffect(() => {
@@ -42,5 +44,5 @@ export default function EditAreaPage() {
     };
     checkLogin();
   }, [router, areaId]);
-  return <AreaEditor areaId={areaId} />;
+  return <AreaEditor areaId={areaId} draftId={draftId} />;
 }

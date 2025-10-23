@@ -1,5 +1,5 @@
-import { Button, TextInput, Group, Popover, Textarea, Title, Space } from '@mantine/core';
-import { IconDeviceFloppy, IconPlayerPlay, IconFileText } from '@tabler/icons-react';
+import { Button, TextInput, Group, Popover, Textarea, Title, Space, Badge } from '@mantine/core';
+import { IconPlayerPlay, IconFileText, IconDeviceFloppy } from '@tabler/icons-react';
 import { useState } from 'react';
 import styles from './AreaEditor.module.css';
 
@@ -8,8 +8,10 @@ interface AreaEditorToolbarProps {
   onNameChange: (name: string) => void;
   areaDescription: string;
   onDescriptionChange: (description: string) => void;
-  onSave: () => void;
+  onCommit: () => void;
   onRun: () => void;
+  isDraft?: boolean;
+  isCommitting?: boolean;
 }
 
 export default function AreaEditorToolbar({
@@ -17,22 +19,27 @@ export default function AreaEditorToolbar({
   onNameChange,
   areaDescription,
   onDescriptionChange,
-  onSave,
-  onRun
+  onCommit,
+  onRun,
+  isDraft = false,
+  isCommitting = false
 }: AreaEditorToolbarProps) {
   const [opened, setOpened] = useState(false);
 
   return (
     <div className={styles.header}>
       <Group style={{ flex: 1, justifyContent: 'space-between', width: '100%' }}>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flex: 1 }}>
         <Space w="15%" />
         <TextInput
-          placeholder="Nom de l'area"
+          placeholder="AREA Name"
           value={areaName}
           onChange={(e) => onNameChange(e.target.value)}
           style={{ width: '300px', marginLeft: '3%' }}
         />
+        {isDraft && (
+          <Badge color="blue" variant="light" style={{ flexShrink: 0 }}>Draft</Badge>
+        )}
         <Popover opened={opened} onChange={setOpened} position="bottom" withArrow>
             <Popover.Target>
               <Button onClick={() => setOpened((o) => !o)} variant="light">
@@ -54,8 +61,18 @@ export default function AreaEditorToolbar({
           </Popover>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <Button onClick={onSave}><IconDeviceFloppy /></Button>
-          <Button onClick={onRun}><IconPlayerPlay /></Button>
+          <Button 
+            onClick={onCommit}
+            color="green"
+            leftSection={<IconDeviceFloppy size={16} />}
+            disabled={isCommitting}
+            loading={isCommitting}
+          >
+            Save
+          </Button>
+          <Button onClick={onRun}>
+            <IconPlayerPlay />
+          </Button>
         </div>
       </Group>
     </div>

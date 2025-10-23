@@ -432,6 +432,15 @@ export interface CreateAreaPayload {
     condition?: Record<string, unknown>;
     order?: number;
   }>;
+  connections?: Array<{
+    sourceServiceId?: string;
+    targetServiceId?: string;
+    linkType?: string;
+    mapping?: Record<string, unknown>;
+    condition?: Record<string, unknown>;
+    order?: number;
+  }>;
+  layoutMode?: string;
 }
 
 export const createAreaWithActions = async (payload: CreateAreaPayload): Promise<BackendArea> => {

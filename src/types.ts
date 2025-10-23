@@ -339,6 +339,8 @@ export interface ConnectedService {
   avatarUrl: string;
   providerUserId: string;
   isConnected: boolean;
+  canDisconnect?: boolean;
+  isPrimaryAuth?: boolean;
 }
 
 export interface SetupStepProps {

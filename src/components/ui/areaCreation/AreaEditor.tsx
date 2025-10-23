@@ -1,6 +1,6 @@
 'use client';
 
-import { Drawer } from '@mantine/core';
+import { Drawer, Modal, Button, Text, Group, Stack } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 import AreaEditorToolbar from './AreaEditorToolbar';
 import FreeLayoutBoard from './FreeLayoutBoard';
@@ -10,9 +10,10 @@ import styles from './AreaEditor.module.css';
 
 interface AreaEditorProps {
   areaId?: string;
+  draftId?: string;
 }
 
-export default function AreaEditor({ areaId }: AreaEditorProps) {
+export default function AreaEditor({ areaId, draftId }: AreaEditorProps) {
   const {
     servicesState,
     selectedService,
@@ -22,7 +23,13 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
     setAreaName,
     areaDescription,
     setAreaDescription,
-    handleSave,
+    currentDraftId,
+    isCommitting,
+    showDraftModal,
+    setShowDraftModal,
+    pendingDraft,
+    draftModalActions,
+    handleCommit,
     handleRun,
     addNewServiceBelow,
     removeService,
@@ -32,21 +39,59 @@ export default function AreaEditor({ areaId }: AreaEditorProps) {
     createConnection,
     removeConnection,
     duplicateService,
-  } = useAreaEditor(areaId);
+  } = useAreaEditor(areaId, draftId);
   const isSmall = useMediaQuery('(max-width: 768px)');
   const isMedium = useMediaQuery('(max-width: 992px)');
   const drawerSize = isSmall ? '80%' : isMedium ? '50%' : '35%';
 
   return (
     <div className={styles.container}>
+      <Modal
+        opened={showDraftModal}
+        onClose={() => setShowDraftModal(false)}
+        title="Draft Found"
+        centered
+      >
+        <Stack>
+          <Text>
+            You have an unsaved draft from a previous session:
+          </Text>
+          <Text fw={500}>{pendingDraft?.name || 'Untitled Draft'}</Text>
+          <Text size="sm" c="dimmed">
+            Last saved: {pendingDraft?.savedAt ? new Date(pendingDraft.savedAt).toLocaleString() : 'Unknown'}
+          </Text>
+          <Group mt="md" justify="flex-end">
+            <Button
+              variant="default"
+              onClick={() => {
+                draftModalActions?.onReject();
+                setShowDraftModal(false);
+              }}
+            >
+              Start Fresh
+            </Button>
+            <Button
+              onClick={() => {
+                draftModalActions?.onAccept();
+                setShowDraftModal(false);
+              }}
+            >
+              Continue Editing
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
+
       <div className={styles.header}>
         <AreaEditorToolbar
           areaName={areaName}
           onNameChange={setAreaName}
           areaDescription={areaDescription}
           onDescriptionChange={setAreaDescription}
-          onSave={handleSave}
+          onCommit={handleCommit}
           onRun={handleRun}
+          isDraft={!!currentDraftId}
+          isCommitting={isCommitting}
         />
       </div>
 

@@ -5,6 +5,7 @@ import { Stack, Text, Loader, Alert, SimpleGrid, TextInput, Group } from '@manti
 import { IconSearch } from '@tabler/icons-react';
 import ServiceConnectionCard from './ServiceConnectionCard';
 import { getConnectedServices, getAllServices } from '../../services/userService';
+import { disconnectService } from '../../services/serviceConnectionService';
 import { BackendService, ConnectedService } from '../../types';
 
 export default function ServicesTabProfile() {
@@ -40,9 +41,9 @@ export default function ServicesTabProfile() {
     }
   };
 
-  const handleDisconnect = async () => {
+  const handleDisconnect = async (serviceKey: string) => {
     try {
-        // a metre la route de samuel
+      await disconnectService(serviceKey);
       await loadServices();
     } catch (err) {
       console.error('Failed to disconnect service:', err);
