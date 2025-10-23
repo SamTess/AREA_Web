@@ -6,6 +6,7 @@ import { IconPlus } from '@tabler/icons-react';
 import { Title, TextInput, Select, Button, Group, Container, Stack, Divider, Pagination, Text } from '@mantine/core';
 import { useRouter } from 'next/navigation';
 import { getAreas, getServices, deleteAreabyId, runAreaById, getAreasBackend } from '../../services/areasService';
+import { enableDisableArea } from '../../services/adminService';
 import { Area, Service, BackendArea } from '../../types';
 import { getCurrentUser } from '@/services/authService';
 
@@ -120,6 +121,17 @@ export default function AreaListPage() {
         runAreaById(areaId);
     };
 
+    const handleEnableDisable = async (id: string | number, enable: boolean) => {
+        const areaId = typeof id === 'string' ? id : id.toString();
+        try {
+            await enableDisableArea(areaId, enable);
+            const areasData = await getAreasBackend();
+            setAreas(areasData);
+        } catch (error) {
+            console.error('Enable/Disable failed:', error);
+        }
+    };
+
     return (
         <main>
         <Container size="lg" py="xl">
@@ -154,7 +166,7 @@ export default function AreaListPage() {
                     </div>
                     <Button onClick={clearFilters} variant="outline" color="blue">Clear Filters</Button>
                 </Group>
-                <AreaListCard areas={paginatedAreas} services={services} onDelete={handleDelete} onRun={handleRun} />
+                <AreaListCard areas={paginatedAreas} services={services} onDelete={handleDelete} onRun={handleRun} onEnableDisable={handleEnableDisable} />
                 {filteredAreas.length === 0 && (
                     <Text ta="center" c="black">No areas found.</Text>
                 )}
