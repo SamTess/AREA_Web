@@ -1,4 +1,4 @@
-import axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
+import Axios, { AxiosError, AxiosResponse, InternalAxiosRequestConfig } from 'axios';
 import { API_CONFIG } from './api';
 import { refreshAuthToken, handleAuthFailure } from '../utils/tokenManager';
 
@@ -20,16 +20,27 @@ const processQueue = (error: unknown, success: boolean = false) => {
   failedQueue = [];
 };
 
-axios.defaults.withCredentials = true;
-axios.defaults.baseURL = API_CONFIG.baseURL;
+export const axios = Axios.create({
+  baseURL: API_CONFIG.baseURL,
+  withCredentials: true,
+});
+
+try {
+  Axios.defaults.baseURL = API_CONFIG.baseURL;
+  Axios.defaults.withCredentials = true;
+} catch (e) {
+  console.warn('Failed to set global axios defaults:', e);
+}
 
 axios.interceptors.request.use(
   (config) => {
     config.headers['Content-Type'] = config.headers['Content-Type'] || 'application/json';
-    if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'development') {
-      console.log(`🚀 ${config.method?.toUpperCase()} ${config.url}`);
-    }
 
+    if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'development') {
+      const m = (config.method || 'GET').toUpperCase();
+      const u = config.url?.startsWith('http') ? config.url : `${config.baseURL || ''}${config.url || ''}`;
+      console.log(`🚀 ${m} ${u}`);
+    }
     return config;
   },
   (error) => {
@@ -43,7 +54,6 @@ axios.interceptors.response.use(
     if (process.env.NEXT_PUBLIC_ENVIRONMENT === 'development') {
       console.log(`✅ ${response.status} ${response.config.url}`);
     }
-
     return response;
   },
   async (error: AxiosError) => {
@@ -54,17 +64,20 @@ axios.interceptors.response.use(
     }
 
     if (typeof window !== 'undefined' &&
-        (window.location.pathname.includes('/login') ||
-         window.location.pathname.includes('/oauth-callback'))) {
+      (window.location.pathname.includes('/login') ||
+        window.location.pathname.includes('/oauth-callback'))) {
       return Promise.reject(error);
     }
 
     if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-      if (originalRequest.url?.includes('/login') ||
-          originalRequest.url?.includes('/register') ||
-          originalRequest.url?.includes('/refresh') ||
-          originalRequest.url?.includes('/oauth') ||
-          originalRequest.url?.includes('/forgot-password')) {
+      const u = originalRequest.url || '';
+      if (
+        u.includes('/login') ||
+        u.includes('/register') ||
+        u.includes('/refresh') ||
+        u.includes('/oauth') ||
+        u.includes('/forgot-password')
+      ) {
         return Promise.reject(error);
       }
 
@@ -86,9 +99,8 @@ axios.interceptors.response.use(
         if (refreshSuccess) {
           processQueue(null, true);
           return axios(originalRequest);
-        } else {
-          throw new Error('Token refresh failed');
         }
+        throw new Error('Token refresh failed');
       } catch (refreshError) {
         processQueue(refreshError, false);
         console.warn('Token refresh failed');
@@ -104,7 +116,6 @@ axios.interceptors.response.use(
         // Exemple: toast.error('Server unavailable. Please try again later.');
       }
     }
-
     return Promise.reject(error);
   }
 );

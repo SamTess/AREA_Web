@@ -7,28 +7,34 @@ const mockProviders: OAuthProvider[] = [
     providerKey: 'google',
     providerLabel: 'Google',
     providerLogoUrl: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Google_%22G%22_logo.svg/1024px-Google_%22G%22_logo.svg.png",
-    userAuthUrl: '#',
+    userAuthUrl: 'mock://oauth-url',
     clientId: 'mock'
   },
   {
     providerKey: 'microsoft',
     providerLabel: 'Microsoft',
     providerLogoUrl: "https://upload.wikimedia.org/wikipedia/commons/4/44/Microsoft_logo.svg",
-    userAuthUrl: '#',
+    userAuthUrl: 'mock://oauth-url',
     clientId: 'mock'
   },
   {
     providerKey: 'github',
     providerLabel: 'GitHub',
     providerLogoUrl: "https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg",
-    userAuthUrl: '#',
+    userAuthUrl: 'mock://oauth-url',
     clientId: 'mock'
   },
 ];
 
 export const getOAuthProviders = async (): Promise<OAuthProvider[]> => {
   if (USE_MOCK_DATA)
-    return Promise.resolve(mockProviders);
+    return Promise.resolve(mockProviders.map(p => ({
+      providerKey: p.providerKey,
+      providerLabel: p.providerLabel,
+      providerLogoUrl: p.providerLogoUrl,
+      userAuthUrl: '#',
+      clientId: ''
+    })));
 
   try {
     const response = await axios.get(`${API_CONFIG.baseURL}/api/oauth/providers`);

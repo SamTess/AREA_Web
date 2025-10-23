@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from 'react';
+import axios from '../config/axios';
 import { hasSecureToken } from '../utils/secureStorage';
 
 interface User {
@@ -35,36 +36,39 @@ export const useAuth = () => {
       const isAuthenticated = await hasSecureToken();
 
       if (isAuthenticated) {
-        const response = await fetch('/api/auth/me', {
-          method: 'GET',
-          credentials: 'include',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (response.ok) {
-          const userData = await response.json();
-          setAuthState({
-            isAuthenticated: true,
-            user: userData,
-            loading: false,
-            error: null
-          });
-        } else if (response.status === 401) {
-          console.warn('Authentication failed, user may need to login again');
+        try {
+          const response = await axios.get('/api/auth/me');
+          if (response.status === 200) {
+            const userData = response.data;
+            setAuthState({
+              isAuthenticated: true,
+              user: userData,
+              loading: false,
+              error: null
+            });
+          } else if (response.status === 401) {
+            console.warn('Authentication failed, user may need to login again');
+            setAuthState({
+              isAuthenticated: false,
+              user: null,
+              loading: false,
+              error: null
+            });
+          } else {
+            setAuthState({
+              isAuthenticated: false,
+              user: null,
+              loading: false,
+              error: `Authentication check failed: ${response.status}`
+            });
+          }
+        } catch (err) {
+          console.error('Error fetching current user:', err);
           setAuthState({
             isAuthenticated: false,
             user: null,
             loading: false,
-            error: null
-          });
-        } else {
-          setAuthState({
-            isAuthenticated: false,
-            user: null,
-            loading: false,
-            error: `Authentication check failed: ${response.status}`
+            error: 'Failed to fetch current user'
           });
         }
       } else {
