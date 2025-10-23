@@ -39,9 +39,9 @@ export default function RootLayout({
           <div>
         <NavbarMinimal />
           </div>
-          <div className="content">
+          <main className="content">
           {children}
-          </div>
+          </main>
           <Footer />
         </MantineProvider>
       </body>
