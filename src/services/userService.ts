@@ -54,6 +54,7 @@ export const getUserInfo = async (): Promise<UserContent> => {
       isVerified: backendUser.isActive || false,
       profileData: {
         email: backendUser.email,
+        username: backendUser.username || '',
         firstName: backendUser.firstname || '',
         lastName: backendUser.lastname || '',
         language: 'en'

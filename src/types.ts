@@ -165,7 +165,8 @@ export interface Area {
 }
 
 export interface LoginData {
-  email: string;
+  email?: string;
+  username?: string;
   password: string;
 }
 
@@ -174,6 +175,7 @@ export interface LoginResponse {
   user: {
     id: string | number;
     email: string;
+    username?: string;
     isActive: boolean;
     isAdmin: boolean;
     createdAt: string;
@@ -187,6 +189,7 @@ export interface LoginResponse {
 
 export interface RegisterData {
   email: string;
+  username: string;
   firstName: string;
   lastName: string;
   password: string;
@@ -214,6 +217,7 @@ export interface UserContent {
 
 export interface ProfileData {
   email: string;
+  username?: string;
   firstName: string;
   lastName: string;
   language?: string;
@@ -240,6 +244,7 @@ export interface CardProps {
 
 export interface FormValues {
   email: string;
+  username: string;
   firstName: string;
   lastName: string;
   password: string;
