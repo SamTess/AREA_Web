@@ -179,20 +179,16 @@ export function AuthenticationForm(props: PaperProps) {
           isSubmittingRef.current = false;
           return;
         }
-        
-        // Construct LoginData based on which field is provided
+
         let loginData: LoginData;
         if (values.email && values.username) {
-          // Both provided
           loginData = { email: values.email, username: values.username, password: values.password };
         } else if (values.email) {
-          // Email only
           loginData = { email: values.email, password: values.password };
         } else {
-          // Username only
           loginData = { username: values.username, password: values.password };
         }
-        
+
         await login(loginData);
         setSuccess('Login successful! Redirecting...');
         setTimeout(() => {
