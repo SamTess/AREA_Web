@@ -351,22 +351,22 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
     if (service.actionDefinitionId) {
       try {
         const actionDef = await getActionDefinitionById(service.actionDefinitionId);
-        isEvent = actionDef.isEventCapable && !actionDef.isExecutable;
-        isReaction = actionDef.isExecutable && !actionDef.isEventCapable;
-        console.log(`Action ${service.actionDefinitionId}: isEvent=${isEvent}, isReaction=${isReaction}`);
+        isEvent = actionDef.isEventCapable;
+        isReaction = actionDef.isExecutable;
+        console.log(`Action ${service.actionDefinitionId}: isEventCapable=${isEvent}, isExecutable=${isReaction}`);
       } catch (error) {
         console.error(`Failed to fetch action definition for ${service.actionDefinitionId}:`, error);
       }
     }
 
-    if (index === 0) {
+    // Determine if this service should be a trigger (action) or reaction based on its capabilities
+    if (isEvent) {
+      // This is a trigger/action - it can generate events
       let actionActivationConfig = service.activationConfig;
-      if (isEvent && actionActivationConfig?.type === 'chain') {
+      if (actionActivationConfig?.type === 'chain') {
         actionActivationConfig = { type: 'webhook' };
       }
-      if (isEvent && actionActivationConfig?.type === 'cron') {
-        actionActivationConfig = { type: 'webhook' };
-      }
+      
       actions.push({
         actionDefinitionId: service.actionDefinitionId || '',
         name: service.event || service.cardName || 'Unnamed Action',
@@ -385,12 +385,9 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
           type: 'webhook'
         }
       });
-    } else {
+    } else if (isReaction) {
       let reactionActivationConfig = service.activationConfig || { type: 'chain' };
-      if (isReaction && reactionActivationConfig.type === 'webhook') {
-        reactionActivationConfig = { type: 'chain' };
-      }
-      if (isReaction && reactionActivationConfig.type === 'poll') {
+      if (reactionActivationConfig.type === 'webhook' || reactionActivationConfig.type === 'poll' || reactionActivationConfig.type === 'cron') {
         reactionActivationConfig = { type: 'chain' };
       }
 
@@ -401,18 +398,41 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
         parameters: service.fields || {},
         mapping: {},
         condition: {},
-        order: index - 1,
+        order: reactions.length,
         activationConfig: reactionActivationConfig as unknown as Record<string, unknown>
       });
+    } else {
+      console.warn(`Service at index ${index} is neither event-capable nor executable:`, service);
     }
   }
 
-  const actionsCount = actions.length;
+  const serviceIdToTypeMap = new Map<string, 'action' | 'reaction'>();
+  const serviceIdToActionIndexMap = new Map<string, number>();
+  const serviceIdToReactionIndexMap = new Map<string, number>();
 
-  const serviceIdToIndexMap = new Map<string, number>();
-  services.forEach((service, index) => {
-    serviceIdToIndexMap.set(service.id, index);
-  });
+  for (let index = 0; index < services.length; index++) {
+    const service = services[index];
+    if (!service.actionDefinitionId) continue;
+
+    try {
+      const actionDef = await getActionDefinitionById(service.actionDefinitionId);
+      if (actionDef.isEventCapable) {
+        const actionIndex = actions.findIndex(a => a.actionDefinitionId === service.actionDefinitionId && a.name === (service.event || service.cardName));
+        if (actionIndex !== -1) {
+          serviceIdToTypeMap.set(service.id, 'action');
+          serviceIdToActionIndexMap.set(service.id, actionIndex);
+        }
+      } else if (actionDef.isExecutable) {
+        const reactionIndex = reactions.findIndex(r => r.actionDefinitionId === service.actionDefinitionId && r.name === (service.event || service.cardName));
+        if (reactionIndex !== -1) {
+          serviceIdToTypeMap.set(service.id, 'reaction');
+          serviceIdToReactionIndexMap.set(service.id, reactionIndex);
+        }
+      }
+    } catch (error) {
+      console.error(`Failed to classify service ${service.id}:`, error);
+    }
+  }
 
   const serviceIdToServiceMap = new Map<string, ServiceData>();
   services.forEach(service => {
@@ -424,41 +444,55 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
     const targetService = serviceIdToServiceMap.get(connection.targetId);
 
     if (sourceService && targetService) {
-      const sourceIndex = serviceIdToIndexMap.get(connection.sourceId);
-      const targetIndex = serviceIdToIndexMap.get(connection.targetId);
+      const sourceType = serviceIdToTypeMap.get(connection.sourceId);
+      const targetType = serviceIdToTypeMap.get(connection.targetId);
 
-      if (sourceIndex !== undefined && targetIndex !== undefined) {
+      if (sourceType && targetType) {
         let sourceServiceId = '';
         let targetServiceId = '';
 
-        if (sourceIndex < actionsCount) {
-          sourceServiceId = `action_${sourceIndex}`;
+        if (sourceType === 'action') {
+          const actionIndex = serviceIdToActionIndexMap.get(connection.sourceId);
+          if (actionIndex !== undefined) {
+            sourceServiceId = `action_${actionIndex}`;
+          }
         } else {
-          sourceServiceId = `reaction_${sourceIndex - actionsCount}`;
+          const reactionIndex = serviceIdToReactionIndexMap.get(connection.sourceId);
+          if (reactionIndex !== undefined) {
+            sourceServiceId = `reaction_${reactionIndex}`;
+          }
         }
 
-        if (targetIndex < actionsCount) {
-          targetServiceId = `action_${targetIndex}`;
+        if (targetType === 'action') {
+          const actionIndex = serviceIdToActionIndexMap.get(connection.targetId);
+          if (actionIndex !== undefined) {
+            targetServiceId = `action_${actionIndex}`;
+          }
         } else {
-          targetServiceId = `reaction_${targetIndex - actionsCount}`;
+          const reactionIndex = serviceIdToReactionIndexMap.get(connection.targetId);
+          if (reactionIndex !== undefined) {
+            targetServiceId = `reaction_${reactionIndex}`;
+          }
         }
 
-        connectionsPayload.push({
-          sourceServiceId,
-          targetServiceId,
-          linkType: connection.linkData?.type || 'chain',
-          mapping: connection.linkData?.mapping || {},
-          condition: connection.linkData?.condition || {},
-          order: connection.linkData?.order || 0
-        });
+        if (sourceServiceId && targetServiceId) {
+          connectionsPayload.push({
+            sourceServiceId,
+            targetServiceId,
+            linkType: connection.linkData?.type || 'chain',
+            mapping: connection.linkData?.mapping || {},
+            condition: connection.linkData?.condition || {},
+            order: connection.linkData?.order || 0
+          });
 
-        links.push({
-          sourceActionDefinitionId: sourceService.actionDefinitionId,
-          targetActionDefinitionId: targetService.actionDefinitionId,
-          mapping: connection.linkData?.mapping || {},
-          condition: connection.linkData?.condition || {},
-          order: connection.linkData?.order || 0
-        });
+          links.push({
+            sourceActionDefinitionId: sourceService.actionDefinitionId,
+            targetActionDefinitionId: targetService.actionDefinitionId,
+            mapping: connection.linkData?.mapping || {},
+            condition: connection.linkData?.condition || {},
+            order: connection.linkData?.order || 0
+          });
+        }
       }
     }
   });
