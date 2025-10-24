@@ -77,15 +77,39 @@ export function useDraftManager({
     try {
       const payload = await transformServiceDataToPayload(servicesState, areaName || 'Untitled Draft', areaDescription, connections);
 
-      const transformedConnections = connections.map(conn => ({
-        id: conn.id,
-        sourceServiceId: conn.sourceId,
-        targetServiceId: conn.targetId,
-        linkType: conn.linkData.type,
-        mapping: conn.linkData.mapping || {},
-        condition: conn.linkData.condition || {},
-        order: conn.linkData.order || 0,
-      }));
+      const actionsCount = payload.actions?.length || 0;
+
+      const transformedConnections = connections.map(conn => {
+        const sourceIndex = servicesState.findIndex(s => s.id === conn.sourceId);
+        const targetIndex = servicesState.findIndex(s => s.id === conn.targetId);
+
+        let sourceServiceId = conn.sourceId;
+        let targetServiceId = conn.targetId;
+
+        if (sourceIndex !== -1 && targetIndex !== -1) {
+          if (sourceIndex < actionsCount) {
+            sourceServiceId = `action_${sourceIndex}`;
+          } else {
+            sourceServiceId = `reaction_${sourceIndex - actionsCount}`;
+          }
+
+          if (targetIndex < actionsCount) {
+            targetServiceId = `action_${targetIndex}`;
+          } else {
+            targetServiceId = `reaction_${targetIndex - actionsCount}`;
+          }
+        }
+
+        return {
+          id: conn.id,
+          sourceServiceId,
+          targetServiceId,
+          linkType: conn.linkData.type,
+          mapping: conn.linkData.mapping || {},
+          condition: conn.linkData.condition || {},
+          order: conn.linkData.order || 0,
+        };
+      });
 
       const actionsWithIds = (payload.actions || []).map((a) => ({
         ...a,
@@ -153,17 +177,58 @@ export function useDraftManager({
     const transformedServices = await transformBackendDataToServiceData(mockArea);
 
     const transformedConnections: ConnectionData[] = draft.connections
-      ? draft.connections.map((conn) => ({
-          id: conn.id || generateUUID(),
-          sourceId: conn.sourceServiceId,
-          targetId: conn.targetServiceId,
-          linkData: {
-            type: conn.linkType,
-            mapping: conn.mapping || {},
-            condition: conn.condition || {},
-            order: conn.order,
+      ? draft.connections.map((conn) => {
+          let sourceId = conn.sourceServiceId;
+          let targetId = conn.targetServiceId;
+
+          const actionPattern = /^action_(\d+)$/;
+          const reactionPattern = /^reaction_(\d+)$/;
+
+          const sourceActionMatch = conn.sourceServiceId.match(actionPattern);
+          const sourceReactionMatch = conn.sourceServiceId.match(reactionPattern);
+          const targetActionMatch = conn.targetServiceId.match(actionPattern);
+          const targetReactionMatch = conn.targetServiceId.match(reactionPattern);
+
+          if (sourceActionMatch) {
+            const index = parseInt(sourceActionMatch[1], 10);
+            if (transformedServices[index]) {
+              sourceId = transformedServices[index].id;
+            }
+          } else if (sourceReactionMatch) {
+            const index = parseInt(sourceReactionMatch[1], 10);
+            const actionsCount = draft.actions?.length || 0;
+            const serviceIndex = actionsCount + index;
+            if (transformedServices[serviceIndex]) {
+              sourceId = transformedServices[serviceIndex].id;
+            }
           }
-        }))
+
+          if (targetActionMatch) {
+            const index = parseInt(targetActionMatch[1], 10);
+            if (transformedServices[index]) {
+              targetId = transformedServices[index].id;
+            }
+          } else if (targetReactionMatch) {
+            const index = parseInt(targetReactionMatch[1], 10);
+            const actionsCount = draft.actions?.length || 0;
+            const serviceIndex = actionsCount + index;
+            if (transformedServices[serviceIndex]) {
+              targetId = transformedServices[serviceIndex].id;
+            }
+          }
+
+          return {
+            id: conn.id || generateUUID(),
+            sourceId,
+            targetId,
+            linkData: {
+              type: conn.linkType,
+              mapping: conn.mapping || {},
+              condition: conn.condition || {},
+              order: conn.order,
+            }
+          };
+        })
       : [];
 
     setCurrentDraftId(draft.draftId);

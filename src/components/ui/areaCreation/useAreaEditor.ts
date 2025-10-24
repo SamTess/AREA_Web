@@ -303,12 +303,38 @@ const extractConnectionsFromServices = (services: ServiceData[]): ConnectionData
 };
 
 const transformServiceDataToPayload = async (services: ServiceData[], areaName: string, areaDescription: string, connections: ConnectionData[] = []): Promise<CreateAreaPayload> => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const actions: any[] = [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const reactions: any[] = [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const links: any[] = [];
+  const actions: Array<{
+    actionDefinitionId: string;
+    name: string;
+    description?: string;
+    parameters?: Record<string, unknown>;
+    activationConfig?: Record<string, unknown>;
+  }> = [];
+  const reactions: Array<{
+    actionDefinitionId: string;
+    name: string;
+    description?: string;
+    parameters?: Record<string, unknown>;
+    mapping?: Record<string, unknown>;
+    condition?: Record<string, unknown>;
+    order?: number;
+    activationConfig?: Record<string, unknown>;
+  }> = [];
+  const links: Array<{
+    sourceActionDefinitionId?: string;
+    targetActionDefinitionId?: string;
+    mapping?: Record<string, string>;
+    condition?: Record<string, unknown>;
+    order?: number;
+  }> = [];
+  const connectionsPayload: Array<{
+    sourceServiceId?: string;
+    targetServiceId?: string;
+    linkType?: string;
+    mapping?: Record<string, unknown>;
+    condition?: Record<string, unknown>;
+    order?: number;
+  }> = [];
 
   console.log('Starting transformation with services:', services);
 
@@ -376,16 +402,45 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
         mapping: {},
         condition: {},
         order: index - 1,
-        activationConfig: reactionActivationConfig
+        activationConfig: reactionActivationConfig as unknown as Record<string, unknown>
       });
     }
   }
+
+  const actionsCount = actions.length;
 
   connections.forEach(connection => {
     const sourceService = services.find(s => s.id === connection.sourceId);
     const targetService = services.find(s => s.id === connection.targetId);
 
     if (sourceService && targetService) {
+      const sourceIndex = services.indexOf(sourceService);
+      const targetIndex = services.indexOf(targetService);
+
+      let sourceServiceId = '';
+      let targetServiceId = '';
+
+      if (sourceIndex < actionsCount) {
+        sourceServiceId = `action_${sourceIndex}`;
+      } else {
+        sourceServiceId = `reaction_${sourceIndex - actionsCount}`;
+      }
+
+      if (targetIndex < actionsCount) {
+        targetServiceId = `action_${targetIndex}`;
+      } else {
+        targetServiceId = `reaction_${targetIndex - actionsCount}`;
+      }
+
+      connectionsPayload.push({
+        sourceServiceId,
+        targetServiceId,
+        linkType: connection.linkData?.type || 'chain',
+        mapping: connection.linkData?.mapping || {},
+        condition: connection.linkData?.condition || {},
+        order: connection.linkData?.order || 0
+      });
+
       links.push({
         sourceActionDefinitionId: sourceService.actionDefinitionId,
         targetActionDefinitionId: targetService.actionDefinitionId,
@@ -401,7 +456,8 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
     description: areaDescription,
     actions,
     reactions,
-    links
+    links,
+    connections: connectionsPayload
   };
 
   console.log('Final payload to send:', JSON.stringify(payload, null, 2));
