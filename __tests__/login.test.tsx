@@ -10,7 +10,7 @@ describe('LoginPage', () => {
   it('renders the AuthenticationForm', () => {
     render(<LoginPage />, { wrapper: AllTheProviders })
     expect(screen.getByText('Welcome to Area, login with')).toBeInTheDocument()
-    expect(screen.getByPlaceholderText('Area@Area.com')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Area@Area.com or username')).toBeInTheDocument()
     expect(screen.getByPlaceholderText('Your password')).toBeInTheDocument()
   })
 })

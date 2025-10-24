@@ -78,7 +78,7 @@ describe('AuthenticationForm', () => {
 
   it('submits the form without errors for valid input', async () => {
     render(<AuthenticationForm />, { wrapper: AllTheProviders })
-    const emailInput = screen.getByPlaceholderText('Area@Area.com')
+    const emailInput = screen.getByPlaceholderText('Area@Area.com or username')
     const passwordInput = screen.getByPlaceholderText('Your password')
     const submitButton = screen.getByText('Login')
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
@@ -93,6 +93,9 @@ describe('AuthenticationForm', () => {
   it('validates email format', async () => {
     const user = userEvent.setup();
     render(<AuthenticationForm />, { wrapper: AllTheProviders })
+
+    // Switch to register mode where email validation is stricter
+    fireEvent.click(screen.getByText("Don't have an account? Register"))
 
     const emailInput = screen.getByPlaceholderText('Area@Area.com')
     await user.type(emailInput, 'invalid-email')
@@ -162,7 +165,7 @@ describe('AuthenticationForm', () => {
 
     render(<AuthenticationForm />, { wrapper: AllTheProviders })
 
-    const emailInput = screen.getByPlaceholderText('Area@Area.com')
+    const emailInput = screen.getByPlaceholderText('Area@Area.com or username')
     const passwordInput = screen.getByPlaceholderText('Your password')
     const submitButton = screen.getByText('Login')
 
@@ -184,7 +187,7 @@ describe('AuthenticationForm', () => {
 
     render(<AuthenticationForm />, { wrapper: AllTheProviders })
 
-    const emailInput = screen.getByPlaceholderText('Area@Area.com')
+    const emailInput = screen.getByPlaceholderText('Area@Area.com or username')
     const passwordInput = screen.getByPlaceholderText('Your password')
     const submitButton = screen.getByText('Login')
 
@@ -217,6 +220,7 @@ describe('AuthenticationForm', () => {
     fireEvent.click(screen.getByText("Don't have an account? Register"))
 
     const emailInput = screen.getByPlaceholderText('Area@Area.com')
+    const usernameInput = screen.getByPlaceholderText('Your username')
     const passwordInput = screen.getByPlaceholderText('Your password')
     const confirmPasswordInput = screen.getByPlaceholderText('Confirm your password')
     const firstNameInput = screen.getByPlaceholderText('Your first name')
@@ -224,6 +228,7 @@ describe('AuthenticationForm', () => {
     const submitButton = screen.getByText('Register')
 
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
+    fireEvent.change(usernameInput, { target: { value: 'testuser' } })
     fireEvent.change(passwordInput, { target: { value: 'password123' } })
     fireEvent.change(confirmPasswordInput, { target: { value: 'password123' } })
     fireEvent.change(firstNameInput, { target: { value: 'John' } })
@@ -233,6 +238,7 @@ describe('AuthenticationForm', () => {
     await waitFor(() => {
       expect(mockRegister).toHaveBeenCalledWith({
         email: 'test@example.com',
+        username: 'testuser',
         password: 'password123',
         firstName: 'John',
         lastName: 'Doe'
@@ -245,7 +251,7 @@ describe('AuthenticationForm', () => {
 
     render(<AuthenticationForm />, { wrapper: AllTheProviders })
 
-    const emailInput = screen.getByPlaceholderText('Area@Area.com')
+    const emailInput = screen.getByPlaceholderText('Area@Area.com or username')
     const passwordInput = screen.getByPlaceholderText('Your password')
 
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } })
@@ -305,7 +311,7 @@ describe('AuthenticationForm', () => {
 
     render(<AuthenticationForm />, { wrapper: AllTheProviders })
 
-    const emailInput = screen.getByPlaceholderText('Area@Area.com')
+    const emailInput = screen.getByPlaceholderText('Area@Area.com or username')
     const passwordInput = screen.getByPlaceholderText('Your password')
     const submitButton = screen.getByText('Login')
 
