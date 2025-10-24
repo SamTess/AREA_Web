@@ -79,14 +79,19 @@ export function useDraftManager({
 
       const actionsCount = payload.actions?.length || 0;
 
+      const serviceIdToIndexMap = new Map<string, number>();
+      servicesState.forEach((service, index) => {
+        serviceIdToIndexMap.set(service.id, index);
+      });
+
       const transformedConnections = connections.map(conn => {
-        const sourceIndex = servicesState.findIndex(s => s.id === conn.sourceId);
-        const targetIndex = servicesState.findIndex(s => s.id === conn.targetId);
+        const sourceIndex = serviceIdToIndexMap.get(conn.sourceId);
+        const targetIndex = serviceIdToIndexMap.get(conn.targetId);
 
         let sourceServiceId = conn.sourceId;
         let targetServiceId = conn.targetId;
 
-        if (sourceIndex !== -1 && targetIndex !== -1) {
+        if (sourceIndex !== undefined && targetIndex !== undefined) {
           if (sourceIndex < actionsCount) {
             sourceServiceId = `action_${sourceIndex}`;
           } else {
@@ -161,6 +166,9 @@ export function useDraftManager({
   }, [areaName, areaDescription, servicesState, connections, autoSaveDraft]);
 
   const loadDraftFromData = useCallback(async (draft: AreaDraftResponse) => {
+    const actionPattern = /^action_(\d+)$/;
+    const reactionPattern = /^reaction_(\d+)$/;
+
     const mockArea: BackendArea = {
       id: draft.draftId,
       name: draft.name,
@@ -176,13 +184,12 @@ export function useDraftManager({
 
     const transformedServices = await transformBackendDataToServiceData(mockArea);
 
+    const actionsCount = draft.actions?.length || 0;
+
     const transformedConnections: ConnectionData[] = draft.connections
       ? draft.connections.map((conn) => {
           let sourceId = conn.sourceServiceId;
           let targetId = conn.targetServiceId;
-
-          const actionPattern = /^action_(\d+)$/;
-          const reactionPattern = /^reaction_(\d+)$/;
 
           const sourceActionMatch = conn.sourceServiceId.match(actionPattern);
           const sourceReactionMatch = conn.sourceServiceId.match(reactionPattern);
@@ -196,7 +203,6 @@ export function useDraftManager({
             }
           } else if (sourceReactionMatch) {
             const index = parseInt(sourceReactionMatch[1], 10);
-            const actionsCount = draft.actions?.length || 0;
             const serviceIndex = actionsCount + index;
             if (transformedServices[serviceIndex]) {
               sourceId = transformedServices[serviceIndex].id;
@@ -210,7 +216,6 @@ export function useDraftManager({
             }
           } else if (targetReactionMatch) {
             const index = parseInt(targetReactionMatch[1], 10);
-            const actionsCount = draft.actions?.length || 0;
             const serviceIndex = actionsCount + index;
             if (transformedServices[serviceIndex]) {
               targetId = transformedServices[serviceIndex].id;

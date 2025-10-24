@@ -409,45 +409,57 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
 
   const actionsCount = actions.length;
 
+  const serviceIdToIndexMap = new Map<string, number>();
+  services.forEach((service, index) => {
+    serviceIdToIndexMap.set(service.id, index);
+  });
+
+  const serviceIdToServiceMap = new Map<string, ServiceData>();
+  services.forEach(service => {
+    serviceIdToServiceMap.set(service.id, service);
+  });
+
   connections.forEach(connection => {
-    const sourceService = services.find(s => s.id === connection.sourceId);
-    const targetService = services.find(s => s.id === connection.targetId);
+    const sourceService = serviceIdToServiceMap.get(connection.sourceId);
+    const targetService = serviceIdToServiceMap.get(connection.targetId);
 
     if (sourceService && targetService) {
-      const sourceIndex = services.indexOf(sourceService);
-      const targetIndex = services.indexOf(targetService);
+      const sourceIndex = serviceIdToIndexMap.get(connection.sourceId);
+      const targetIndex = serviceIdToIndexMap.get(connection.targetId);
 
-      let sourceServiceId = '';
-      let targetServiceId = '';
+      if (sourceIndex !== undefined && targetIndex !== undefined) {
+        let sourceServiceId = '';
+        let targetServiceId = '';
 
-      if (sourceIndex < actionsCount) {
-        sourceServiceId = `action_${sourceIndex}`;
-      } else {
-        sourceServiceId = `reaction_${sourceIndex - actionsCount}`;
+        if (sourceIndex < actionsCount) {
+          sourceServiceId = `action_${sourceIndex}`;
+        } else {
+          sourceServiceId = `reaction_${sourceIndex - actionsCount}`;
+        }
+
+        if (targetIndex < actionsCount) {
+          targetServiceId = `action_${targetIndex}`;
+        } else {
+          targetServiceId = `reaction_${targetIndex - actionsCount}`;
+        }
+
+        connectionsPayload.push({
+          sourceServiceId,
+          targetServiceId,
+          linkType: connection.linkData?.type || 'chain',
+          mapping: connection.linkData?.mapping || {},
+          condition: connection.linkData?.condition || {},
+          order: connection.linkData?.order || 0
+        });
+
+        links.push({
+          sourceActionDefinitionId: sourceService.actionDefinitionId,
+          targetActionDefinitionId: targetService.actionDefinitionId,
+          mapping: connection.linkData?.mapping || {},
+          condition: connection.linkData?.condition || {},
+          order: connection.linkData?.order || 0
+        });
       }
-
-      if (targetIndex < actionsCount) {
-        targetServiceId = `action_${targetIndex}`;
-      } else {
-        targetServiceId = `reaction_${targetIndex - actionsCount}`;
-      }
-
-      connectionsPayload.push({
-        sourceServiceId,
-        targetServiceId,
-        linkType: connection.linkData?.type || 'chain',
-        mapping: connection.linkData?.mapping || {},
-        condition: connection.linkData?.condition || {},
-        order: connection.linkData?.order || 0
-      });
-
-      links.push({
-        sourceActionDefinitionId: sourceService.actionDefinitionId,
-        targetActionDefinitionId: targetService.actionDefinitionId,
-        mapping: connection.linkData?.mapping || {},
-        condition: connection.linkData?.condition || {},
-        order: connection.linkData?.order || 0
-      });
     }
   });
 
