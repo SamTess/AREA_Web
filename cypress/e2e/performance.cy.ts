@@ -18,12 +18,12 @@ describe('Performance and Accessibility', () => {
 
   it('should have accessible form labels', () => {
     cy.visit('/login');
-    // Check that email input exists and has proper placeholder
-    cy.get('input[placeholder="Area@Area.com"]').should('exist').and('be.visible');
+    // Check that email or username input exists and has proper placeholder
+    cy.get('input[placeholder="Area@Area.com or username"]').should('exist').and('be.visible');
     // Check that password input exists and has proper placeholder
     cy.get('input[placeholder="Your password"]').should('exist').and('be.visible');
     // Check that labels exist for the form inputs
-    cy.contains('Email').should('be.visible');
+    cy.contains('Email or Username').should('be.visible');
     cy.contains('Password').should('be.visible');
   });
 
