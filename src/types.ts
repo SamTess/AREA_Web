@@ -164,11 +164,11 @@ export interface Area {
   status: 'success' | 'failed' | 'in progress' | 'not started';
 }
 
-export interface LoginData {
-  email?: string;
-  username?: string;
-  password: string;
-}
+// Discriminated union to ensure at least one identifier is provided
+export type LoginData = 
+  | { email: string; username?: never; password: string }
+  | { username: string; email?: never; password: string }
+  | { email: string; username: string; password: string };
 
 export interface LoginResponse {
   message: string;

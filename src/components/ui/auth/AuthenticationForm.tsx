@@ -21,7 +21,7 @@ import { AxiosError } from 'axios';
 import { PasswordStrength } from './PasswordStrength';
 import { login, register, forgotPassword } from '../../../services/authService';
 import { getOAuthProviders, initiateOAuth } from '../../../services/oauthService';
-import { FormValues, OAuthProvider } from '../../../types';
+import { FormValues, OAuthProvider, LoginData } from '../../../types';
 
 export function AuthenticationForm(props: PaperProps) {
   const [type, setType] = useState<'login' | 'register' | 'forgotPassword'>('login');
@@ -70,7 +70,7 @@ export function AuthenticationForm(props: PaperProps) {
       },
       username: (val) => {
         if (type === 'register' && (!val || val.trim().length < 3)) return 'Username must be at least 3 characters';
-        if (type === 'register' && val.trim().length > 50) return 'Username must not exceed 50 characters';
+        if (type === 'register' && val && val.trim().length > 50) return 'Username must not exceed 50 characters';
         return null;
       },
       password: (val) => { return val.length <= 8 ? 'Password should include at least 6 characters' : null; },
@@ -179,11 +179,21 @@ export function AuthenticationForm(props: PaperProps) {
           isSubmittingRef.current = false;
           return;
         }
-        await login({
-          email: values.email || undefined,
-          username: values.username || undefined,
-          password: values.password
-        });
+        
+        // Construct LoginData based on which field is provided
+        let loginData: LoginData;
+        if (values.email && values.username) {
+          // Both provided
+          loginData = { email: values.email, username: values.username, password: values.password };
+        } else if (values.email) {
+          // Email only
+          loginData = { email: values.email, password: values.password };
+        } else {
+          // Username only
+          loginData = { username: values.username, password: values.password };
+        }
+        
+        await login(loginData);
         setSuccess('Login successful! Redirecting...');
         setTimeout(() => {
           window.location.reload();
@@ -304,7 +314,7 @@ export function AuthenticationForm(props: PaperProps) {
             <TextInput
               label="Email or Username"
               placeholder="Area@Area.com or username"
-              value={form.values.email || form.values.username}
+              value={form.values.email || form.values.username || ''}
               onChange={(event) => {
                 const value = event.currentTarget.value;
                 if (value.includes('@')) {
