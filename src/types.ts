@@ -164,16 +164,18 @@ export interface Area {
   status: 'success' | 'failed' | 'in progress' | 'not started';
 }
 
-export interface LoginData {
-  email: string;
-  password: string;
-}
+// Discriminated union to ensure at least one identifier is provided
+export type LoginData = 
+  | { email: string; username?: never; password: string }
+  | { username: string; email?: never; password: string }
+  | { email: string; username: string; password: string };
 
 export interface LoginResponse {
   message: string;
   user: {
     id: string | number;
     email: string;
+    username?: string;
     isActive: boolean;
     isAdmin: boolean;
     createdAt: string;
@@ -187,6 +189,7 @@ export interface LoginResponse {
 
 export interface RegisterData {
   email: string;
+  username: string;
   firstName: string;
   lastName: string;
   password: string;
@@ -214,6 +217,7 @@ export interface UserContent {
 
 export interface ProfileData {
   email: string;
+  username?: string;
   firstName: string;
   lastName: string;
   language?: string;
@@ -240,6 +244,7 @@ export interface CardProps {
 
 export interface FormValues {
   email: string;
+  username: string;
   firstName: string;
   lastName: string;
   password: string;

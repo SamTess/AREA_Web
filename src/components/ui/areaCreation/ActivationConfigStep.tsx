@@ -289,9 +289,9 @@ export default function ActivationConfigStep({ service, onServiceChange }: Activ
                 setPollInterval(interval);
                 updateActivationConfig('poll', { poll_interval: interval });
               }}
-              min={60}
+              min={1}
               max={86400}
-              description="Minimum: 60 seconds, Maximum: 24 hours (86400 seconds)"
+              description="Minimum: 1 second, Maximum: 24 hours (86400 seconds)"
             />
           </Stack>
         )}

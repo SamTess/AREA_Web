@@ -75,6 +75,7 @@ describe('authService', () => {
     it('should handle registration with mock data', async () => {
       const registerData = {
         email: 'test@test.com',
+        username: 'testuser',
         password: 'password123',
         firstName: 'John',
         lastName: 'Doe'

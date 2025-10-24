@@ -104,6 +104,8 @@ export const updateProfile = async (userId: string, data: ProfileData, avatarUrl
       firstname: data.firstName,
       lastname: data.lastName,
     };
+    if (data.username)
+      updateData.username = data.username;
     if (data.password && data.password.trim() !== '')
       updateData.password = data.password;
     if (avatarUrl)
@@ -121,6 +123,7 @@ export const updateProfile = async (userId: string, data: ProfileData, avatarUrl
       isVerified: backendUser.isActive || false,
       profileData: {
         email: backendUser.email,
+        username: backendUser.username || '',
         firstName: backendUser.firstname || '',
         lastName: backendUser.lastname || '',
         language: data.language || 'en'
@@ -173,6 +176,7 @@ export const getCurrentUser = async (): Promise<UserContent> => {
       isVerified: backendUser.isActive || false,
       profileData: {
         email: backendUser.email,
+        username: backendUser.username || '',
         firstName: backendUser.firstname || '',
         lastName: backendUser.lastname || '',
         language: 'en'

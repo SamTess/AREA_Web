@@ -33,6 +33,7 @@ export default function ProfilPage() {
   const form = useForm<ProfileData>({
     initialValues: {
       email: '',
+      username: '',
       firstName: '',
       lastName: '',
       password: '',
@@ -205,6 +206,17 @@ export default function ProfilPage() {
             readOnly
             {...form.getInputProps('email')}
           />
+          <div>
+            <TextInput
+              label="Username"
+              placeholder="Username"
+              maxLength={50}
+              {...form.getInputProps('username')}
+            />
+            <Text size="xs" c="dimmed" mt={4} ta="right">
+              {form.values.username?.length || 0}/50 characters
+            </Text>
+          </div>
           <PasswordInput
             label="New Password (optional)"
             description="Leave empty to keep current password"

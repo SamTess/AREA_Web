@@ -6,7 +6,7 @@ describe('Login page', () => {
 
   it('should display login form elements', () => {
     cy.visit('/login');
-    cy.get('input[placeholder="Area@Area.com"]').should('be.visible');
+    cy.get('input[placeholder="Area@Area.com or username"]').should('be.visible');
     cy.get('input[placeholder="Your password"]').should('be.visible');
     cy.contains('Login').should('be.visible');
   });
