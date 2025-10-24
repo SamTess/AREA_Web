@@ -359,14 +359,12 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
       }
     }
 
-    // Determine if this service should be a trigger (action) or reaction based on its capabilities
     if (isEvent) {
-      // This is a trigger/action - it can generate events
       let actionActivationConfig = service.activationConfig;
       if (actionActivationConfig?.type === 'chain') {
         actionActivationConfig = { type: 'webhook' };
       }
-      
+
       actions.push({
         actionDefinitionId: service.actionDefinitionId || '',
         name: service.event || service.cardName || 'Unnamed Action',
