@@ -544,7 +544,7 @@ export default function EditSimpleAreaPage() {
         <div>
           <Group justify="space-between" mb="md">
             <div>
-              <Title order={1}>Edit AREA (Simple Mode)</Title>
+              <Title order={1}>Edit AREA</Title>
               <Text c="dimmed" size="lg" mt="sm">
                 Modify your automation in a few simple steps
               </Text>

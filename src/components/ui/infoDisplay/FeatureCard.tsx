@@ -12,21 +12,21 @@ import classes from './FeaturesCards.module.css';
 
 const mockdata = [
   {
-    title: 'Automate your tasks',
+    title: 'Automate your workflow',
     description:
-      'Create automations between your favorite apps to save time and simplify your daily routine.',
+      'Connect actions and reactions across your favorite services. When something happens in one app, trigger automated responses in another.',
     icon: IconAutomation,
   },
   {
-    title: 'Privacy first',
+    title: 'Privacy focused',
     description:
-      'Your data remains confidential and is never shared with third parties. You keep full control.',
+      'Your data stays secure and private. We never share your information with third parties. You maintain complete control over your automations.',
     icon: IconUser,
   },
   {
-    title: 'Seamless integration',
+    title: 'Real-time synchronization',
     description:
-      'Easily connect your services without relying on intermediaries. AREA takes care of everything for you.',
+      'Lightning-fast execution of your automations. AREA monitors your services and triggers actions instantly when conditions are met.',
     icon: IconGauge,
   },
 ];
@@ -49,12 +49,12 @@ export function FeaturesCards() {
     <Container size="lg" py="xl">
 
       <Title order={2} className={classes.title} ta="center" mt="sm">
-        Integrate effortlessly with any technology stack
+        Powerful automation made simple
       </Title>
 
       <Text c="dark.6" className={classes.description} ta="center" mt="md">
-        Every once in a while, you&apos;ll see a Golbat that&apos;s missing some fangs. This happens when
-        hunger drives it to try biting a Steel-type Pokémon.
+        AREA empowers you to create smart automations by connecting different services together. 
+        Set up triggers and actions to streamline your digital life effortlessly.
       </Text>
 
       <SimpleGrid cols={{ base: 1, md: 3 }} spacing="xl" mt={50}>
