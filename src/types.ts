@@ -208,6 +208,7 @@ export interface UserContent {
   id: string;
   name: string;
   email: string;
+  username?: string;
   password: string;
   avatarSrc: string;
   profileData: ProfileData;
