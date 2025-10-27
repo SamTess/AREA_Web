@@ -92,6 +92,7 @@ export default function AreaEditor({ areaId, draftId }: AreaEditorProps) {
           onRun={handleRun}
           isDraft={!!currentDraftId}
           isCommitting={isCommitting}
+          areaId={areaId}
         />
       </div>
 

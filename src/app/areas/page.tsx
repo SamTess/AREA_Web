@@ -138,7 +138,12 @@ export default function AreaListPage() {
             <Stack gap="md">
                 <Group justify="space-between">
                     <Title order={1}>Areas</Title>
-                    <Button leftSection={<IconPlus size={18} />} onClick={() => router.push('/areas/new')} color="blue">Add Area</Button>
+                    <Button
+                        leftSection={<IconPlus size={18} />}
+                        onClick={() => router.push('/areas/create-simple')}
+                    >
+                        Create New Area
+                    </Button>
                 </Group>
                 <Divider />
                 <Group grow>
