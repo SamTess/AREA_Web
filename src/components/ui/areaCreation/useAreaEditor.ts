@@ -586,7 +586,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
     }, 1000);
 
     return () => clearTimeout(timeoutId);
-  }, [areaName, areaDescription]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [areaName, areaDescription, saveDraftManually]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -681,7 +681,6 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
 
       setIsCommitting(true);
 
-      // Sauvegarder le brouillon avant de créer l'area
       await saveDraftManually();
 
       const payload = await transformServiceDataToPayload(servicesState, areaName, areaDescription, connections);
@@ -765,8 +764,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
       }
     };
     setServicesState(prev => [...prev, newService]);
-    
-    // Sauvegarder le brouillon après l'ajout
+
     saveDraftManually().catch(error => {
       console.error('Error saving draft after adding service:', error);
     });
@@ -774,8 +772,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
 
   const removeService = (id: string) => {
     setServicesState((prev) => prev.filter((s) => s.id !== id));
-    
-    // Sauvegarder le brouillon après la suppression
+
     saveDraftManually().catch(error => {
       console.error('Error saving draft after removing service:', error);
     });
@@ -806,7 +803,6 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
       });
     }
 
-    // Sauvegarder le brouillon après la modification
     saveDraftManually().catch(error => {
       console.error('Error saving draft after service update:', error);
     });
@@ -874,8 +870,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
     setConnections(prev => [...prev, connection]);
 
     applyLinkEffect(connection);
-    
-    // Sauvegarder le brouillon après la création de connexion
+
     saveDraftManually().catch(error => {
       console.error('Error saving draft after creating connection:', error);
     });
@@ -1052,8 +1047,6 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
         });
       }
     }
-    
-    // Sauvegarder le brouillon après la suppression de connexion
     saveDraftManually().catch(error => {
       console.error('Error saving draft after removing connection:', error);
     });
