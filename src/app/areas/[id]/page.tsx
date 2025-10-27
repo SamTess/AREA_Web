@@ -1,18 +1,18 @@
 'use client';
 
-import { useParams, useSearchParams } from 'next/navigation';
+import { useParams, useSearchParams, useRouter } from 'next/navigation';
 import AreaEditor from '../../../components/ui/areaCreation/AreaEditor';
 import { getCurrentUser } from '@/services/authService';
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { getAreaById } from '@/services/areasService';
 
 export default function EditAreaPage() {
   const params = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
   const areaId = params.id as string;
   const draftId = searchParams.get('draft') || undefined;
-  const router = useRouter();
+  const mode = searchParams.get('mode');
 
   useEffect(() => {
     const checkLogin = async () => {
@@ -33,16 +33,28 @@ export default function EditAreaPage() {
         if (area) {
           if (area.userId !== user.id) {
             router.push('/areas');
+            return;
           }
         } else {
           router.push('/areas');
+          return;
         }
       } catch (error) {
         console.error('Error getting area by ID:', error);
         router.push('/areas');
+        return;
+      }
+
+      if (!mode) {
+        router.push(`/areas/${areaId}/edit-simple`);
       }
     };
     checkLogin();
-  }, [router, areaId]);
+  }, [router, areaId, mode]);
+
+  if (mode !== 'advanced') {
+    return null;
+  }
+
   return <AreaEditor areaId={areaId} draftId={draftId} />;
 }

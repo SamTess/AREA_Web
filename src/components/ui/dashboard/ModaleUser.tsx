@@ -9,6 +9,7 @@ export function ModaleUser({ opened, onClose, userId }: { opened: boolean; onClo
     nom: '',
     prenom: '',
     email: '',
+    username: '',
     password: '',
     isAdmin: false,
   });
@@ -21,6 +22,7 @@ export function ModaleUser({ opened, onClose, userId }: { opened: boolean; onClo
         lastName: formData.nom,
         firstName: formData.prenom,
         email: formData.email,
+        username: formData.username,
         password: formData.password,
         isAdmin: formData.isAdmin,
       }).then(() => {
@@ -40,6 +42,7 @@ export function ModaleUser({ opened, onClose, userId }: { opened: boolean; onClo
           lastName: formData.nom,
           firstName: formData.prenom,
           email: formData.email,
+          username: formData.username,
           password: formData.password,
           isAdmin: formData.isAdmin,
         }),
@@ -62,6 +65,7 @@ export function ModaleUser({ opened, onClose, userId }: { opened: boolean; onClo
           nom: user.profileData?.lastName || '',
           prenom: user.profileData?.firstName || '',
           email: user.email,
+          username: user.username || '',
           password: user.password || '',
           isAdmin: user.isAdmin,
         });
@@ -73,6 +77,7 @@ export function ModaleUser({ opened, onClose, userId }: { opened: boolean; onClo
         nom: '',
         prenom: '',
         email: '',
+        username: '',
         password: '',
         isAdmin: false,
       });
@@ -109,6 +114,14 @@ export function ModaleUser({ opened, onClose, userId }: { opened: boolean; onClo
             value={formData.email}
             onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             required
+          />
+          <TextInput
+            label="Username"
+            placeholder="Enter username"
+            value={formData.username}
+            onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+            required
+            maxLength={50}
           />
           { !userId && (
           <PasswordInput

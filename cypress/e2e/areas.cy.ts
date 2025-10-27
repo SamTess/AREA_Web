@@ -2,13 +2,82 @@
 
 describe('Areas page', () => {
   beforeEach(() => {
+    // Intercept API calls and provide mock responses
+    cy.intercept('GET', '**/api/auth/me', {
+      statusCode: 200,
+      body: {
+        id: '1',
+        email: 'test@test.com',
+        firstname: 'Test',
+        lastname: 'User',
+        isAdmin: false,
+        isActive: true,
+        avatarUrl: '',
+        createdAt: new Date().toISOString()
+      }
+    }).as('getCurrentUser');
+
+    cy.intercept('GET', '**/api/areas', {
+      statusCode: 200,
+      body: [
+        {
+          id: '1',
+          name: 'GitHub PR Monitor',
+          description: 'Monitor GitHub pull requests',
+          enabled: true,
+          userId: '1',
+          userEmail: 'test@test.com',
+          actions: [],
+          reactions: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        },
+        {
+          id: '2',
+          name: 'Slack Channel Alert',
+          description: 'Alert on Slack channels',
+          enabled: true,
+          userId: '1',
+          userEmail: 'test@test.com',
+          actions: [],
+          reactions: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString()
+        }
+      ]
+    }).as('getAreas');
+
+    cy.intercept('GET', '**/api/services/catalog', {
+      statusCode: 200,
+      body: [
+        {
+          id: '1',
+          key: 'github',
+          name: 'GitHub',
+          auth: 'OAUTH2',
+          isActive: true,
+          iconLightUrl: '/github.svg',
+          iconDarkUrl: '/github.svg'
+        },
+        {
+          id: '2',
+          key: 'slack',
+          name: 'Slack',
+          auth: 'OAUTH2',
+          isActive: true,
+          iconLightUrl: '/slack.svg',
+          iconDarkUrl: '/slack.svg'
+        }
+      ]
+    }).as('getServices');
+
     cy.visit('/areas');
     cy.setupMockEnvironment();
   });
 
   it('should load the areas page', () => {
     cy.contains('Areas').should('be.visible');
-    cy.contains('Add Area').should('be.visible');
+    cy.contains('Create New Area').should('be.visible');
   });
 
   it('should display areas list', () => {

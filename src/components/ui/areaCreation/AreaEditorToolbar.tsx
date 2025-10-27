@@ -1,6 +1,7 @@
 import { Button, TextInput, Group, Popover, Textarea, Title, Space, Badge } from '@mantine/core';
-import { IconPlayerPlay, IconFileText, IconDeviceFloppy, IconTrash } from '@tabler/icons-react';
+import { IconPlayerPlay, IconFileText, IconDeviceFloppy, IconTrash, IconArrowBack } from '@tabler/icons-react';
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from './AreaEditor.module.css';
 
 interface AreaEditorToolbarProps {
@@ -12,6 +13,7 @@ interface AreaEditorToolbarProps {
   onRun: () => void;
   isDraft?: boolean;
   isCommitting?: boolean;
+  areaId?: string;
   onDeleteDraft?: () => void;
 }
 
@@ -24,9 +26,19 @@ export default function AreaEditorToolbar({
   onRun,
   isDraft = false,
   isCommitting = false,
+  areaId,
   onDeleteDraft
 }: AreaEditorToolbarProps) {
   const [opened, setOpened] = useState(false);
+  const router = useRouter();
+
+  const handleSimpleModeClick = () => {
+    if (areaId) {
+      router.push(`/areas/${areaId}/edit-simple`);
+    } else {
+      router.push('/areas/create-simple');
+    }
+  };
 
   return (
     <div className={styles.header}>
@@ -63,6 +75,13 @@ export default function AreaEditorToolbar({
           </Popover>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <Button
+            variant="outline"
+            leftSection={<IconArrowBack size={16} />}
+            onClick={handleSimpleModeClick}
+          >
+            Simple Mode
+          </Button>
           {isDraft && onDeleteDraft && (
             <Button 
               onClick={onDeleteDraft}
