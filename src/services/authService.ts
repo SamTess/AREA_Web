@@ -225,3 +225,15 @@ export const verifyEmail = async (token: string): Promise<void> => {
     throw error;
   }
 };
+
+export const deleteAccount = async (userId: string): Promise<void> => {
+  if (USE_MOCK_DATA)
+    return Promise.resolve();
+
+  try {
+    await axios.delete(`${API_CONFIG.endpoints.user.profile}/${userId}`);
+  } catch (error) {
+    console.error('Delete account error:', error);
+    throw error;
+  }
+};
