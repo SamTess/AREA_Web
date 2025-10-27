@@ -26,7 +26,7 @@ export default function AreaEditorToolbar({
   onRun,
   isDraft = false,
   isCommitting = false,
-  areaId
+  areaId,
   onDeleteDraft
 }: AreaEditorToolbarProps) {
   const [opened, setOpened] = useState(false);
@@ -82,7 +82,6 @@ export default function AreaEditorToolbar({
           >
             Simple Mode
           </Button>
-          <Button
           {isDraft && onDeleteDraft && (
             <Button 
               onClick={onDeleteDraft}
