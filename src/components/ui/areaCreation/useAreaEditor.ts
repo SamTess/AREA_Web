@@ -15,7 +15,7 @@ import {
 import { ServiceState, ServiceData, BackendArea, BackendService, ConnectionData, ActivationConfig, LinkData} from '../../../types';
 import { useDraftManager } from './useDraftManager';
 
-const WAIT_NOTIFICATION_TIMEOUT = 1500;
+const WAIT_NOTIFICATION_TIMEOUT = 500;
 
 let servicesCache: BackendService[] | null = null;
 const transformBackendDataToServiceData = async (area: BackendArea): Promise<ServiceData[]> => {

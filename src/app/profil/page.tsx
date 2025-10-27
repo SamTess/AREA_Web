@@ -1,14 +1,15 @@
 'use client';
 
 import { AxiosError } from 'axios';
-import { PasswordInput, TextInput, Avatar, Button, Container, Card, Stack, Group, Menu, Text, Loader, Alert, Tabs, Space } from '@mantine/core';
-import { IconCamera, IconUser, IconPlug } from '@tabler/icons-react';
+import { PasswordInput, TextInput, Avatar, Button, Container, Card, Stack, Group, Menu, Text, Loader, Alert, Tabs, Space, Modal } from '@mantine/core';
+import { IconCamera, IconUser, IconPlug, IconTrash } from '@tabler/icons-react';
 import { useForm } from '@mantine/form';
 import { z } from 'zod';
-import { getCurrentUser, updateProfile } from '../../services/authService';
+import { getCurrentUser, updateProfile, deleteAccount } from '../../services/authService';
 import {  uploadAvatar } from '../../services/userService';
 import { ProfileData, UserContent } from '../../types';
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/navigation';
 import ServicesTabProfile from '../../components/user/ServicesTabProfile';
 
 const profileSchema = z.object({
@@ -27,8 +28,11 @@ export default function ProfilPage() {
   const [originalAvatarSrc, setOriginalAvatarSrc] = useState<string>('');
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [userId, setUserId] = useState<string | " ">(" ");
+  const [userId, setUserId] = useState<string>('');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
+  const [deleteModalOpened, setDeleteModalOpened] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const router = useRouter();
 
   const form = useForm<ProfileData>({
     initialValues: {
@@ -139,6 +143,29 @@ export default function ProfilPage() {
       setAvatarFile(file);
     } catch (error) {
       console.error('Failed to read file', error);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!userId || userId.trim() === '') {
+      setNotification({ message: 'Invalid user ID. Please try logging in again.', type: 'error' });
+      setDeleteModalOpened(false);
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await deleteAccount(userId);
+      setNotification({ message: 'Account deleted successfully. Redirecting...', type: 'success' });
+      setDeleteModalOpened(false);
+      setTimeout(() => {
+        router.push('/login');
+      }, 2000);
+    } catch (error) {
+      console.error('Failed to delete account:', error);
+      setNotification({ message: 'Failed to delete account. Please try again.', type: 'error' });
+    } finally {
+      setIsDeleting(false);
     }
   };
 
@@ -270,6 +297,29 @@ export default function ProfilPage() {
         </Stack>
       </Card>
 
+      <Space h="xl" />
+
+      <Card shadow="sm" padding="lg" radius="md" withBorder style={{ borderColor: '#fa5252' }}>
+        <Stack gap="md">
+          <div>
+            <Text size="lg" fw={600} c="red">
+              Danger Zone
+            </Text>
+            <Text size="sm" c="dimmed" mt={4}>
+              Irreversible and destructive actions
+            </Text>
+          </div>
+          <Button
+            color="red"
+            variant="light"
+            leftSection={<IconTrash size={16} />}
+            onClick={() => setDeleteModalOpened(true)}
+          >
+            Delete Account
+          </Button>
+        </Stack>
+      </Card>
+
       <input
         type="file"
         ref={fileInputRef}
@@ -293,6 +343,27 @@ export default function ProfilPage() {
         </Card>
       </Tabs.Panel>
       </Tabs>
+
+      <Modal
+        opened={deleteModalOpened}
+        onClose={() => setDeleteModalOpened(false)}
+        title="Delete Account"
+        centered
+      >
+        <Stack gap="md">
+          <Text>
+            Are you sure you want to delete your account? This action cannot be undone and all your data will be permanently deleted.
+          </Text>
+          <Group justify="flex-end">
+            <Button variant="default" onClick={() => setDeleteModalOpened(false)}>
+              Cancel
+            </Button>
+            <Button color="red" onClick={handleDeleteAccount} loading={isDeleting}>
+              Delete Account
+            </Button>
+          </Group>
+        </Stack>
+      </Modal>
     </Container>
   );
 }
