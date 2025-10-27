@@ -1,5 +1,5 @@
 import { Button, TextInput, Group, Popover, Textarea, Title, Space, Badge } from '@mantine/core';
-import { IconPlayerPlay, IconFileText, IconDeviceFloppy } from '@tabler/icons-react';
+import { IconPlayerPlay, IconFileText, IconDeviceFloppy, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
 import styles from './AreaEditor.module.css';
 
@@ -12,6 +12,7 @@ interface AreaEditorToolbarProps {
   onRun: () => void;
   isDraft?: boolean;
   isCommitting?: boolean;
+  onDeleteDraft?: () => void;
 }
 
 export default function AreaEditorToolbar({
@@ -22,7 +23,8 @@ export default function AreaEditorToolbar({
   onCommit,
   onRun,
   isDraft = false,
-  isCommitting = false
+  isCommitting = false,
+  onDeleteDraft
 }: AreaEditorToolbarProps) {
   const [opened, setOpened] = useState(false);
 
@@ -61,6 +63,16 @@ export default function AreaEditorToolbar({
           </Popover>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {isDraft && onDeleteDraft && (
+            <Button 
+              onClick={onDeleteDraft}
+              color="red"
+              variant="light"
+              leftSection={<IconTrash size={16} />}
+            >
+              Delete Draft
+            </Button>
+          )}
           <Button 
             onClick={onCommit}
             color="green"
