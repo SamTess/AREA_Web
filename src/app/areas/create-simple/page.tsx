@@ -6,31 +6,19 @@ import {
   Container,
   Title,
   Text,
-  Paper,
-  Stack,
-  TextInput,
-  Textarea,
-  Select,
   Button,
   Group,
   Alert,
   Stepper,
-  Card,
-  Badge,
-  SimpleGrid,
+  Stack,
   NumberInput,
-  ActionIcon,
-  Divider,
-  Pill,
+  TextInput,
 } from '@mantine/core';
 import {
   IconAlertCircle,
   IconCheck,
   IconArrowRight,
   IconArrowLeft,
-  IconPlus,
-  IconTrash,
-  IconSettings,
 } from '@tabler/icons-react';
 import { getCurrentUser } from '@/services/authService';
 import {
@@ -46,6 +34,8 @@ import {
   initiateServiceConnection,
   ServiceConnectionStatus,
 } from '@/services/serviceConnectionService';
+import { NameStep, TriggerStep, ReactionsStep, ResumeStep } from '@/components/ui/area-simple-steps';
+import { ArrayInput } from '@/components/ui/area-simple-steps/ArrayInput';
 
 interface ReactionData {
   id: string;
@@ -63,83 +53,6 @@ interface SimpleDraft {
   reactions: ReactionData[];
   activeStep: number;
   savedAt: string;
-}
-
-interface ArrayInputProps {
-  field: FieldData;
-  value: unknown;
-  onChange: (value: unknown) => void;
-}
-
-function ArrayInput({ field, value, onChange }: ArrayInputProps) {
-  const arrayValue = Array.isArray(value) ? value : [];
-  const [inputValue, setInputValue] = useState('');
-
-  return (
-    <div>
-      <div>
-        <Text size="sm" fw={500} mb={5}>
-          {field.name}
-          {field.mandatory && <span style={{ color: 'red' }}> *</span>}
-        </Text>
-        {field.description && (
-          <Text size="xs" c="dimmed" mb={8}>
-            {field.description}
-          </Text>
-        )}
-      </div>
-      <Stack gap="xs">
-        <Group gap="xs" style={{ flexWrap: 'wrap', minHeight: arrayValue.length > 0 ? 'auto' : '40px' }}>
-          {arrayValue.map((item: unknown, index: number) => (
-            <Pill
-              key={index}
-              withRemoveButton
-              onRemove={() => {
-                const newArray = arrayValue.filter((_: unknown, i: number) => i !== index);
-                onChange(newArray);
-              }}
-            >
-              {String(item)}
-            </Pill>
-          ))}
-          {arrayValue.length === 0 && (
-            <Text size="sm" c="dimmed" style={{ padding: '8px' }}>
-              No items yet. Add items below.
-            </Text>
-          )}
-        </Group>
-        <Group gap="xs">
-          <TextInput
-            placeholder={field.placeholder || 'Type and press Enter or click Add'}
-            value={inputValue}
-            onChange={(e) => setInputValue(e.currentTarget.value)}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && inputValue.trim()) {
-                e.preventDefault();
-                const newArray = [...arrayValue, inputValue.trim()];
-                onChange(newArray);
-                setInputValue('');
-              }
-            }}
-            style={{ flex: 1 }}
-          />
-          <Button
-            size="sm"
-            onClick={() => {
-              if (inputValue.trim()) {
-                const newArray = [...arrayValue, inputValue.trim()];
-                onChange(newArray);
-                setInputValue('');
-              }
-            }}
-            disabled={!inputValue.trim()}
-          >
-            Add
-          </Button>
-        </Group>
-      </Stack>
-    </div>
-  );
 }
 
 const DRAFT_EXPIRY_MS = 24 * 60 * 60 * 1000;
@@ -341,11 +254,6 @@ export default function CreateSimpleAreaPage() {
     setActiveStep(0);
   };
 
-  const isServiceConnected = (serviceKey: string): boolean => {
-    const status = serviceConnectionStatuses[serviceKey];
-    return status?.isConnected === true;
-  };
-
   const handleConnectService = async (serviceKey: string) => {
     try {
       await initiateServiceConnection(serviceKey, window.location.href);
@@ -460,7 +368,7 @@ export default function CreateSimpleAreaPage() {
       description: field.description,
       required: field.mandatory,
     };
-    
+
     switch (field.type) {
       case 'number':
         return (
@@ -583,424 +491,102 @@ export default function CreateSimpleAreaPage() {
             label="Information"
             description="Name and description"
           >
-            <Paper p="xl" radius="md" withBorder mt="xl">
-              <Stack gap="md">
-                <TextInput
-                  label="AREA Name"
-                  placeholder="My automation"
-                  required
-                  value={areaName}
-                  onChange={(e) => setAreaName(e.currentTarget.value)}
-                  size="lg"
-                  aria-label="AREA Name"
-                  description="Give a descriptive name to your automation"
-                />
-                <Textarea
-                  label="Description (optional)"
-                  placeholder="This AREA does..."
-                  value={areaDescription}
-                  onChange={(e) => setAreaDescription(e.currentTarget.value)}
-                  size="md"
-                  minRows={3}
-                  aria-label="AREA Description"
-                  description="Describe what your automation does"
-                />
-              </Stack>
-            </Paper>
+            <NameStep
+              areaName={areaName}
+              areaDescription={areaDescription}
+              onNameChange={setAreaName}
+              onDescriptionChange={setAreaDescription}
+            />
           </Stepper.Step>
 
           <Stepper.Step
             label="Trigger"
             description="When something happens"
           >
-            <Paper p="xl" radius="md" withBorder mt="xl">
-              <Stack gap="lg">
-                <div>
-                  <Text size="lg" fw={600} mb="xs">
-                    Choose the trigger service
-                  </Text>
-                  <Text c="dimmed" size="sm" mb="md">
-                    Select the service that will trigger your automation
-                  </Text>
-                  <Select
-                    label="Service"
-                    placeholder="Select a service"
-                    required
-                    value={selectedTriggerService}
-                    onChange={(val) => {
-                      setSelectedTriggerService(val);
-                      setSelectedTrigger(null);
-                      setTriggerParams({});
-                    }}
-                    data={services.map((s) => ({
-                      value: s.key,
-                      label: s.name,
-                    }))}
-                    size="md"
-                    searchable
-                    aria-label="Trigger service"
-                  />
-
-                  {selectedTriggerService && !isServiceConnected(selectedTriggerService) && (
-                    <Alert color="blue" variant="light" mt="md">
-                      <Stack gap="xs">
-                        <Text size="sm">
-                          You need to connect this service to use it.
-                        </Text>
-                        <Button
-                          size="sm"
-                          onClick={() => handleConnectService(selectedTriggerService)}
-                        >
-                          Connect {services.find(s => s.key === selectedTriggerService)?.name}
-                        </Button>
-                      </Stack>
-                    </Alert>
-                  )}
-                </div>
-
-                {selectedTriggerService && (
-                  <>
-                    <div>
-                      <Text size="lg" fw={600} mb="xs">
-                        Choose the trigger event
-                      </Text>
-                      <Text c="dimmed" size="sm" mb="md">
-                        Select the event that will trigger the action
-                      </Text>
-                      {actionTriggers.length === 0 ? (
-                        <Alert color="blue">
-                          Loading available triggers...
-                        </Alert>
-                      ) : (
-                        <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                          {actionTriggers.map((action) => (
-                            <Card
-                              key={action.id}
-                              padding="lg"
-                              radius="md"
-                              withBorder
-                              style={{
-                                cursor: 'pointer',
-                                borderColor:
-                                  selectedTrigger === action.id ? '#228be6' : undefined,
-                                borderWidth: selectedTrigger === action.id ? 2 : 1,
-                              }}
-                              onClick={() => {
-                                setSelectedTrigger(action.id);
-                                setTriggerParams({});
-                              }}
-                              role="button"
-                              tabIndex={0}
-                              aria-label={`Select ${action.name}`}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter' || e.key === ' ') {
-                                  setSelectedTrigger(action.id);
-                                  setTriggerParams({});
-                                }
-                              }}
-                            >
-                              <Group justify="space-between" mb="xs">
-                                <Text fw={500}>{action.name}</Text>
-                                {selectedTrigger === action.id && (
-                                  <Badge color="blue">Selected</Badge>
-                                )}
-                              </Group>
-                              <Text size="sm" c="dimmed">
-                                {action.description || 'No description'}
-                              </Text>
-                            </Card>
-                          ))}
-                        </SimpleGrid>
-                      )}
-                    </div>
-
-                    {selectedTrigger && (() => {
-                      const trigger = actionTriggers.find(a => a.id === selectedTrigger);
-                      const fields = trigger ? getActionFieldsFromActionDefinition(trigger) : [];
-
-                      if (fields.length === 0) return null;
-
-                      return (
-                        <div>
-                          <Divider
-                            label={
-                              <Group gap="xs">
-                                <IconSettings size={16} />
-                                <Text size="sm">Trigger Parameters</Text>
-                              </Group>
-                            }
-                            labelPosition="left"
-                            my="md"
-                          />
-                          <Stack gap="md">
-                            {fields.map((field) => (
-                              <div key={field.name}>
-                                {renderParameterField(
-                                  field,
-                                  triggerParams[field.name],
-                                  (value) => {
-                                    setTriggerParams({
-                                      ...triggerParams,
-                                      [field.name]: value,
-                                    });
-                                  }
-                                )}
-                              </div>
-                            ))}
-                          </Stack>
-                        </div>
-                      );
-                    })()}
-                  </>
-                )}
-              </Stack>
-            </Paper>
+            <TriggerStep
+              services={services}
+              serviceConnectionStatuses={serviceConnectionStatuses}
+              selectedTriggerService={selectedTriggerService}
+              selectedTrigger={selectedTrigger}
+              actionTriggers={actionTriggers}
+              triggerParams={triggerParams}
+              onTriggerServiceChange={(val) => {
+                setSelectedTriggerService(val);
+                setSelectedTrigger(null);
+                setTriggerParams({});
+              }}
+              onTriggerChange={(triggerId) => {
+                setSelectedTrigger(triggerId);
+                setTriggerParams({});
+              }}
+              onTriggerParamChange={(paramName, value) => {
+                setTriggerParams({
+                  ...triggerParams,
+                  [paramName]: value,
+                });
+              }}
+              onConnectService={handleConnectService}
+              renderParameterField={renderParameterField}
+              getActionFields={(actionId) => {
+                const action = actionTriggers.find(a => a.id === actionId);
+                return action ? getActionFieldsFromActionDefinition(action) : [];
+              }}
+            />
           </Stepper.Step>
 
           <Stepper.Step
-            label="REActions"
-            description="What happens next?"
+            label="Reactions"
+            description="What should happen"
           >
-            <Paper p="xl" radius="md" withBorder mt="xl">
-              <Stack gap="lg">
-                <div>
-                  <Text size="lg" fw={600} mb="xs">
-                    Configure the reactions
-                  </Text>
-                  <Text c="dimmed" size="sm">
-                    Add one or more actions that will be executed
-                  </Text>
-                </div>
-
-                {reactions.map((reaction, index) => {
-                  const reactionActionsForService = reactionActions.filter(
-                    a => a.serviceKey === reaction.service
-                  );
-                  const selectedAction = reactionActionsForService.find(
-                    a => a.id === reaction.actionId
-                  );
-                  const fields = selectedAction
-                    ? getActionFieldsFromActionDefinition(selectedAction)
-                    : [];
-
-                  return (
-                    <Paper key={reaction.id} p="md" withBorder>
-                      <Stack gap="md">
-                        <Group justify="space-between">
-                          <Text fw={500}>Reaction {index + 1}</Text>
-                          {reactions.length > 1 && (
-                            <ActionIcon
-                              color="red"
-                              variant="subtle"
-                              onClick={() => removeReaction(reaction.id)}
-                              aria-label={`Delete reaction ${index + 1}`}
-                            >
-                              <IconTrash size={18} />
-                            </ActionIcon>
-                          )}
-                        </Group>
-
-                        <div>
-                          <Text size="sm" fw={500} mb="xs">
-                            Select the service
-                          </Text>
-                          <Select
-                            placeholder="Choose a service"
-                            required
-                            value={reaction.service}
-                            onChange={(val) => {
-                              if (val) {
-                                setReactions(prev => prev.map(r =>
-                                  r.id === reaction.id
-                                    ? { ...r, service: val, actionId: null, params: {} }
-                                    : r
-                                ));
-                              }
-                            }}
-                            data={services.map((s) => ({
-                              value: s.key,
-                              label: s.name,
-                            }))}
-                            searchable
-                            aria-label={`Service for reaction ${index + 1}`}
-                          />
-                        </div>
-
-                        {reaction.service && (
-                          <div>
-                            <Text size="sm" fw={500} mb="xs">
-                              Choose the action to perform
-                            </Text>
-                            {reactionActionsForService.length === 0 ? (
-                              <Alert color="blue">
-                                Loading available actions...
-                              </Alert>
-                            ) : (
-                              <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                                {reactionActionsForService.map((action) => (
-                                  <Card
-                                    key={action.id}
-                                    padding="md"
-                                    radius="md"
-                                    withBorder
-                                    style={{
-                                      cursor: 'pointer',
-                                      borderColor:
-                                        reaction.actionId === action.id ? '#228be6' : undefined,
-                                      borderWidth: reaction.actionId === action.id ? 2 : 1,
-                                    }}
-                                    onClick={() => {
-                                      setReactions(prev => prev.map(r =>
-                                        r.id === reaction.id
-                                          ? { ...r, actionId: action.id, params: {} }
-                                          : r
-                                      ));
-                                    }}
-                                    role="button"
-                                    tabIndex={0}
-                                    aria-label={`Select action ${action.name}`}
-                                    onKeyDown={(e) => {
-                                      if (e.key === 'Enter' || e.key === ' ') {
-                                        setReactions(prev => prev.map(r =>
-                                          r.id === reaction.id
-                                            ? { ...r, actionId: action.id, params: {} }
-                                            : r
-                                        ));
-                                      }
-                                    }}
-                                  >
-                                    <Group justify="space-between" mb="xs">
-                                      <Text fw={500}>{action.name}</Text>
-                                      {reaction.actionId === action.id && (
-                                        <Badge color="blue">Selected</Badge>
-                                      )}
-                                    </Group>
-                                    <Text size="sm" c="dimmed">
-                                      {action.description || 'No description'}
-                                    </Text>
-                                  </Card>
-                                ))}
-                              </SimpleGrid>
-                            )}
-                          </div>
-                        )}
-
-                        {reaction.actionId && fields.length > 0 && (
-                          <div>
-                            <Divider
-                              label={
-                                <Group gap="xs">
-                                  <IconSettings size={16} />
-                                  <Text size="sm">Parameters</Text>
-                                </Group>
-                              }
-                              labelPosition="left"
-                              my="md"
-                            />
-                            <Stack gap="md">
-                              {fields.map((field) => (
-                                <div key={field.name}>
-                                  {renderParameterField(
-                                    field,
-                                    reaction.params[field.name],
-                                    (value) => {
-                                      setReactions(prev => prev.map(r =>
-                                        r.id === reaction.id
-                                          ? { ...r, params: { ...r.params, [field.name]: value } }
-                                          : r
-                                      ));
-                                    }
-                                  )}
-                                </div>
-                              ))}
-                            </Stack>
-                          </div>
-                        )}
-                      </Stack>
-                    </Paper>
-                  );
-                })}
-
-                <Button
-                  leftSection={<IconPlus size={18} />}
-                  variant="light"
-                  onClick={addReaction}
-                  fullWidth
-                >
-                  Add a reaction
-                </Button>
-              </Stack>
-            </Paper>
+            <ReactionsStep
+              services={services}
+              serviceConnectionStatuses={serviceConnectionStatuses}
+              reactions={reactions}
+              reactionActions={reactionActions}
+              onReactionServiceChange={(reactionId, service) => {
+                setReactions(prev => prev.map(r =>
+                  r.id === reactionId
+                    ? { ...r, service, actionId: null, params: {} }
+                    : r
+                ));
+              }}
+              onReactionActionChange={(reactionId, actionId) => {
+                setReactions(prev => prev.map(r =>
+                  r.id === reactionId
+                    ? { ...r, actionId, params: {} }
+                    : r
+                ));
+              }}
+              onReactionParamChange={(reactionId, paramName, value) => {
+                setReactions(prev => prev.map(r =>
+                  r.id === reactionId
+                    ? { ...r, params: { ...r.params, [paramName]: value } }
+                    : r
+                ));
+              }}
+              onAddReaction={addReaction}
+              onRemoveReaction={removeReaction}
+              onConnectService={handleConnectService}
+              renderParameterField={renderParameterField}
+              getActionFields={(actionId) => {
+                const action = reactionActions.find(a => a.id === actionId);
+                return action ? getActionFieldsFromActionDefinition(action) : [];
+              }}
+            />
           </Stepper.Step>
 
           <Stepper.Completed>
-            <Paper p="xl" radius="md" withBorder mt="xl">
-              <Stack gap="lg">
-                <div>
-                  <Text size="xl" fw={700} mb="md">
-                    Summary
-                  </Text>
-                  <Text c="dimmed">
-                    Review the information before creating your AREA
-                  </Text>
-                </div>
-
-                <div>
-                  <Text fw={600} mb="xs">
-                    AREA Name
-                  </Text>
-                  <Text>{areaName}</Text>
-                </div>
-
-                {areaDescription && (
-                  <div>
-                    <Text fw={600} mb="xs">
-                      Description
-                    </Text>
-                    <Text>{areaDescription}</Text>
-                  </div>
-                )}
-
-                <div>
-                  <Text fw={600} mb="xs">
-                    Trigger
-                  </Text>
-                  <Text>
-                    Service: {services.find(s => s.key === selectedTriggerService)?.name}
-                  </Text>
-                  <Text>
-                    Event: {actionTriggers.find(a => a.id === selectedTrigger)?.name}
-                  </Text>
-                  {Object.keys(triggerParams).length > 0 && (
-                    <Text size="sm" c="dimmed">
-                      {Object.keys(triggerParams).length} parameter(s) configured
-                    </Text>
-                  )}
-                </div>
-
-                <div>
-                  <Text fw={600} mb="xs">
-                    Reactions ({reactions.length})
-                  </Text>
-                  {reactions.map((reaction, index) => {
-                    const service = services.find(s => s.key === reaction.service);
-                    const action = reactionActions.find(a => a.id === reaction.actionId);
-                    return (
-                      <Paper key={reaction.id} p="sm" withBorder mb="xs">
-                        <Text size="sm">
-                          {index + 1}. Service: {service?.name} - Action: {action?.name}
-                        </Text>
-                        {Object.keys(reaction.params).length > 0 && (
-                          <Text size="xs" c="dimmed">
-                            {Object.keys(reaction.params).length} parameter(s) configured
-                          </Text>
-                        )}
-                      </Paper>
-                    );
-                  })}
-                </div>
-              </Stack>
-            </Paper>
+            <ResumeStep
+              areaName={areaName}
+              areaDescription={areaDescription}
+              selectedTriggerService={selectedTriggerService}
+              selectedTrigger={selectedTrigger}
+              triggerParams={triggerParams}
+              reactions={reactions}
+              services={services}
+              actionTriggers={actionTriggers}
+              reactionActions={reactionActions}
+            />
           </Stepper.Completed>
         </Stepper>
 
