@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import {
   Container,
@@ -72,6 +72,17 @@ export default function EditSimpleAreaPage() {
   const [reactions, setReactions] = useState<ReactionData[]>([
     { id: '1', service: null, actionId: null, params: {} }
   ]);
+
+  const reactionServiceKeys = useMemo(() => {
+    return reactions.map(r => r.service).filter(Boolean).join(',');
+  }, [reactions]);
+
+  const reactionsNeedingServices = useMemo(() => {
+    return reactions
+      .filter(r => r.actionId && !r.service)
+      .map(r => r.actionId)
+      .join(',');
+  }, [reactions]);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -212,7 +223,7 @@ export default function EditSimpleAreaPage() {
     };
 
     determineServicesFromReactions();
-  }, [reactions, services]);
+  }, [reactionsNeedingServices, services, reactions]);
 
   useEffect(() => {
     if (selectedTriggerService) {
@@ -250,8 +261,7 @@ export default function EditSimpleAreaPage() {
     if (reactions.some(r => r.service)) {
       loadAllReactionActions();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [reactions.map(r => r.service).join(',')]);
+  }, [reactionServiceKeys, reactions]);
 
   const addReaction = () => {
     setReactions([...reactions, {
