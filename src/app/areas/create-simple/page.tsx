@@ -142,8 +142,9 @@ function ArrayInput({ field, value, onChange }: ArrayInputProps) {
   );
 }
 
-const DRAFT_KEY = 'simple-area-draft';
 const DRAFT_EXPIRY_MS = 24 * 60 * 60 * 1000;
+
+const getDraftKey = (userId: string) => `simple-area-draft-${userId}`;
 
 export default function CreateSimpleAreaPage() {
   const router = useRouter();
@@ -151,6 +152,7 @@ export default function CreateSimpleAreaPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
 
   const [services, setServices] = useState<BackendService[]>([]);
   const [serviceConnectionStatuses, setServiceConnectionStatuses] = useState<Record<string, ServiceConnectionStatus>>({});
@@ -168,9 +170,24 @@ export default function CreateSimpleAreaPage() {
   ]);
 
   useEffect(() => {
+    const checkAuth = async () => {
+      try {
+        const user = await getCurrentUser();
+        setCurrentUserId(user.id);
+      } catch {
+        router.push('/login');
+      }
+    };
+    checkAuth();
+  }, [router]);
+
+  useEffect(() => {
+    if (!currentUserId) return;
+
     const loadDraft = () => {
       try {
-        const savedDraft = localStorage.getItem(DRAFT_KEY);
+        const draftKey = getDraftKey(currentUserId);
+        const savedDraft = localStorage.getItem(draftKey);
         if (savedDraft) {
           const draft: SimpleDraft = JSON.parse(savedDraft);
           const savedAt = new Date(draft.savedAt);
@@ -184,18 +201,22 @@ export default function CreateSimpleAreaPage() {
             setReactions(draft.reactions);
             setActiveStep(draft.activeStep);
           } else {
-            localStorage.removeItem(DRAFT_KEY);
+            localStorage.removeItem(draftKey);
           }
         }
       } catch (err) {
         console.error('Failed to load draft:', err);
-        localStorage.removeItem(DRAFT_KEY);
+        if (currentUserId) {
+          localStorage.removeItem(getDraftKey(currentUserId));
+        }
       }
     };
     loadDraft();
-  }, []);
+  }, [currentUserId]);
 
   useEffect(() => {
+    if (!currentUserId) return;
+
     const saveDraft = () => {
       try {
         const draft: SimpleDraft = {
@@ -208,7 +229,8 @@ export default function CreateSimpleAreaPage() {
           activeStep,
           savedAt: new Date().toISOString(),
         };
-        localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+        const draftKey = getDraftKey(currentUserId);
+        localStorage.setItem(draftKey, JSON.stringify(draft));
       } catch (err) {
         console.error('Failed to save draft:', err);
       }
@@ -218,18 +240,7 @@ export default function CreateSimpleAreaPage() {
       const timeoutId = setTimeout(saveDraft, 1000);
       return () => clearTimeout(timeoutId);
     }
-  }, [areaName, areaDescription, selectedTriggerService, selectedTrigger, triggerParams, reactions, activeStep]);
-
-  useEffect(() => {
-    const checkAuth = async () => {
-      try {
-        await getCurrentUser();
-      } catch {
-        router.push('/login');
-      }
-    };
-    checkAuth();
-  }, [router]);
+  }, [areaName, areaDescription, selectedTriggerService, selectedTrigger, triggerParams, reactions, activeStep, currentUserId]);
 
   useEffect(() => {
     const loadServices = async () => {
@@ -318,7 +329,9 @@ export default function CreateSimpleAreaPage() {
   };
 
   const clearDraft = () => {
-    localStorage.removeItem(DRAFT_KEY);
+    if (currentUserId) {
+      localStorage.removeItem(getDraftKey(currentUserId));
+    }
     setAreaName('');
     setAreaDescription('');
     setSelectedTriggerService(null);
@@ -408,7 +421,9 @@ export default function CreateSimpleAreaPage() {
 
       await createAreaWithActions(payload);
 
-      localStorage.removeItem(DRAFT_KEY);
+      if (currentUserId) {
+        localStorage.removeItem(getDraftKey(currentUserId));
+      }
 
       setSuccess(true);
       setTimeout(() => {
@@ -439,12 +454,14 @@ export default function CreateSimpleAreaPage() {
     field: FieldData,
     value: unknown,
     onChange: (value: unknown) => void
-    ) => {
-      const commonProps = {
-        label: field.name,
-        description: field.description,
-        required: field.mandatory,
-      };    switch (field.type) {
+  ) => {
+    const commonProps = {
+      label: field.name,
+      description: field.description,
+      required: field.mandatory,
+    };
+    
+    switch (field.type) {
       case 'number':
         return (
           <NumberInput
