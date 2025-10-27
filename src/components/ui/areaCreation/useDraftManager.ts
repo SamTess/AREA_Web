@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import {
   saveDraft,
   getDraft,
@@ -67,9 +67,8 @@ export function useDraftManager({
   const [currentDraftId, setCurrentDraftId] = useState<string | undefined>(draftId);
   const [draftSavedAt, setDraftSavedAt] = useState<string | undefined>(undefined);
   const [hasShownModal, setHasShownModal] = useState(false);
-  const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const autoSaveDraft = useCallback(async () => {
+  const saveDraftManually = useCallback(async () => {
     if (!areaName && servicesState.length === 0) {
       return;
     }
@@ -144,26 +143,12 @@ export function useDraftManager({
       };
       const savedDraftId = await saveDraft(draftPayload, areaId);
       setCurrentDraftId(savedDraftId);
+      return savedDraftId;
     } catch (error) {
-      console.error('Auto-save error:', error);
+      console.error('Save error:', error);
+      throw error;
     }
   }, [areaName, areaDescription, servicesState, connections, currentDraftId, draftSavedAt, transformServiceDataToPayload, areaId]);
-
-  useEffect(() => {
-    if (autoSaveTimeoutRef.current) {
-      clearTimeout(autoSaveTimeoutRef.current);
-    }
-
-    autoSaveTimeoutRef.current = setTimeout(() => {
-      autoSaveDraft();
-    }, 2000);
-
-    return () => {
-      if (autoSaveTimeoutRef.current) {
-        clearTimeout(autoSaveTimeoutRef.current);
-      }
-    };
-  }, [areaName, areaDescription, servicesState, connections, autoSaveDraft]);
 
   const loadDraftFromData = useCallback(async (draft: AreaDraftResponse) => {
     const actionPattern = /^action_(\d+)$/;
@@ -336,5 +321,6 @@ export function useDraftManager({
     draftSavedAt,
     setDraftSavedAt,
     handleDeleteDraft,
+    saveDraftManually,
   };
 }
