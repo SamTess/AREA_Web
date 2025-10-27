@@ -24,21 +24,17 @@ import {
 } from '@tabler/icons-react';
 import { getCurrentUser } from '@/services/authService';
 import {
-  getServices,
-  getActionsByServiceKey,
   updateAreaComplete,
   CreateAreaPayload,
   getActionFieldsFromActionDefinition,
   getAreaById,
+  getActionsByServiceKey,
 } from '@/services/areasService';
-import type { BackendService, Action, FieldData } from '@/types';
-import {
-  getServiceConnectionStatus,
-  initiateServiceConnection,
-  ServiceConnectionStatus,
-} from '@/services/serviceConnectionService';
+import type { FieldData } from '@/types';
+import { initiateServiceConnection } from '@/services/serviceConnectionService';
 import { NameStep, TriggerStep, ReactionsStep, ResumeStep } from '@/components/ui/area-simple-steps';
 import { ArrayInput } from '@/components/ui/area-simple-steps/ArrayInput';
+import { useAreaForm } from '@/hooks/useAreaForm';
 
 interface ReactionData {
   id: string;
@@ -58,30 +54,47 @@ export default function EditSimpleAreaPage() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
 
-  const [services, setServices] = useState<BackendService[]>([]);
-  const [serviceConnectionStatuses, setServiceConnectionStatuses] = useState<Record<string, ServiceConnectionStatus>>({});
-  const [actionTriggers, setActionTriggers] = useState<Action[]>([]);
-  const [reactionActions, setReactionActions] = useState<Action[]>([]);
-
   const [areaName, setAreaName] = useState('');
   const [areaDescription, setAreaDescription] = useState('');
   const [selectedTriggerService, setSelectedTriggerService] = useState<string | null>(null);
   const [selectedTrigger, setSelectedTrigger] = useState<string | null>(null);
   const [triggerParams, setTriggerParams] = useState<Record<string, unknown>>({});
-
   const [reactions, setReactions] = useState<ReactionData[]>([
     { id: '1', service: null, actionId: null, params: {} }
   ]);
 
+  const {
+    services,
+    serviceConnectionStatuses,
+    actionTriggers,
+    reactionActions,
+    loading: servicesLoading,
+    loadTriggerActions,
+    loadReactionActions,
+  } = useAreaForm();
+
+  useEffect(() => {
+    if (selectedTriggerService) {
+      loadTriggerActions(selectedTriggerService);
+    }
+  }, [selectedTriggerService, loadTriggerActions]);
+
   const reactionServiceKeys = useMemo(() => {
-    return reactions.map(r => r.service).filter(Boolean).join(',');
+    return reactions
+      .map(r => r.service)
+      .filter((service): service is string => service !== null);
   }, [reactions]);
+
+  useEffect(() => {
+    if (reactionServiceKeys.length > 0) {
+      loadReactionActions(reactionServiceKeys);
+    }
+  }, [reactionServiceKeys, loadReactionActions]);
 
   const reactionsNeedingServices = useMemo(() => {
     return reactions
       .filter(r => r.actionId && !r.service)
-      .map(r => r.actionId)
-      .join(',');
+      .map(r => ({ id: r.id, actionId: r.actionId }));
   }, [reactions]);
 
   useEffect(() => {
@@ -140,38 +153,6 @@ export default function EditSimpleAreaPage() {
   }, [areaId]);
 
   useEffect(() => {
-    const loadServices = async () => {
-      try {
-        const servicesData = await getServices();
-        setServices(servicesData);
-
-        const statusChecks: Record<string, ServiceConnectionStatus> = {};
-        for (const service of servicesData) {
-          try {
-            const status = await getServiceConnectionStatus(service.key);
-            statusChecks[service.key] = status;
-          } catch {
-            statusChecks[service.key] = {
-              serviceKey: service.key,
-              serviceName: service.name,
-              iconUrl: service.iconLightUrl || service.iconDarkUrl || '',
-              isConnected: false,
-              connectionType: 'NONE',
-              userEmail: '',
-              userName: '',
-            };
-          }
-        }
-        setServiceConnectionStatuses(statusChecks);
-      } catch (err) {
-        console.error('Failed to load services:', err);
-        setError('Unable to load services.');
-      }
-    };
-    loadServices();
-  }, []);
-
-  useEffect(() => {
     const determineServiceFromTrigger = async () => {
       if (selectedTrigger && services.length > 0 && !selectedTriggerService) {
         for (const service of services) {
@@ -194,18 +175,19 @@ export default function EditSimpleAreaPage() {
 
   useEffect(() => {
     const determineServicesFromReactions = async () => {
-      if (reactions.some(r => r.actionId && !r.service) && services.length > 0) {
+      if (reactionsNeedingServices.length > 0 && services.length > 0) {
         const updatedReactions = [...reactions];
         let hasChanges = false;
 
-        for (let i = 0; i < updatedReactions.length; i++) {
-          if (updatedReactions[i].actionId && !updatedReactions[i].service) {
+        for (const needService of reactionsNeedingServices) {
+          const reactionIndex = updatedReactions.findIndex(r => r.id === needService.id);
+          if (reactionIndex !== -1 && !updatedReactions[reactionIndex].service) {
             for (const service of services) {
               try {
                 const actions = await getActionsByServiceKey(service.key);
-                const matchingAction = actions.find(a => a.id === updatedReactions[i].actionId);
+                const matchingAction = actions.find(a => a.id === needService.actionId);
                 if (matchingAction) {
-                  updatedReactions[i].service = service.key;
+                  updatedReactions[reactionIndex].service = service.key;
                   hasChanges = true;
                   break;
                 }
@@ -224,44 +206,6 @@ export default function EditSimpleAreaPage() {
 
     determineServicesFromReactions();
   }, [reactionsNeedingServices, services, reactions]);
-
-  useEffect(() => {
-    if (selectedTriggerService) {
-      const loadTriggerActions = async () => {
-        try {
-          const actions = await getActionsByServiceKey(selectedTriggerService);
-          setActionTriggers(actions.filter(a => a.isEventCapable));
-        } catch (err) {
-          console.error('Failed to load trigger actions:', err);
-          setError('Unable to load triggers.');
-        }
-      };
-      loadTriggerActions();
-    }
-  }, [selectedTriggerService]);
-
-  useEffect(() => {
-    const loadAllReactionActions = async () => {
-      const uniqueServices = [...new Set(reactions.map(r => r.service).filter(Boolean))];
-      const allActions: Action[] = [];
-
-      for (const service of uniqueServices) {
-        if (service) {
-          try {
-            const actions = await getActionsByServiceKey(service);
-            allActions.push(...actions.filter(a => a.isExecutable));
-          } catch (err) {
-            console.error('Failed to load reaction actions:', err);
-          }
-        }
-      }
-      setReactionActions(allActions);
-    };
-
-    if (reactions.some(r => r.service)) {
-      loadAllReactionActions();
-    }
-  }, [reactionServiceKeys, reactions]);
 
   const addReaction = () => {
     setReactions([...reactions, {
@@ -286,32 +230,6 @@ export default function EditSimpleAreaPage() {
       setError('Unable to connect the service.');
     }
   };
-
-  useEffect(() => {
-    const handleFocus = async () => {
-      const statusChecks: Record<string, ServiceConnectionStatus> = {};
-      for (const service of services) {
-        try {
-          const status = await getServiceConnectionStatus(service.key);
-          statusChecks[service.key] = status;
-        } catch {
-          statusChecks[service.key] = {
-            serviceKey: service.key,
-            serviceName: service.name,
-            iconUrl: service.iconLightUrl || service.iconDarkUrl || '',
-            isConnected: false,
-            connectionType: 'NONE',
-            userEmail: '',
-            userName: '',
-          };
-        }
-      }
-      setServiceConnectionStatuses(statusChecks);
-    };
-
-    window.addEventListener('focus', handleFocus);
-    return () => window.removeEventListener('focus', handleFocus);
-  }, [services]);
 
   const handleUpdateArea = async () => {
     if (!areaName || !selectedTrigger) {
@@ -634,7 +552,7 @@ export default function EditSimpleAreaPage() {
           {activeStep === 3 && (
             <Button
               onClick={handleUpdateArea}
-              loading={loading}
+              loading={loading || servicesLoading}
               ml="auto"
               color="green"
             >
