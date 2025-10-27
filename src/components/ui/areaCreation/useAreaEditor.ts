@@ -560,6 +560,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
   const {
     currentDraftId,
     handleDeleteDraft,
+    saveDraftManually,
   } = useDraftManager({
     areaName,
     areaDescription,
@@ -574,6 +575,18 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
     onDraftRejected: handleDraftRejected,
     onShowDraftModal: handleShowDraftModal,
   });
+
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (areaName || areaDescription) {
+        saveDraftManually().catch(error => {
+          console.error('Error saving draft after name/description change:', error);
+        });
+      }
+    }, 1000);
+
+    return () => clearTimeout(timeoutId);
+  }, [areaName, areaDescription]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const loadData = async () => {
@@ -668,6 +681,9 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
 
       setIsCommitting(true);
 
+      // Sauvegarder le brouillon avant de créer l'area
+      await saveDraftManually();
+
       const payload = await transformServiceDataToPayload(servicesState, areaName, areaDescription, connections);
 
       if (isNewArea) {
@@ -749,10 +765,20 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
       }
     };
     setServicesState(prev => [...prev, newService]);
+    
+    // Sauvegarder le brouillon après l'ajout
+    saveDraftManually().catch(error => {
+      console.error('Error saving draft after adding service:', error);
+    });
   };
 
   const removeService = (id: string) => {
     setServicesState((prev) => prev.filter((s) => s.id !== id));
+    
+    // Sauvegarder le brouillon après la suppression
+    saveDraftManually().catch(error => {
+      console.error('Error saving draft after removing service:', error);
+    });
   };
 
   const editService = (service: ServiceData) => {
@@ -779,6 +805,11 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
         actionDefinitionId: preservedActionDefinitionId
       });
     }
+
+    // Sauvegarder le brouillon après la modification
+    saveDraftManually().catch(error => {
+      console.error('Error saving draft after service update:', error);
+    });
   };
 
   const moveServiceUp = (id: string) => {
@@ -843,6 +874,11 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
     setConnections(prev => [...prev, connection]);
 
     applyLinkEffect(connection);
+    
+    // Sauvegarder le brouillon après la création de connexion
+    saveDraftManually().catch(error => {
+      console.error('Error saving draft after creating connection:', error);
+    });
   };
 
   const applyLinkEffect = (connection: ConnectionData) => {
@@ -1016,6 +1052,11 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
         });
       }
     }
+    
+    // Sauvegarder le brouillon après la suppression de connexion
+    saveDraftManually().catch(error => {
+      console.error('Error saving draft after removing connection:', error);
+    });
   };
 
   const updateConnection = (connection: ConnectionData) => {

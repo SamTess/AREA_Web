@@ -31,6 +31,7 @@ export default function AreaEditor({ areaId, draftId }: AreaEditorProps) {
     draftModalActions,
     handleCommit,
     handleRun,
+    handleDeleteDraft,
     addNewServiceBelow,
     removeService,
     editService,
@@ -92,6 +93,7 @@ export default function AreaEditor({ areaId, draftId }: AreaEditorProps) {
           onRun={handleRun}
           isDraft={!!currentDraftId}
           isCommitting={isCommitting}
+          onDeleteDraft={handleDeleteDraft}
         />
       </div>
 
