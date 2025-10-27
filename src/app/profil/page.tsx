@@ -27,7 +27,7 @@ export default function ProfilPage() {
   const [originalAvatarSrc, setOriginalAvatarSrc] = useState<string>('');
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [userId, setUserId] = useState<string | " ">(" ");
+  const [userId, setUserId] = useState<string>('');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
 
   const form = useForm<ProfileData>({
