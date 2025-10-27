@@ -28,7 +28,7 @@ export default function ProfilPage() {
   const [originalAvatarSrc, setOriginalAvatarSrc] = useState<string>('');
   const [isLoadingUser, setIsLoadingUser] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [userId, setUserId] = useState<string | " ">(" ");
+  const [userId, setUserId] = useState<string>('');
   const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' | 'warning' } | null>(null);
   const [deleteModalOpened, setDeleteModalOpened] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -147,10 +147,17 @@ export default function ProfilPage() {
   };
 
   const handleDeleteAccount = async () => {
+    if (!userId || userId.trim() === '') {
+      setNotification({ message: 'Invalid user ID. Please try logging in again.', type: 'error' });
+      setDeleteModalOpened(false);
+      return;
+    }
+
     setIsDeleting(true);
     try {
       await deleteAccount(userId);
       setNotification({ message: 'Account deleted successfully. Redirecting...', type: 'success' });
+      setDeleteModalOpened(false);
       setTimeout(() => {
         router.push('/login');
       }, 2000);
@@ -159,7 +166,6 @@ export default function ProfilPage() {
       setNotification({ message: 'Failed to delete account. Please try again.', type: 'error' });
     } finally {
       setIsDeleting(false);
-      setDeleteModalOpened(false);
     }
   };
 
