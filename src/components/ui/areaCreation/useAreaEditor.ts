@@ -594,8 +594,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
     }, 1000);
 
     return () => clearTimeout(timeoutId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [lastChangeTimestamp]);
+  }, [lastChangeTimestamp, areaName, areaDescription, servicesState, saveDraftManually]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -873,7 +872,6 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
   const createConnection = (connection: ConnectionData) => {
     setConnections(prev => [...prev, connection]);
     applyLinkEffect(connection);
-    triggerAutoSave();
   };
 
   const applyLinkEffect = (connection: ConnectionData) => {
