@@ -1,86 +1,104 @@
 # 🚀 Getting Started Guide
 
-## 👋 **Welcome to AREA Web Frontend**
+## 👋 Welcome to AREA Web Frontend
 
 This guide will help new team members get up and running with our Next.js frontend project.
 
 ---
 
-## 📋 **Prerequisites**
+## 📋 Prerequisites
 
-Before you start, make sure you have:
+Before you start, ensure you have the following installed:
 
-- **Node.js** 18.17 or later ([Download here](https://nodejs.org/))
-- **Git** ([Download here](https://git-scm.com/))
-- **Yarn** package manager (we'll install this)
-- **VS Code** (recommended editor)
+- **Node.js**: 18.x or later ([Download here](https://nodejs.org/))
+- **Git**: Latest version ([Download here](https://git-scm.com/))
+- **Yarn**: Package manager (we'll install this below)
+- **VS Code**: Recommended editor ([Download here](https://code.visualstudio.com/))
 
 ---
 
-## 🛠️ **Initial Setup**
+## 🛠️ Initial Setup
 
-### **1. Install Yarn**
+### 1. Install Yarn
 
-**Option A: Using npm**
+#### Option A: Using npm
 ```bash
 npm install -g yarn
 ```
 
-**Option B: Using Corepack (Node 16.10+)**
+#### Option B: Using Corepack (Node 16.10+)
 ```bash
 corepack enable
 ```
 
-**Verify installation:**
+Verify the installation:
 ```bash
 yarn --version
 # Should show: 1.22.x or later
-Getting started (short)
+```
 
-This guide helps new contributors run the AREA Web frontend locally.
-
-Prerequisites
--------------
-
-- Node.js 18.x or later
-- Yarn (or enable Corepack)
-- Git
-- Recommended: VS Code
-
-Clone and install
------------------
+### 2. Clone the Repository
 
 ```bash
 git clone <repo-url>
 cd AREA_Web
-yarn install
-cp .env.example .env.local  # if present; update values
 ```
 
-Run the app
------------
+### 3. Install Dependencies
 
 ```bash
-yarn dev
-# Open http://localhost:3000
+yarn install
 ```
 
-Useful scripts
---------------
+### 4. Configure Environment Variables
 
-- `yarn dev` — start dev server
-- `yarn build` — production build
-- `yarn start` — run production server
-- `yarn lint` — lint code
-- `yarn test` — run unit tests
-- `yarn cypress:open` — open E2E runner
+If an `.env.example` file is provided, copy it to `.env.local`:
+```bash
+cp .env.example .env.local
+```
+Update the values in `.env.local` as needed.
 
-First PR checklist
-------------------
+---
 
-1. Create a feature branch: `git checkout -b feature/...`
-2. Run and add tests for new behavior
-3. Run `yarn lint` and `yarn test`
-4. Push branch and open a PR
+## 🚀 Run the Application
 
-If you need help, check `docs/` or contact the team.
+Start the development server:
+```bash
+yarn dev
+```
+Open your browser and navigate to:
+```
+http://localhost:3000
+```
+
+---
+
+## 🔧 Useful Scripts
+
+| Command                  | Description                          |
+|--------------------------|--------------------------------------|
+| `yarn dev`               | Start the development server        |
+| `yarn build`             | Create a production build           |
+| `yarn start`             | Run the production server           |
+| `yarn lint`              | Lint the code                       |
+| `yarn test`              | Run unit tests                      |
+| `yarn cypress:open`      | Open the Cypress E2E test runner    |
+
+---
+
+## ✅ First PR Checklist
+
+1. Create a feature branch:
+   ```bash
+   git checkout -b feature/your-feature
+   ```
+2. Add tests for new functionality.
+3. Run linting and tests locally:
+   ```bash
+   yarn lint && yarn test
+   ```
+4. Push your branch and open a pull request with a clear description.
+
+---
+
+If you need further assistance, check the `docs/` folder or contact the team.
