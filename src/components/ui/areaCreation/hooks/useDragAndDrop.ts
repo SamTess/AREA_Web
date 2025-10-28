@@ -32,6 +32,12 @@ export function useDragAndDrop(
       if (service) {
         onEditService(service);
       }
+
+      setDragState({
+        isDragging: false,
+        draggedServiceId: null,
+        offset: { x: 0, y: 0 },
+      });
       return;
     }
     if (linkingState.isLinking) {

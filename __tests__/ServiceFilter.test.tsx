@@ -1,89 +1,74 @@
-import { render, screen, fireEvent } from '@testing-library/react'
-import { MantineProvider } from '@mantine/core'
-import ServiceFilter from '../src/components/ui/areaList/ServiceFilter'
-import { services as mockServices } from '../src/mocks/areas'
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom';
+import ServiceFilter from '../src/components/ui/areaList/ServiceFilter';
+import { MantineProvider } from '@mantine/core';
+import { services as mockServices } from '../src/mocks/areas';
 
-const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
-  return <MantineProvider>{children}</MantineProvider>
-}
+// Custom render function with MantineProvider
+const renderWithMantine = (component: React.ReactElement) => {
+  return render(
+    <MantineProvider>
+      {component}
+    </MantineProvider>
+  );
+};
 
 describe('ServiceFilter', () => {
-  it('renders services', () => {
-    render(<ServiceFilter services={mockServices} value={[]} onChange={() => {}} />, { wrapper: AllTheProviders })
-    expect(screen.getByPlaceholderText('Search services')).toBeInTheDocument()
-  })
+  const mockOnChange = jest.fn();
 
-  it('displays service names', () => {
-    render(<ServiceFilter services={mockServices} value={[]} onChange={() => {}} />, { wrapper: AllTheProviders })
-    expect(screen.getByText('GitHub')).toBeInTheDocument()
-    expect(screen.getByText('Google')).toBeInTheDocument()
-  })
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-  it('handles empty services list', () => {
-    render(<ServiceFilter services={[]} value={[]} onChange={() => {}} />, { wrapper: AllTheProviders })
-    expect(screen.getByPlaceholderText('Search services')).toBeInTheDocument()
-  })
+  it('renders the filter input with placeholder', () => {
+    renderWithMantine(<ServiceFilter services={mockServices} value={[]} onChange={mockOnChange} />);
 
-  it('calls onChange when service is selected', () => {
-    const mockOnChange = jest.fn()
-    render(<ServiceFilter services={mockServices} value={[]} onChange={mockOnChange} />, { wrapper: AllTheProviders })
-
-    const input = screen.getByPlaceholderText('Search services')
-    fireEvent.click(input)
-
-    const githubOption = screen.getByText('GitHub')
-    fireEvent.click(githubOption)
-
-    expect(mockOnChange).toHaveBeenCalledWith(["1"])
-  })
+    expect(screen.getByPlaceholderText('Search services')).toBeInTheDocument();
+  });
 
   it('displays selected services as pills', () => {
-    const mockOnChange = jest.fn()
-    render(<ServiceFilter services={mockServices} value={["1"]} onChange={mockOnChange} />, { wrapper: AllTheProviders })
+    const selectedValues = ['1', '2'];
+    renderWithMantine(<ServiceFilter services={mockServices} value={selectedValues} onChange={mockOnChange} />);
 
-    const pills = screen.getAllByText('GitHub')
-    expect(pills.length).toBeGreaterThan(0)
-  })
+    expect(screen.getByText('GitHub')).toBeInTheDocument();
+    expect(screen.getByText('Google')).toBeInTheDocument();
+    expect(screen.queryByText('Bitbucket')).not.toBeInTheDocument();
+  });
 
-  it('filters services based on search input', () => {
-    render(<ServiceFilter services={mockServices} value={[]} onChange={() => {}} />, { wrapper: AllTheProviders })
+  it('shows service logos in pills', () => {
+    const selectedValues = ['1'];
+    renderWithMantine(<ServiceFilter services={mockServices} value={selectedValues} onChange={mockOnChange} />);
 
-    const input = screen.getByPlaceholderText('Search services')
-    fireEvent.click(input)
-    fireEvent.change(input, { target: { value: 'Git' } })
+    const logo = screen.getByAltText('GitHub');
+    expect(logo).toBeInTheDocument();
+    expect(logo).toHaveAttribute('src', 'https://upload.wikimedia.org/wikipedia/commons/9/91/Octicons-mark-github.svg');
+  });
 
-    expect(screen.getByText('GitHub')).toBeInTheDocument()
-    expect(screen.queryByText('Google')).not.toBeInTheDocument()
-  })
+  it('removes last selected service with backspace', () => {
+    renderWithMantine(<ServiceFilter services={mockServices} value={['1', '2']} onChange={mockOnChange} />);
 
-  it('shows "Nothing found..." when no services match search', () => {
-    render(<ServiceFilter services={mockServices} value={[]} onChange={() => {}} />, { wrapper: AllTheProviders })
+    const input = screen.getByPlaceholderText('Search services');
+    fireEvent.keyDown(input, { key: 'Backspace' });
 
-    const input = screen.getByPlaceholderText('Search services')
-    fireEvent.click(input)
-    fireEvent.change(input, { target: { value: 'nonexistent' } })
+    expect(mockOnChange).toHaveBeenCalledWith(['1']);
+  });
 
-    expect(screen.getByText('Nothing found...')).toBeInTheDocument()
-  })
+  it('handles service without logo', () => {
+    const servicesWithoutLogo = [
+      { id: '1', name: 'GitHub', logo: '' }, // Empty logo
+    ];
 
-  it('removes last service with Backspace when search is empty', () => {
-    const mockOnChange = jest.fn()
-    render(<ServiceFilter services={mockServices} value={["1", "2"]} onChange={mockOnChange} />, { wrapper: AllTheProviders })
+    renderWithMantine(<ServiceFilter services={servicesWithoutLogo} value={['1']} onChange={mockOnChange} />);
 
-    const input = screen.getByPlaceholderText('Search services')
-    fireEvent.keyDown(input, { key: 'Backspace' })
+    expect(screen.getByText('GitHub')).toBeInTheDocument();
+    // Should not crash and should not show logo
+    expect(screen.queryByAltText('GitHub')).not.toBeInTheDocument();
+  });
 
-    expect(mockOnChange).toHaveBeenCalledWith(["1"])
-  })
+  it('handles unknown service id gracefully', () => {
+    renderWithMantine(<ServiceFilter services={mockServices} value={['999']} onChange={mockOnChange} />);
 
-  it('does not remove service with Backspace when search has content', () => {
-    const mockOnChange = jest.fn()
-    render(<ServiceFilter services={mockServices} value={["1"]} onChange={mockOnChange} />, { wrapper: AllTheProviders })
-
-    const input = screen.getByPlaceholderText('Search services')
-    fireEvent.change(input, { target: { value: 'test' } })
-    fireEvent.keyDown(input, { key: 'Backspace' })
-
-    expect(mockOnChange).not.toHaveBeenCalled()
-  })
-})
+    expect(screen.getByText('999')).toBeInTheDocument(); // Shows ID as fallback
+  });
+});

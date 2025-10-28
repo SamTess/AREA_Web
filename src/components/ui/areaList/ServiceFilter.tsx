@@ -26,7 +26,7 @@ export default function ServiceFilter({ services, value, onChange }: ServiceFilt
     return (
       <Pill key={id} withRemoveButton onRemove={() => handleValueRemove(id)}>
         <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
-          {service?.logo && <Image src={service.logo} alt={service.name} width={16} height={16} />}
+          {service?.logo && <Image data-testid="service-logo" src={service.logo} alt={service.name} width={16} height={16} />}
           <span>{service?.name || id}</span>
         </span>
       </Pill>
