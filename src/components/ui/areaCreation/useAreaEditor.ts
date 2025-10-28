@@ -523,6 +523,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
   const [showDraftModal, setShowDraftModal] = useState(false);
   const [pendingDraft, setPendingDraft] = useState<{ draftId: string; name: string; savedAt: string } | null>(null);
   const [draftModalActions, setDraftModalActions] = useState<{ onAccept: () => void; onReject: () => void } | null>(null);
+  const [lastChangeTimestamp, setLastChangeTimestamp] = useState<number>(0);
 
   const [connections, setConnections] = useState<ConnectionData[]>([]);
 
@@ -557,6 +558,9 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
     setShowDraftModal(true);
   }, []);
 
+  const triggerAutoSave = useCallback(() => {
+    setLastChangeTimestamp(Date.now());
+  }, []);
   const {
     currentDraftId,
     handleDeleteDraft,
@@ -577,16 +581,21 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
   });
 
   useEffect(() => {
+    if (lastChangeTimestamp === 0) {
+      return;
+    }
+
     const timeoutId = setTimeout(() => {
-      if (areaName || areaDescription) {
+      if (areaName || areaDescription || servicesState.length > 0) {
         saveDraftManually().catch(error => {
-          console.error('Error saving draft after name/description change:', error);
+          console.error('Error saving draft after changes:', error);
         });
       }
     }, 1000);
 
     return () => clearTimeout(timeoutId);
-  }, [areaName, areaDescription, saveDraftManually]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lastChangeTimestamp]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -653,6 +662,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
       const newIndex = services.findIndex((service) => service.id === over.id);
       return arrayMove(services, oldIndex, newIndex);
     });
+    triggerAutoSave();
   };
 
   const handleCommit = async () => {
@@ -764,18 +774,12 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
       }
     };
     setServicesState(prev => [...prev, newService]);
-
-    saveDraftManually().catch(error => {
-      console.error('Error saving draft after adding service:', error);
-    });
+    triggerAutoSave();
   };
 
   const removeService = (id: string) => {
     setServicesState((prev) => prev.filter((s) => s.id !== id));
-
-    saveDraftManually().catch(error => {
-      console.error('Error saving draft after removing service:', error);
-    });
+    triggerAutoSave();
   };
 
   const editService = (service: ServiceData) => {
@@ -802,10 +806,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
         actionDefinitionId: preservedActionDefinitionId
       });
     }
-
-    saveDraftManually().catch(error => {
-      console.error('Error saving draft after service update:', error);
-    });
+    triggerAutoSave();
   };
 
   const moveServiceUp = (id: string) => {
@@ -816,6 +817,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
 
       return arrayMove(prev, index, index - 1);
     });
+    triggerAutoSave();
   };
 
   const moveServiceDown = (id: string) => {
@@ -826,6 +828,7 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
 
       return arrayMove(prev, index, index + 1);
     });
+    triggerAutoSave();
   };
 
   const duplicateService = (id: string) => {
@@ -864,16 +867,13 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
       newServices.splice(index + 1, 0, duplicatedService);
       return newServices;
     });
+    triggerAutoSave();
   };
 
   const createConnection = (connection: ConnectionData) => {
     setConnections(prev => [...prev, connection]);
-
     applyLinkEffect(connection);
-
-    saveDraftManually().catch(error => {
-      console.error('Error saving draft after creating connection:', error);
-    });
+    triggerAutoSave();
   };
 
   const applyLinkEffect = (connection: ConnectionData) => {
@@ -1047,13 +1047,22 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
         });
       }
     }
-    saveDraftManually().catch(error => {
-      console.error('Error saving draft after removing connection:', error);
-    });
+    triggerAutoSave();
   };
 
   const updateConnection = (connection: ConnectionData) => {
     setConnections(prev => prev.map(c => c.id === connection.id ? connection : c));
+    triggerAutoSave();
+  };
+
+  const handleAreaNameChange = (name: string) => {
+    setAreaName(name);
+    triggerAutoSave();
+  };
+
+  const handleAreaDescriptionChange = (description: string) => {
+    setAreaDescription(description);
+    triggerAutoSave();
   };
 
   return {
@@ -1064,9 +1073,9 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
     isDragging,
     setIsDragging,
     areaName,
-    setAreaName,
+    setAreaName: handleAreaNameChange,
     areaDescription,
-    setAreaDescription,
+    setAreaDescription: handleAreaDescriptionChange,
     currentDraftId,
     isCommitting,
     showDraftModal,
