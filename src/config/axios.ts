@@ -103,7 +103,7 @@ axios.interceptors.response.use(
         message: error.message,
         url: originalRequest?.url,
         method: originalRequest?.method,
-        request: (error as any).request
+        request: error.request
       });
     }
 
