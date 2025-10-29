@@ -99,10 +99,12 @@ axios.interceptors.response.use(
       }
     }
     if (!error.response) {
-      console.error('Network error or server unavailable');
-      if (typeof window !== 'undefined') {
-        // Exemple: toast.error('Server unavailable. Please try again later.');
-      }
+      console.error('Network error or server unavailable', {
+        message: error.message,
+        url: originalRequest?.url,
+        method: originalRequest?.method,
+        request: (error as any).request
+      });
     }
 
     return Promise.reject(error);
