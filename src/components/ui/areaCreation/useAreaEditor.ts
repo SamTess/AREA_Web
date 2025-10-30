@@ -338,6 +338,10 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
 
   console.log('Starting transformation with services:', services);
 
+  const serviceIdToTypeMap = new Map<string, 'action' | 'reaction'>();
+  const serviceIdToActionIndexMap = new Map<string, number>();
+  const serviceIdToReactionIndexMap = new Map<string, number>();
+
   for (let index = 0; index < services.length; index++) {
     const service = services[index];
     console.log(`Processing service ${index}:`, {
@@ -365,6 +369,11 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
         actionActivationConfig = { type: 'webhook' };
       }
 
+      const actionIndex = actions.length;
+      serviceIdToTypeMap.set(service.id, 'action');
+      serviceIdToActionIndexMap.set(service.id, actionIndex);
+      console.log(`Mapped service ${service.id} to action_${actionIndex}`);
+
       actions.push({
         actionDefinitionId: service.actionDefinitionId || '',
         name: service.event || service.cardName || 'Unnamed Action',
@@ -389,6 +398,11 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
         reactionActivationConfig = { type: 'chain' };
       }
 
+      const reactionIndex = reactions.length;
+      serviceIdToTypeMap.set(service.id, 'reaction');
+      serviceIdToReactionIndexMap.set(service.id, reactionIndex);
+      console.log(`Mapped service ${service.id} to reaction_${reactionIndex}`);
+
       reactions.push({
         actionDefinitionId: service.actionDefinitionId || '',
         name: service.event || service.cardName || 'Unnamed Reaction',
@@ -401,55 +415,6 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
       });
     } else {
       console.warn(`Service at index ${index} is neither event-capable nor executable:`, service);
-    }
-  }
-
-  const serviceIdToTypeMap = new Map<string, 'action' | 'reaction'>();
-  const serviceIdToActionIndexMap = new Map<string, number>();
-  const serviceIdToReactionIndexMap = new Map<string, number>();
-
-  const matchedActions = new Set<number>();
-  const matchedReactions = new Set<number>();
-
-  for (let index = 0; index < services.length; index++) {
-    const service = services[index];
-    if (!service.actionDefinitionId) continue;
-
-    try {
-      const actionDef = await getActionDefinitionById(service.actionDefinitionId);
-      if (actionDef.isEventCapable) {
-        let actionIndex = -1;
-        for (let i = 0; i < actions.length; i++) {
-          if (!matchedActions.has(i) &&
-              actions[i].actionDefinitionId === service.actionDefinitionId &&
-              actions[i].name === (service.event || service.cardName)) {
-            actionIndex = i;
-            matchedActions.add(i);
-            break;
-          }
-        }
-        if (actionIndex !== -1) {
-          serviceIdToTypeMap.set(service.id, 'action');
-          serviceIdToActionIndexMap.set(service.id, actionIndex);
-        }
-      } else if (actionDef.isExecutable) {
-        let reactionIndex = -1;
-        for (let i = 0; i < reactions.length; i++) {
-          if (!matchedReactions.has(i) &&
-              reactions[i].actionDefinitionId === service.actionDefinitionId &&
-              reactions[i].name === (service.event || service.cardName)) {
-            reactionIndex = i;
-            matchedReactions.add(i);
-            break;
-          }
-        }
-        if (reactionIndex !== -1) {
-          serviceIdToTypeMap.set(service.id, 'reaction');
-          serviceIdToReactionIndexMap.set(service.id, reactionIndex);
-        }
-      }
-    } catch (error) {
-      console.error(`Failed to classify service ${service.id}:`, error);
     }
   }
 
@@ -511,8 +476,26 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
             condition: connection.linkData?.condition || {},
             order: connection.linkData?.order || 0
           });
+        } else {
+          console.warn('Failed to generate service IDs for connection:', {
+            connectionId: connection.id,
+            sourceServiceId,
+            targetServiceId
+          });
         }
+      } else {
+        console.warn('Missing type mapping for connection:', {
+          connectionId: connection.id,
+          sourceType,
+          targetType
+        });
       }
+    } else {
+      console.warn('Missing service for connection:', {
+        connectionId: connection.id,
+        sourceService: !!sourceService,
+        targetService: !!targetService
+      });
     }
   });
 
