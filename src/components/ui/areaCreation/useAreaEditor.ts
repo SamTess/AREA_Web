@@ -408,6 +408,9 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
   const serviceIdToActionIndexMap = new Map<string, number>();
   const serviceIdToReactionIndexMap = new Map<string, number>();
 
+  const matchedActions = new Set<number>();
+  const matchedReactions = new Set<number>();
+
   for (let index = 0; index < services.length; index++) {
     const service = services[index];
     if (!service.actionDefinitionId) continue;
@@ -415,13 +418,31 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
     try {
       const actionDef = await getActionDefinitionById(service.actionDefinitionId);
       if (actionDef.isEventCapable) {
-        const actionIndex = actions.findIndex(a => a.actionDefinitionId === service.actionDefinitionId && a.name === (service.event || service.cardName));
+        let actionIndex = -1;
+        for (let i = 0; i < actions.length; i++) {
+          if (!matchedActions.has(i) &&
+              actions[i].actionDefinitionId === service.actionDefinitionId &&
+              actions[i].name === (service.event || service.cardName)) {
+            actionIndex = i;
+            matchedActions.add(i);
+            break;
+          }
+        }
         if (actionIndex !== -1) {
           serviceIdToTypeMap.set(service.id, 'action');
           serviceIdToActionIndexMap.set(service.id, actionIndex);
         }
       } else if (actionDef.isExecutable) {
-        const reactionIndex = reactions.findIndex(r => r.actionDefinitionId === service.actionDefinitionId && r.name === (service.event || service.cardName));
+        let reactionIndex = -1;
+        for (let i = 0; i < reactions.length; i++) {
+          if (!matchedReactions.has(i) &&
+              reactions[i].actionDefinitionId === service.actionDefinitionId &&
+              reactions[i].name === (service.event || service.cardName)) {
+            reactionIndex = i;
+            matchedReactions.add(i);
+            break;
+          }
+        }
         if (reactionIndex !== -1) {
           serviceIdToTypeMap.set(service.id, 'reaction');
           serviceIdToReactionIndexMap.set(service.id, reactionIndex);
