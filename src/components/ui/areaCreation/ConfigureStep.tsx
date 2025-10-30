@@ -132,7 +132,7 @@ export default function ConfigureStep({ service, onFieldsChange }: ConfigureStep
 
     return (
         <Stack gap="md">
-            {service.serviceKey && (
+            {service.serviceKey && service.serviceName == "GitHub" && (
                 <Stack gap="xs">
                     <Alert color="blue" variant="light">
                         <Group>
