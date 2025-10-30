@@ -21,23 +21,6 @@ function OAuthCallbackContent() {
       const code = searchParams.get('code');
       const error = searchParams.get('error');
       const errorDescription = searchParams.get('error_description');
-      const state = searchParams.get('state');
-
-      let stateData: { mobile_redirect?: string; origin?: string; mode?: string } = {};
-      if (state) {
-        try {
-          const decoded = atob(state);
-          stateData = JSON.parse(decoded);
-        } catch (e) {
-          console.error('Failed to decode state:', e);
-        }
-      }
-
-      if (stateData.mobile_redirect && error) {
-        const mobileErrorUrl = `${stateData.mobile_redirect}?success=false&error=${encodeURIComponent(error)}&error_description=${encodeURIComponent(errorDescription || '')}`;
-        window.location.href = mobileErrorUrl;
-        return;
-      }
 
       if (error) {
         setStatus('error');
@@ -53,12 +36,6 @@ function OAuthCallbackContent() {
         setStatus('error');
         setMessage('No authorization code received');
 
-        if (stateData.mobile_redirect) {
-          const mobileErrorUrl = `${stateData.mobile_redirect}?success=false&error=${encodeURIComponent('no_code')}`;
-          window.location.href = mobileErrorUrl;
-          return;
-        }
-
         setTimeout(() => {
           router.push('/login');
         }, 2000);
@@ -68,7 +45,7 @@ function OAuthCallbackContent() {
       try {
         setMessage('Exchanging authorization code...');
 
-        const isLinkMode = stateData.mode === 'link' || localStorage.getItem('oauth_link_mode') === 'true';
+        const isLinkMode = localStorage.getItem('oauth_link_mode') === 'true';
         const provider = localStorage.getItem('oauth_provider') || 'github';
 
         let response;
@@ -88,14 +65,6 @@ function OAuthCallbackContent() {
           setStatus('success');
           localStorage.removeItem('oauth_link_mode');
           localStorage.removeItem('oauth_provider');
-          if (stateData.mobile_redirect) {
-            const mobileSuccessUrl = `${stateData.mobile_redirect}?success=true&mode=${stateData.mode || 'login'}`;
-            setMessage('Authentication successful! Returning to app...');
-            setTimeout(() => {
-              window.location.href = mobileSuccessUrl;
-            }, 1000);
-            return;
-          }
           const returnUrl = localStorage.getItem('oauth_return_url') || '/';
           localStorage.removeItem('oauth_return_url');
 
@@ -115,7 +84,7 @@ function OAuthCallbackContent() {
             router.push(returnUrl);
           }, 2000);
         }
-      } catch (error: unknown) {
+    } catch (error: unknown) {
         console.error('OAuth exchange error:', error);
         setStatus('error');
 
@@ -145,14 +114,6 @@ function OAuthCallbackContent() {
         }
 
         setMessage(errorMessage);
-
-        if (stateData.mobile_redirect) {
-          const mobileErrorUrl = `${stateData.mobile_redirect}?success=false&error=${encodeURIComponent(errorMessage)}`;
-          setTimeout(() => {
-            window.location.href = mobileErrorUrl;
-          }, 2000);
-          return;
-        }
 
         const isLinkMode = localStorage.getItem('oauth_link_mode') === 'true';
         localStorage.removeItem('oauth_link_mode');
