@@ -1,73 +1,111 @@
 # 🛠️ Development Setup Guide
 
-## 🎯 **Development Environment Configuration**
+## 🎯 Development Environment Configuration
 
-Development setup (short)
+This document describes the recommended development environment, core configuration files, and workflow for the AREA Web frontend.
 
-This document describes the recommended development environment, core configuration files and workflow used by the AREA Web frontend.
+---
 
-System requirements
--------------------
+## 🖥️ System Requirements
 
-- Node.js 18.x or later
-- Yarn 1.22.x (or Corepack-enabled Yarn)
-- Git
-- Recommended: 8GB RAM for comfortable local builds
+- **Node.js**: 18.x or later
+- **Yarn**: 1.22.x (or Corepack-enabled Yarn)
+- **Git**: Latest version
+- **Recommended**: 8GB RAM for comfortable local builds
 
-Project overview
-----------------
+---
 
-- Framework: Next.js (App Router) with TypeScript
-- UI: Mantine + CSS Modules (Tailwind may be used in parts)
-- Tests: Jest (unit) and Cypress (E2E)
+## 📂 Project Overview
 
-Key scripts (package.json)
---------------------------
+- **Framework**: Next.js (App Router) with TypeScript
+- **UI**: Mantine + CSS Modules (Tailwind may be used in parts)
+- **Testing**: Jest (unit) and Cypress (E2E)
 
-Common scripts you will use:
+---
 
-- `yarn dev` — run the development server
-- `yarn build` — run a production build
-- `yarn start` — start the production server
-- `yarn lint` / `yarn lint:fix` — lint and auto-fix
-- `yarn test` / `yarn test:watch` — run unit tests
-- `yarn cypress:open` / `yarn cypress:run` — E2E tests
+## 🚀 Key Scripts (package.json)
 
-Configuration highlights
------------------------
+| Command                  | Description                          |
+|--------------------------|--------------------------------------|
+| `yarn dev`               | Run the development server          |
+| `yarn build`             | Create a production build           |
+| `yarn start`             | Start the production server         |
+| `yarn lint` / `yarn lint:fix` | Lint and auto-fix code         |
+| `yarn test` / `yarn test:watch` | Run unit tests               |
+| `yarn cypress:open` / `yarn cypress:run` | Run E2E tests       |
 
-- `tsconfig.json` — TypeScript options and path aliases
-- `jest.config.js` — Jest + Next configuration
-- `cypress.config.ts` — E2E settings and baseUrl
-- `eslint.config.mjs` — ESLint configuration and rules
+---
 
-Recommended editor & extensions
---------------------------------
+## 🔧 Configuration Highlights
 
-- VS Code with: ESLint, Prettier, TypeScript, Tailwind CSS IntelliSense, Jest extensions
-- Workspace settings: format on save, ESLint code actions on save
+- **`tsconfig.json`**: TypeScript options and path aliases
+- **`jest.config.js`**: Jest + Next.js configuration
+- **`cypress.config.ts`**: E2E settings and base URL
+- **`eslint.config.mjs`**: ESLint configuration and rules
 
-Workflow & tips
----------------
+---
 
-Daily workflow:
+## 🛠️ Recommended Editor & Extensions
 
-1. Start dev server: `yarn dev`
-2. Use `yarn test:watch` to run tests while developing
-3. Run `yarn lint` and `yarn build` before creating a PR
+- **Editor**: Visual Studio Code (VS Code)
+- **Extensions**:
+  - ESLint
+  - Prettier
+  - TypeScript
+  - Tailwind CSS IntelliSense
+  - Jest
 
-Feature branch checklist:
+### Workspace Settings
 
-- Create a feature branch from `main` (or your project's target branch)
-- Add tests for new features
-- Run lint and tests locally
-- Push and open a PR with a clear description
+- Enable "Format on Save"
+- Enable ESLint code actions on save
 
-Troubleshooting quick fixes
---------------------------
+---
 
-- Clear Next.js cache: `rm -rf .next`
-- Reinstall dependencies: `rm -rf node_modules yarn.lock && yarn install`
-- Increase Node memory: `NODE_OPTIONS=--max-old-space-size=4096 yarn build`
+## 🗂️ Workflow & Tips
 
-If you want, I can produce a short, copyable `.vscode/settings.json` and `launch.json` tuned for this repo.
+### Daily Workflow
+
+1. Start the development server:
+   ```bash
+   yarn dev
+   ```
+2. Run tests while developing:
+   ```bash
+   yarn test:watch
+   ```
+3. Before creating a PR, run:
+   ```bash
+   yarn lint && yarn build
+   ```
+
+### Feature Branch Checklist
+
+- Create a feature branch from `main` (or your target branch):
+  ```bash
+  git checkout -b feature/your-feature
+  ```
+- Add tests for new features.
+- Run lint and tests locally.
+- Push and open a PR with a clear description.
+
+---
+
+## 🛠️ Troubleshooting Quick Fixes
+
+### Clear Next.js Cache
+```bash
+rm -rf .next
+```
+
+### Reinstall Dependencies
+```bash
+rm -rf node_modules yarn.lock && yarn install
+```
+
+### Increase Node.js Memory
+```bash
+NODE_OPTIONS=--max-old-space-size=4096 yarn build
+```
+
+---

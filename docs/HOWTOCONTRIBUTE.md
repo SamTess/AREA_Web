@@ -1,84 +1,116 @@
+# Contributing to AREA Web
 
-# Contributing
+Thank you for your interest in contributing to AREA Web! This guide explains the expected workflow, coding standards, and how to submit a pull request.
 
-Thank you for contributing to AREA Web. This page explains the expected workflow, coding standards and how to submit a pull request.
+---
 
-Prerequisites
--------------
+## 🛠️ Prerequisites
 
-- Node.js 18+ and Yarn (or npm)
-- Git access to the repository
+Before contributing, ensure you have the following:
 
-Quick start
------------
+- **Node.js**: 18.x or later
+- **Yarn**: Installed globally
+- **Git**: Access to the repository
 
-1. Fork the repository and clone your fork:
+---
 
-```bash
-git clone https://github.com/your-username/AREA_Web.git
-cd AREA_Web
-```
+## 🚀 Quick Start
 
-2. Add upstream remote and create a feature branch:
+1. **Fork the Repository**
+   ```bash
+   git clone https://github.com/your-username/AREA_Web.git
+   cd AREA_Web
+   ```
 
-```bash
-git remote add upstream https://github.com/SamTess/AREA_Web.git
-git fetch upstream
-git checkout -b feature/your-feature
-```
+2. **Add Upstream Remote**
+   ```bash
+   git remote add upstream https://github.com/SamTess/AREA_Web.git
+   git fetch upstream
+   ```
 
-Development checklist
----------------------
+3. **Create a Feature Branch**
+   ```bash
+   git checkout -b feature/your-feature
+   ```
 
-- Install dependencies: `yarn install`
-- Copy env template if provided: `cp .env.example .env.local` and update values
-- Run the dev server: `yarn dev`
-- Run unit tests: `yarn test`
-- Lint: `yarn lint`
+---
 
-Coding standards
-----------------
+## ✅ Development Checklist
 
-- Use TypeScript for new code.
-- Follow ESLint and Prettier rules. Run `yarn lint` before committing.
-- Prefer small, focused pull requests with clear titles and descriptions.
-- Add unit tests for new logic and components. Keep coverage healthy.
+- **Install Dependencies**:
+  ```bash
+  yarn install
+  ```
+- **Set Up Environment Variables**:
+  ```bash
+  cp .env.example .env.local
+  ```
+  Update the values in `.env.local` as needed.
+- **Run the Development Server**:
+  ```bash
+  yarn dev
+  ```
+- **Run Unit Tests**:
+  ```bash
+  yarn test
+  ```
+- **Lint Your Code**:
+  ```bash
+  yarn lint
+  ```
 
-Testing
--------
+---
 
-- Unit tests: `yarn test`
-- E2E tests: `yarn cypress:run` (or `yarn cypress:open` for interactive runs)
+## 🧑‍💻 Coding Standards
 
-Submitting a pull request
-------------------------
+- **Use TypeScript**: All new code should be written in TypeScript.
+- **Follow ESLint and Prettier Rules**: Run `yarn lint` before committing.
+- **Write Small, Focused Pull Requests**: Each PR should have a clear purpose.
+- **Add Unit Tests**: Ensure new logic and components are covered.
 
-1. Commit with a clear message (conventional commits recommended):
+---
 
-```bash
-git add .
-git commit -m "feat(area): add area creation flow"
-git push origin feature/your-feature
-```
+## 🧪 Testing
 
-2. Open a pull request against `main` (or the project branch you were asked to target). Include:
+- **Unit Tests**:
+  ```bash
+  yarn test
+  ```
+- **E2E Tests**:
+  ```bash
+  yarn cypress:run
+  ```
+  For interactive runs:
+  ```bash
+  yarn cypress:open
+  ```
 
-- What the change does
-- Any migration or environment variable changes
-- How to test locally
+---
 
-Review process
---------------
+## 📤 Submitting a Pull Request
 
-- At least one maintainer review is required.
-- Address review comments and push fixes to the same branch.
-- Squash commits if requested by maintainers.
+1. **Commit Your Changes**:
+   ```bash
+   git add .
+   git commit -m "feat(area): add area creation flow"
+   git push origin feature/your-feature
+   ```
 
-More resources
---------------
+2. **Open a Pull Request**:
+   - Target the `main` branch (or the branch specified by the maintainers).
+   - Include the following in your PR description:
+     - What the change does
+     - Any migration or environment variable changes
+     - How to test locally
 
-- Project docs: `docs/`
-- Development setup: `docs/development-setup.md`
-- Testing strategy: `docs/testing-strategy.md`
+---
 
-Thanks for helping improve AREA Web!
+## 📚 More Resources
+
+- **Project Documentation**: See the `docs/` folder.
+- **Development Setup**: [development-setup.md](./development-setup.md)
+- **Testing Strategy**: [testing-strategy.md](./testing-strategy.md)
+
+---
+
+Thank you for helping improve AREA Web! 🎉
