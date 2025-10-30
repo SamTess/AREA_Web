@@ -2,7 +2,7 @@
 
 ## Architecture Overview
 
-AREA Web is a modern frontend application developed with Next.js 15 and React 19, providing an intuitive user interface for creating and managing complex automations (AREA - Actions, Reactions, Events, Actions). The application uses a modular architecture with clear separation of responsibilities.
+AREA Web is a modern frontend application developed with Next.js and React, providing an intuitive
 
 ## Technical Architecture
 
