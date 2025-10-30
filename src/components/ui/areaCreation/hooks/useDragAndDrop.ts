@@ -17,6 +17,9 @@ export function useDragAndDrop(
   });
 
   const serviceClickTimesRef = useRef<Map<string, number>>(new Map());
+  const dragUpdateThrottleRef = useRef<number | null>(null);
+  const lastUpdateTimeRef = useRef<number>(0);
+  const THROTTLE_MS = 50;
   const handleMouseDown = useCallback((e: React.MouseEvent, serviceId: string) => {
     if (e.button === 1)
       return;
@@ -26,7 +29,6 @@ export function useDragAndDrop(
     const lastClickTime = serviceClickTimesRef.current.get(serviceId) || 0;
     const timeDiff = currentTime - lastClickTime;
     serviceClickTimesRef.current.set(serviceId, currentTime);
-    // detection double click
     if (timeDiff < 300) {
       const service = services.find(s => s.id === serviceId);
       if (service) {
@@ -57,7 +59,30 @@ export function useDragAndDrop(
       draggedServiceId: serviceId,
       offset,
     });
+
     const handleMove = (moveEvent: MouseEvent) => {
+      const now = Date.now();
+
+      if (now - lastUpdateTimeRef.current < THROTTLE_MS) {
+        if (dragUpdateThrottleRef.current !== null) {
+          window.clearTimeout(dragUpdateThrottleRef.current);
+        }
+
+        dragUpdateThrottleRef.current = window.setTimeout(() => {
+          const canvasPos = screenToCanvas(moveEvent.clientX - offset.x, moveEvent.clientY - offset.y);
+          const currentService = services.find(s => s.id === serviceId);
+          if (currentService) {
+            onUpdateService({
+              ...currentService,
+              position: { x: canvasPos.x, y: canvasPos.y },
+            });
+          }
+          lastUpdateTimeRef.current = Date.now();
+        }, THROTTLE_MS);
+        return;
+      }
+
+      lastUpdateTimeRef.current = now;
       const canvasPos = screenToCanvas(moveEvent.clientX - offset.x, moveEvent.clientY - offset.y);
       const currentService = services.find(s => s.id === serviceId);
       if (currentService) {
@@ -67,7 +92,14 @@ export function useDragAndDrop(
         });
       }
     };
+
     const handleUp = () => {
+      // Clear any pending throttled update
+      if (dragUpdateThrottleRef.current !== null) {
+        window.clearTimeout(dragUpdateThrottleRef.current);
+        dragUpdateThrottleRef.current = null;
+      }
+
       setDragState({
         isDragging: false,
         draggedServiceId: null,

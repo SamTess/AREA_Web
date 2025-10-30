@@ -589,6 +589,18 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
   }, [areaName, areaDescription, saveDraftManually]);
 
   useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      if (servicesState.length > 0 || connections.length > 0) {
+        saveDraftManually().catch(error => {
+          console.error('Error saving draft after services/connections change:', error);
+        });
+      }
+    }, 2000);
+
+    return () => clearTimeout(timeoutId);
+  }, [servicesState, connections, saveDraftManually]);
+
+  useEffect(() => {
     const loadData = async () => {
       if (areaId !== undefined) {
         try {
