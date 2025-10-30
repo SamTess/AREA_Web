@@ -94,7 +94,6 @@ export function useDragAndDrop(
     };
 
     const handleUp = () => {
-      // Clear any pending throttled update
       if (dragUpdateThrottleRef.current !== null) {
         window.clearTimeout(dragUpdateThrottleRef.current);
         dragUpdateThrottleRef.current = null;
