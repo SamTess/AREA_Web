@@ -1,96 +1,208 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { ArrayInput } from '../src/components/ui/area-simple-steps/ArrayInput';
 import { MantineProvider } from '@mantine/core';
+import { ArrayInput } from '../src/components/ui/area-simple-steps/ArrayInput';
+import type { FieldData } from '@/types';
 
-const renderWithMantine = (component: React.ReactElement) => {
-  return render(
-    <MantineProvider>
-      {component}
-    </MantineProvider>
-  );
+const renderWithProvider = (component: React.ReactElement) => {
+  return render(<MantineProvider>{component}</MantineProvider>);
+};
+
+const mockField: FieldData = {
+  name: 'tags',
+  type: 'array',
+  mandatory: true,
+  description: 'Add tags',
+  placeholder: 'Enter a tag',
 };
 
 describe('ArrayInput', () => {
   const mockOnChange = jest.fn();
-  const field = {
-    name: 'Test Array',
-    description: 'A test array field',
-    placeholder: 'Enter value',
-    mandatory: true,
-    type: 'array' as const,
-  };
 
   beforeEach(() => {
     jest.clearAllMocks();
   });
 
-  it('renders the field name and description', () => {
-    renderWithMantine(<ArrayInput field={field} value={[]} onChange={mockOnChange} />);
+  it('should render field name', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
+    );
 
-    expect(screen.getByText('Test Array')).toBeInTheDocument();
-    expect(screen.getByText('*')).toBeInTheDocument();
-    expect(screen.getByText('A test array field')).toBeInTheDocument();
+    expect(screen.getByText('tags')).toBeInTheDocument();
   });
 
-  it('renders empty state message when no items', () => {
-    renderWithMantine(<ArrayInput field={field} value={[]} onChange={mockOnChange} />);
+  it('should show mandatory indicator for required fields', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
+    );
+
+    const asterisk = screen.getByText('*');
+    expect(asterisk).toBeInTheDocument();
+  });
+
+  it('should display field description', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
+    );
+
+    expect(screen.getByText('Add tags')).toBeInTheDocument();
+  });
+
+  it('should show placeholder text when array is empty', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
+    );
 
     expect(screen.getByText('No items yet. Add items below.')).toBeInTheDocument();
   });
 
-  it('renders pills for array items', () => {
-    const value = ['item1', 'item2'];
-    renderWithMantine(<ArrayInput field={field} value={value} onChange={mockOnChange} />);
+  it('should display array items as pills', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={['tag1', 'tag2']} onChange={mockOnChange} />
+    );
 
-    expect(screen.getByText('item1')).toBeInTheDocument();
-    expect(screen.getByText('item2')).toBeInTheDocument();
+    expect(screen.getByText('tag1')).toBeInTheDocument();
+    expect(screen.getByText('tag2')).toBeInTheDocument();
   });
 
-  it('adds item when Enter is pressed', () => {
-    renderWithMantine(<ArrayInput field={field} value={[]} onChange={mockOnChange} />);
+  it('should add item when Add button clicked', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
+    );
 
-    const input = screen.getByPlaceholderText('Enter value');
-    fireEvent.change(input, { target: { value: 'new item' } });
-    fireEvent.keyDown(input, { key: 'Enter' });
+    const input = screen.getByPlaceholderText('Enter a tag');
+    fireEvent.change(input, { target: { value: 'newtag' } });
 
-    expect(mockOnChange).toHaveBeenCalledWith(['new item']);
-  });
-
-  it('adds item when Add button is clicked', () => {
-    renderWithMantine(<ArrayInput field={field} value={[]} onChange={mockOnChange} />);
-
-    const input = screen.getByPlaceholderText('Enter value');
-    const addButton = screen.getByRole('button', { name: /add/i });
-    fireEvent.change(input, { target: { value: 'new item' } });
+    const addButton = screen.getByText('Add');
     fireEvent.click(addButton);
 
-    expect(mockOnChange).toHaveBeenCalledWith(['new item']);
+    expect(mockOnChange).toHaveBeenCalledWith(['newtag']);
   });
 
-  it('does not add empty item', () => {
-    renderWithMantine(<ArrayInput field={field} value={[]} onChange={mockOnChange} />);
+  it('should add item when Enter pressed', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
+    );
 
-    const input = screen.getByPlaceholderText('Enter value');
-    const addButton = screen.getByRole('button', { name: /add/i });
-    fireEvent.change(input, { target: { value: '   ' } });
+    const input = screen.getByPlaceholderText('Enter a tag');
+    fireEvent.change(input, { target: { value: 'newtag' } });
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+
+    expect(mockOnChange).toHaveBeenCalledWith(['newtag']);
+  });
+
+  it('should add item to existing array', () => {
+    renderWithProvider(
+      <ArrayInput
+        field={mockField}
+        value={['existing']}
+        onChange={mockOnChange}
+      />
+    );
+
+    const input = screen.getByPlaceholderText('Enter a tag');
+    fireEvent.change(input, { target: { value: 'newtag' } });
+
+    const addButton = screen.getByText('Add');
     fireEvent.click(addButton);
 
-    expect(mockOnChange).not.toHaveBeenCalled();
+    expect(mockOnChange).toHaveBeenCalledWith(['existing', 'newtag']);
   });
 
-  it('removes item when pill remove button is clicked', () => {
-    const value = ['item1', 'item2'];
-    renderWithMantine(<ArrayInput field={field} value={value} onChange={mockOnChange} />);
+  it('should trim whitespace when adding item', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
+    );
 
-    // Find remove buttons - they are svg elements inside buttons
-    const removeButtons = screen.getAllByRole('button');
-    // The remove buttons are the ones with svg
-    const removeButton = removeButtons.find(button => button.querySelector('svg'));
-    if (removeButton) {
-      fireEvent.click(removeButton);
-      expect(mockOnChange).toHaveBeenCalledWith(['item2']);
+    const input = screen.getByPlaceholderText('Enter a tag');
+    fireEvent.change(input, { target: { value: '  newtag  ' } });
+
+    const addButton = screen.getByText('Add');
+    fireEvent.click(addButton);
+
+    expect(mockOnChange).toHaveBeenCalledWith(['newtag']);
+  });
+
+  it('should not add empty items', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
+    );
+
+    const addButton = screen.getByRole('button', { name: /Add/ });
+    expect(addButton).toBeDisabled();
+  });
+
+  it('should disable Add button when input is empty', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
+    );
+
+    const input = screen.getByPlaceholderText('Enter a tag');
+    const addButton = screen.getByRole('button', { name: /Add/ });
+
+    expect(addButton).toBeDisabled();
+
+    fireEvent.change(input, { target: { value: 'tag' } });
+    expect(addButton).not.toBeDisabled();
+
+    fireEvent.change(input, { target: { value: '' } });
+    expect(addButton).toBeDisabled();
+  });
+
+  it('should remove item when remove button clicked', () => {
+    const { container } = renderWithProvider(
+      <ArrayInput
+        field={mockField}
+        value={['tag1', 'tag2']}
+        onChange={mockOnChange}
+      />
+    );
+
+    const removeButtons = container.querySelectorAll('button[aria-label*="Remove"]');
+    if (removeButtons.length > 0) {
+      fireEvent.click(removeButtons[0]);
+      expect(mockOnChange).toHaveBeenCalledWith(['tag2']);
     }
+  });
+
+  it('should clear input after adding item', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
+    );
+
+    const input = screen.getByPlaceholderText('Enter a tag') as HTMLInputElement;
+    fireEvent.change(input, { target: { value: 'newtag' } });
+
+    const addButton = screen.getByText('Add');
+    fireEvent.click(addButton);
+
+    expect(input.value).toBe('');
+  });
+
+  it('should handle non-array initial value', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={undefined} onChange={mockOnChange} />
+    );
+
+    expect(screen.getByText('No items yet. Add items below.')).toBeInTheDocument();
+  });
+
+  it('should not display description when not provided', () => {
+    const fieldWithoutDescription = {
+      name: 'tags',
+      type: 'array' as const,
+      mandatory: true,
+    };
+
+    renderWithProvider(
+      <ArrayInput
+        field={fieldWithoutDescription}
+        value={[]}
+        onChange={mockOnChange}
+      />
+    );
+
+    expect(screen.queryByText('Add tags')).not.toBeInTheDocument();
   });
 });
