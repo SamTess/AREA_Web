@@ -8,6 +8,7 @@ import {
   updateAreaComplete,
   CreateAreaPayload,
   getAreaById,
+  getActionDefinitionById,
 } from '@/services/areasService';
 import { SimpleAreaForm } from '@/components/ui/area-simple-steps';
 import type { ActivationConfig } from '@/types';
@@ -68,34 +69,95 @@ export default function EditSimpleAreaPage() {
           router.push('/areas');
           return;
         }
-        const loadedTriggers: TriggerData[] = area.actions && area.actions.length > 0
-          ? area.actions.map((action, index) => ({
-              id: action.id || `trigger-${index}`,
-              service: null,
-              actionId: action.actionDefinitionId,
-              params: action.parameters || {},
-              activationConfig: action.activationConfig || { type: 'webhook' },
-            }))
-          : [
-              { id: 'trigger-initial', service: null, actionId: null, params: {}, activationConfig: { type: 'webhook' } }
-            ];
-        const loadedReactions: ReactionData[] = area.reactions && area.reactions.length > 0
-          ? area.reactions.map((reaction, index) => ({
-              id: reaction.id || `reaction-${index}`,
-              service: null,
-              actionId: reaction.actionDefinitionId,
-              params: reaction.parameters || {},
-            }))
-          : [
-              { id: 'reaction-initial', service: null, actionId: null, params: {} }
-            ];
+
+        const loadedTriggers: TriggerData[] = [];
+        if (area.actions && area.actions.length > 0) {
+          for (const [index, action] of area.actions.entries()) {
+            try {
+              const actionDef = await getActionDefinitionById(action.actionDefinitionId);
+              loadedTriggers.push({
+                id: action.id || `trigger-${index}`,
+                service: actionDef.serviceKey || null,
+                actionId: action.actionDefinitionId,
+                params: action.parameters || {},
+                activationConfig: action.activationConfig || { type: 'webhook' },
+              });
+            } catch (error) {
+              console.error(`Failed to load action definition for trigger ${index}:`, error);
+              loadedTriggers.push({
+                id: action.id || `trigger-${index}`,
+                service: null,
+                actionId: action.actionDefinitionId,
+                params: action.parameters || {},
+                activationConfig: action.activationConfig || { type: 'webhook' },
+              });
+            }
+          }
+        }
+
+        if (loadedTriggers.length === 0) {
+          loadedTriggers.push({
+            id: 'trigger-initial',
+            service: null,
+            actionId: null,
+            params: {},
+            activationConfig: { type: 'webhook' }
+          });
+        }
+
+        // Load reactions with full service information
+        const loadedReactions: ReactionData[] = [];
+        if (area.reactions && area.reactions.length > 0) {
+          for (const [index, reaction] of area.reactions.entries()) {
+            try {
+              const actionDef = await getActionDefinitionById(reaction.actionDefinitionId);
+              loadedReactions.push({
+                id: reaction.id || `reaction-${index}`,
+                service: actionDef.serviceKey || null,
+                actionId: reaction.actionDefinitionId,
+                params: reaction.parameters || {},
+              });
+            } catch (error) {
+              console.error(`Failed to load action definition for reaction ${index}:`, error);
+              loadedReactions.push({
+                id: reaction.id || `reaction-${index}`,
+                service: null,
+                actionId: reaction.actionDefinitionId,
+                params: reaction.parameters || {},
+              });
+            }
+          }
+        }
+
+        if (loadedReactions.length === 0) {
+          loadedReactions.push({
+            id: 'reaction-initial',
+            service: null,
+            actionId: null,
+            params: {}
+          });
+        }
+
+        const loadedLinks: LinkData[] = [];
+        if (area.links && area.links.length > 0) {
+          area.links.forEach((link, index) => {
+            loadedLinks.push({
+              id: `link-${link.sourceActionInstanceId}-${link.targetActionInstanceId}-${index}`,
+              sourceId: link.sourceActionInstanceId,
+              targetId: link.targetActionInstanceId,
+              linkType: (link.linkType as 'chain' | 'conditional' | 'parallel' | 'sequential') || 'chain',
+              mapping: link.mapping as Record<string, string> | undefined,
+              order: link.order || index,
+            });
+          });
+        }
 
         setInitialData({
           areaName: area.name,
           areaDescription: area.description || '',
           triggers: loadedTriggers,
           reactions: loadedReactions,
-          links: [],
+          links: loadedLinks,
         });
 
         setIsLoading(false);

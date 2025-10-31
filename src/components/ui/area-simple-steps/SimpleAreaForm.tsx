@@ -197,8 +197,24 @@ export function SimpleAreaForm({
   }, [links]);
 
   useEffect(() => {
+    if (initialData && mode === 'edit') {
+      setAreaName(initialData.areaName || '');
+      setAreaDescription(initialData.areaDescription || '');
+      if (initialData.triggers && initialData.triggers.length > 0) {
+        setTriggers(initialData.triggers);
+      }
+      if (initialData.reactions && initialData.reactions.length > 0) {
+        setReactions(initialData.reactions);
+      }
+      if (initialData.links && initialData.links.length > 0) {
+        setLinks(initialData.links);
+      }
+    }
+  }, [initialData, mode]);
+
+  useEffect(() => {
     const servicesToLoad = triggers
-      .filter(t => t.service && !t.actionId)
+      .filter(t => t.service)
       .map(t => t.service as string);
     const uniqueServices = [...new Set(servicesToLoad)];
     uniqueServices.forEach(service => {
