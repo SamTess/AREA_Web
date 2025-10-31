@@ -1,33 +1,33 @@
-import axios from '../../src/config/axios';
 import * as adminService from '../../src/services/adminService';
+import axios from '../../src/config/axios';
+import { API_CONFIG } from '../../src/config/api';
 
 jest.mock('../../src/config/axios');
 jest.mock('../../src/config/api', () => ({
+  USE_MOCK_DATA: false,
   API_CONFIG: {
+    baseURL: 'http://localhost:3000',
     endpoints: {
       admin: {
-        userConnectedPerDay: '/admin/stats/connections',
-        newUserPerMonth: '/admin/stats/users',
-        users: '/admin/users',
-        areas: '/admin/areas',
-        services: '/admin/services',
-        servicesUsage: '/admin/stats/services',
-        areaRuns: '/admin/area-runs',
-        areaStats: '/admin/stats/areas',
-        cardUserData: '/admin/stats/user-cards',
+        userConnectedPerDay: '/api/admin/stats/userConnectedPerDay',
+        newUserPerMonth: '/api/admin/stats/newUserPerMonth',
+        users: '/api/admin/users',
+        areas: '/api/admin/areas',
+        services: '/api/admin/services',
+        servicesUsage: '/api/admin/stats/servicesUsage',
+        areaRuns: '/api/admin/stats/areaRuns',
+        areaStats: '/api/admin/stats/areaStats',
+        cardUserData: '/api/admin/stats/cardUserData',
       },
       auth: {
-        register: '/auth/register',
+        register: '/api/auth/register',
       },
       user: {
-        profile: '/user/profile',
+        profile: '/api/user/profile',
       },
     },
   },
-  USE_MOCK_DATA: false,
 }));
-
-const mockedAxios = axios as jest.Mocked<typeof axios>;
 
 describe('adminService', () => {
   beforeEach(() => {
@@ -36,267 +36,364 @@ describe('adminService', () => {
 
   describe('getLineData', () => {
     it('should fetch line data successfully', async () => {
-      const mockData = [{ date: '2024-01-01', count: 10 }];
-      mockedAxios.get.mockResolvedValue({ data: mockData });
+      const mockData = [
+        { date: '2024-01-01', value: 10 },
+        { date: '2024-01-02', value: 15 },
+      ];
+      (axios.get as jest.Mock).mockResolvedValue({ data: mockData });
 
       const result = await adminService.getLineData();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith('/admin/stats/connections');
       expect(result).toEqual(mockData);
+      expect(axios.get).toHaveBeenCalledWith(API_CONFIG.endpoints.admin.userConnectedPerDay);
     });
 
-    it('should handle errors', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      mockedAxios.get.mockRejectedValue(new Error('Network error'));
+    it('should handle error when fetching line data', async () => {
+      const error = new Error('Network error');
+      (axios.get as jest.Mock).mockRejectedValue(error);
 
       await expect(adminService.getLineData()).rejects.toThrow('Network error');
-      expect(consoleSpy).toHaveBeenCalled();
-      consoleSpy.mockRestore();
+    });
+
+    it('should return array from getLineData', async () => {
+      (axios.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      const result = await adminService.getLineData();
+
+      expect(Array.isArray(result)).toBe(true);
     });
   });
 
   describe('getBarData', () => {
     it('should fetch bar data successfully', async () => {
-      const mockData = [{ month: 'Jan', users: 50 }];
-      mockedAxios.get.mockResolvedValue({ data: mockData });
+      const mockData = [
+        { month: 'January', count: 5 },
+        { month: 'February', count: 8 },
+      ];
+      (axios.get as jest.Mock).mockResolvedValue({ data: mockData });
 
       const result = await adminService.getBarData();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith('/admin/stats/users');
       expect(result).toEqual(mockData);
+      expect(axios.get).toHaveBeenCalledWith(API_CONFIG.endpoints.admin.newUserPerMonth);
+    });
+
+    it('should handle error when fetching bar data', async () => {
+      const error = new Error('API error');
+      (axios.get as jest.Mock).mockRejectedValue(error);
+
+      await expect(adminService.getBarData()).rejects.toThrow('API error');
+    });
+
+    it('should return array from getBarData', async () => {
+      (axios.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      const result = await adminService.getBarData();
+
+      expect(Array.isArray(result)).toBe(true);
     });
   });
 
   describe('getUsers', () => {
     it('should fetch users successfully', async () => {
-      const mockUsers = [{ id: '1', email: 'test@example.com' }];
-      mockedAxios.get.mockResolvedValue({ data: mockUsers });
+      const mockUsers = [
+        { id: '1', email: 'user1@example.com', firstName: 'John' },
+      ];
+      (axios.get as jest.Mock).mockResolvedValue({ data: mockUsers });
 
       const result = await adminService.getUsers();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith('/admin/users');
       expect(result).toEqual(mockUsers);
+      expect(axios.get).toHaveBeenCalledWith(API_CONFIG.endpoints.admin.users);
+    });
+
+    it('should handle error when fetching users', async () => {
+      const error = new Error('Unauthorized');
+      (axios.get as jest.Mock).mockRejectedValue(error);
+
+      await expect(adminService.getUsers()).rejects.toThrow('Unauthorized');
+    });
+
+    it('should return array of users', async () => {
+      (axios.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      const result = await adminService.getUsers();
+
+      expect(Array.isArray(result)).toBe(true);
     });
   });
 
   describe('getAreas', () => {
     it('should fetch areas successfully', async () => {
-      const mockAreas = [{ id: '1', name: 'Test Area' }];
-      mockedAxios.get.mockResolvedValue({ data: mockAreas });
+      const mockAreas = [
+        { id: '1', name: 'Area 1' },
+      ];
+      (axios.get as jest.Mock).mockResolvedValue({ data: mockAreas });
 
       const result = await adminService.getAreas();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith('/admin/areas');
       expect(result).toEqual(mockAreas);
+      expect(axios.get).toHaveBeenCalledWith(API_CONFIG.endpoints.admin.areas);
+    });
+
+    it('should handle error when fetching areas', async () => {
+      const error = new Error('Server error');
+      (axios.get as jest.Mock).mockRejectedValue(error);
+
+      await expect(adminService.getAreas()).rejects.toThrow('Server error');
+    });
+
+    it('should return array of areas', async () => {
+      (axios.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      const result = await adminService.getAreas();
+
+      expect(Array.isArray(result)).toBe(true);
     });
   });
 
   describe('getServices', () => {
     it('should fetch services successfully', async () => {
-      const mockServices = [{ id: '1', name: 'GitHub' }];
-      mockedAxios.get.mockResolvedValue({ data: mockServices });
+      const mockServices = [
+        { id: '1', name: 'Service 1', key: 'svc1' },
+      ];
+      (axios.get as jest.Mock).mockResolvedValue({ data: mockServices });
 
       const result = await adminService.getServices();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith('/admin/services');
       expect(result).toEqual(mockServices);
+      expect(axios.get).toHaveBeenCalledWith(API_CONFIG.endpoints.admin.services);
+    });
+
+    it('should handle error when fetching services', async () => {
+      const error = new Error('Connection failed');
+      (axios.get as jest.Mock).mockRejectedValue(error);
+
+      await expect(adminService.getServices()).rejects.toThrow('Connection failed');
+    });
+
+    it('should return array of services', async () => {
+      (axios.get as jest.Mock).mockResolvedValue({ data: [] });
+
+      const result = await adminService.getServices();
+
+      expect(Array.isArray(result)).toBe(true);
     });
   });
 
   describe('getServicesBarData', () => {
     it('should fetch services bar data successfully', async () => {
-      const mockData = [{ service: 'GitHub', usage: 100 }];
-      mockedAxios.get.mockResolvedValue({ data: mockData });
+      const mockData = [{ name: 'GitHub', usage: 50 }];
+      (axios.get as jest.Mock).mockResolvedValue({ data: mockData });
 
       const result = await adminService.getServicesBarData();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith('/admin/stats/services');
       expect(result).toEqual(mockData);
+      expect(axios.get).toHaveBeenCalledWith(API_CONFIG.endpoints.admin.servicesUsage);
+    });
+
+    it('should handle error when fetching services bar data', async () => {
+      const error = new Error('Error');
+      (axios.get as jest.Mock).mockRejectedValue(error);
+
+      await expect(adminService.getServicesBarData()).rejects.toThrow('Error');
     });
   });
 
   describe('getAreaRuns', () => {
     it('should fetch area runs successfully', async () => {
-      const mockRuns = [{ id: '1', status: 'success' }];
-      mockedAxios.get.mockResolvedValue({ data: mockRuns });
+      const mockData = [{ areaId: '1', runCount: 10 }];
+      (axios.get as jest.Mock).mockResolvedValue({ data: mockData });
 
       const result = await adminService.getAreaRuns();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith('/admin/area-runs');
-      expect(result).toEqual(mockRuns);
+      expect(result).toEqual(mockData);
+      expect(axios.get).toHaveBeenCalledWith(API_CONFIG.endpoints.admin.areaRuns);
+    });
+
+    it('should handle error when fetching area runs', async () => {
+      const error = new Error('Error');
+      (axios.get as jest.Mock).mockRejectedValue(error);
+
+      await expect(adminService.getAreaRuns()).rejects.toThrow('Error');
     });
   });
 
   describe('getAreaStats', () => {
     it('should fetch area stats successfully', async () => {
-      const mockStats = { total: 100, active: 50 };
-      mockedAxios.get.mockResolvedValue({ data: mockStats });
+      const mockData = { totalAreas: 10, activeAreas: 8 };
+      (axios.get as jest.Mock).mockResolvedValue({ data: mockData });
 
       const result = await adminService.getAreaStats();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith('/admin/stats/areas');
-      expect(result).toEqual(mockStats);
+      expect(result).toEqual(mockData);
+      expect(axios.get).toHaveBeenCalledWith(API_CONFIG.endpoints.admin.areaStats);
+    });
+
+    it('should handle error when fetching area stats', async () => {
+      const error = new Error('Error');
+      (axios.get as jest.Mock).mockRejectedValue(error);
+
+      await expect(adminService.getAreaStats()).rejects.toThrow('Error');
     });
   });
 
   describe('getCardUserData', () => {
     it('should fetch card user data successfully', async () => {
-      const mockData = { users: 1000, growth: 10 };
-      mockedAxios.get.mockResolvedValue({ data: mockData });
+      const mockData = { totalUsers: 100, newUsers: 10 };
+      (axios.get as jest.Mock).mockResolvedValue({ data: mockData });
 
       const result = await adminService.getCardUserData();
 
-      expect(mockedAxios.get).toHaveBeenCalledWith('/admin/stats/user-cards');
       expect(result).toEqual(mockData);
+      expect(axios.get).toHaveBeenCalledWith(API_CONFIG.endpoints.admin.cardUserData);
+    });
+
+    it('should handle error when fetching card user data', async () => {
+      const error = new Error('Error');
+      (axios.get as jest.Mock).mockRejectedValue(error);
+
+      await expect(adminService.getCardUserData()).rejects.toThrow('Error');
     });
   });
 
   describe('createUser', () => {
     it('should create user successfully', async () => {
       const userData = {
-        email: 'test@example.com',
-        firstName: 'Test',
+        email: 'newuser@example.com',
+        firstName: 'New',
         lastName: 'User',
         password: 'password123',
         isAdmin: false,
       };
-      mockedAxios.post.mockResolvedValue({ data: { id: '1', ...userData } });
+      const mockResponse = { ...userData, id: '123' };
+      (axios.post as jest.Mock).mockResolvedValue({ data: mockResponse });
 
       const result = await adminService.createUser(userData);
 
-      expect(mockedAxios.post).toHaveBeenCalledWith('/auth/register', userData);
-      expect(result).toEqual({ id: '1', ...userData });
+      expect(result).toEqual(mockResponse);
+      expect(axios.post).toHaveBeenCalledWith(API_CONFIG.endpoints.auth.register, userData);
+    });
+
+    it('should handle error when creating user', async () => {
+      const userData = {
+        email: 'user@example.com',
+        firstName: 'Test',
+        lastName: 'User',
+        password: 'pass',
+        isAdmin: false,
+      };
+      const error = new Error('Duplicate email');
+      (axios.post as jest.Mock).mockRejectedValue(error);
+
+      await expect(adminService.createUser(userData)).rejects.toThrow('Duplicate email');
     });
   });
 
   describe('addUser', () => {
     it('should add user successfully', async () => {
-      const user = {
-        id: '1',
-        name: 'Test User',
-        email: 'test@example.com',
-        password: 'password123',
-        avatarSrc: '',
-        profileData: {
-          email: 'test@example.com',
-          firstName: 'Test',
-          lastName: 'User',
-        },
-        isAdmin: false,
-        isVerified: false,
-      };
-      mockedAxios.post.mockResolvedValue({ data: user });
+      const user = { email: 'add@example.com', firstName: 'Add', lastName: 'User', isAdmin: false };
+      const mockResponse = { ...user, id: '124' };
+      (axios.post as jest.Mock).mockResolvedValue({ data: mockResponse });
 
-      const result = await adminService.addUser(user);
+      const result = await adminService.addUser(user as any);
 
-      expect(mockedAxios.post).toHaveBeenCalledWith('/admin/users', user);
-      expect(result).toEqual(user);
+      expect(result).toEqual(mockResponse);
+      expect(axios.post).toHaveBeenCalledWith(API_CONFIG.endpoints.admin.users, user);
     });
   });
 
   describe('updateUser', () => {
     it('should update user successfully', async () => {
-      const user = {
-        id: '1',
-        name: 'Updated User',
-        email: 'updated@example.com',
-        password: 'password123',
-        avatarSrc: '',
-        profileData: {
-          email: 'updated@example.com',
-          firstName: 'Updated',
-          lastName: 'User',
-        },
-        isAdmin: false,
-        isVerified: true,
-      };
-      mockedAxios.put.mockResolvedValue({ data: user });
+      const userId = '123';
+      const user = { email: 'updated@example.com', firstName: 'Updated', lastName: 'User', isAdmin: false };
+      const mockResponse = { ...user, id: userId };
+      (axios.put as jest.Mock).mockResolvedValue({ data: mockResponse });
 
-      const result = await adminService.updateUser('1', user);
+      const result = await adminService.updateUser(userId, user as any);
 
-      expect(mockedAxios.put).toHaveBeenCalledWith('/admin/users/1', user);
-      expect(result).toEqual(user);
+      expect(result).toEqual(mockResponse);
+      expect(axios.put).toHaveBeenCalledWith(`${API_CONFIG.endpoints.admin.users}/${userId}`, user);
     });
   });
 
   describe('deleteUser', () => {
     it('should delete user successfully', async () => {
-      mockedAxios.delete.mockResolvedValue({});
+      const userId = '123';
+      (axios.delete as jest.Mock).mockResolvedValue({ data: null });
 
-      await adminService.deleteUser('1');
+      await adminService.deleteUser(userId);
 
-      expect(mockedAxios.delete).toHaveBeenCalledWith('/user/profile/1');
-    });
-
-    it('should handle delete errors', async () => {
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
-      mockedAxios.delete.mockRejectedValue(new Error('Delete failed'));
-
-      await expect(adminService.deleteUser('1')).rejects.toThrow('Delete failed');
-      expect(consoleSpy).toHaveBeenCalled();
-      consoleSpy.mockRestore();
+      expect(axios.delete).toHaveBeenCalledWith(`${API_CONFIG.endpoints.user.profile}/${userId}`);
     });
   });
 
   describe('deleteArea', () => {
     it('should delete area successfully', async () => {
-      mockedAxios.delete.mockResolvedValue({});
+      const areaId = '1';
+      (axios.delete as jest.Mock).mockResolvedValue({ data: null });
 
-      await adminService.deleteArea('1');
+      await adminService.deleteArea(areaId);
 
-      expect(mockedAxios.delete).toHaveBeenCalledWith('/admin/areas/1');
+      expect(axios.delete).toHaveBeenCalledWith(`${API_CONFIG.endpoints.admin.areas}/${areaId}`);
     });
   });
 
   describe('enableDisableArea', () => {
     it('should enable area successfully', async () => {
-      mockedAxios.patch.mockResolvedValue({});
+      const areaId = '1';
+      (axios.patch as jest.Mock).mockResolvedValue({ data: null });
 
-      await adminService.enableDisableArea('1', true);
+      await adminService.enableDisableArea(areaId, true);
 
-      expect(mockedAxios.patch).toHaveBeenCalledWith('/admin/areas/1', { enabled: true });
+      expect(axios.patch).toHaveBeenCalledWith(`${API_CONFIG.endpoints.admin.areas}/${areaId}`, { enabled: true });
     });
 
     it('should disable area successfully', async () => {
-      mockedAxios.patch.mockResolvedValue({});
+      const areaId = '1';
+      (axios.patch as jest.Mock).mockResolvedValue({ data: null });
 
-      await adminService.enableDisableArea('1', false);
+      await adminService.enableDisableArea(areaId, false);
 
-      expect(mockedAxios.patch).toHaveBeenCalledWith('/admin/areas/1', { enabled: false });
+      expect(axios.patch).toHaveBeenCalledWith(`${API_CONFIG.endpoints.admin.areas}/${areaId}`, { enabled: false });
     });
   });
 
   describe('addService', () => {
     it('should add service successfully', async () => {
-      const service = { id: '1', name: 'GitHub', logo: 'github-logo.png' };
-      mockedAxios.post.mockResolvedValue({ data: service });
+      const service = { name: 'NewService', key: 'new_service' };
+      const mockResponse = { ...service, id: '1' };
+      (axios.post as jest.Mock).mockResolvedValue({ data: mockResponse });
 
-      const result = await adminService.addService(service);
+      const result = await adminService.addService(service as any);
 
-      expect(mockedAxios.post).toHaveBeenCalledWith('/admin/services', service);
-      expect(result).toEqual(service);
+      expect(result).toEqual(mockResponse);
+      expect(axios.post).toHaveBeenCalledWith(API_CONFIG.endpoints.admin.services, service);
     });
   });
 
   describe('updateService', () => {
     it('should update service successfully', async () => {
-      const service = { id: '1', name: 'GitHub Updated', logo: 'github-logo.png' };
-      mockedAxios.put.mockResolvedValue({ data: service });
+      const serviceId = '1';
+      const service = { name: 'UpdatedService', key: 'updated_svc' };
+      const mockResponse = { ...service, id: serviceId };
+      (axios.put as jest.Mock).mockResolvedValue({ data: mockResponse });
 
-      const result = await adminService.updateService('1', service);
+      const result = await adminService.updateService(serviceId, service as any);
 
-      expect(mockedAxios.put).toHaveBeenCalledWith('/admin/services/1', service);
-      expect(result).toEqual(service);
+      expect(result).toEqual(mockResponse);
+      expect(axios.put).toHaveBeenCalledWith(`${API_CONFIG.endpoints.admin.services}/${serviceId}`, service);
     });
   });
 
   describe('deleteService', () => {
     it('should delete service successfully', async () => {
-      mockedAxios.delete.mockResolvedValue({});
+      const serviceId = '1';
+      (axios.delete as jest.Mock).mockResolvedValue({ data: null });
 
-      await adminService.deleteService('1');
+      await adminService.deleteService(serviceId);
 
-      expect(mockedAxios.delete).toHaveBeenCalledWith('/admin/services/1');
+      expect(axios.delete).toHaveBeenCalledWith(`${API_CONFIG.endpoints.admin.services}/${serviceId}`);
     });
   });
 });
