@@ -39,45 +39,58 @@ interface LinksStepProps {
 }
 
 export function LinksStep({ triggers, reactions, links, actionTriggers, reactionActions, onAddLink, onRemoveLink, onUpdateLink }: LinksStepProps) {
-  const getSourceOptions = () => {
+  const getSourceOptions = React.useMemo(() => {
     const options: Array<{ value: string; label: string }> = [];
+    const seenValues = new Set<string>();
     triggers.forEach((trigger, index) => {
-      if (trigger.actionId) {
+      if (trigger.actionId && !seenValues.has(trigger.id)) {
         const action = actionTriggers.find(a => a.id === trigger.actionId);
         options.push({
           value: trigger.id,
           label: `Trigger ${index + 1}: ${action?.name || 'Unknown'}`,
         });
+        seenValues.add(trigger.id);
       }
     });
     reactions.forEach((reaction, index) => {
-      if (reaction.actionId) {
+      if (reaction.actionId && !seenValues.has(reaction.id)) {
         const action = reactionActions.find(a => a.id === reaction.actionId);
         options.push({
           value: reaction.id,
           label: `Reaction ${index + 1}: ${action?.name || 'Unknown'}`,
         });
+        seenValues.add(reaction.id);
       }
     });
     return options;
-  };
+  }, [triggers, reactions, actionTriggers, reactionActions]);
 
-  const getTargetOptions = (sourceId: string) => {
+  const getTargetOptions = React.useCallback((sourceId: string) => {
+    const seenValues = new Set<string>();
     return reactions
       .filter(r => r.id !== sourceId && r.actionId)
-      .map((reaction, index) => {
+      .map((reaction) => {
         const action = reactionActions.find(a => a.id === reaction.actionId);
         const originalIndex = reactions.findIndex(r => r.id === reaction.id);
         return {
           value: reaction.id,
           label: `Reaction ${originalIndex + 1}: ${action?.name || 'Unknown'}`,
         };
+      })
+      .filter(option => {
+        if (seenValues.has(option.value)) {
+          return false;
+        }
+        seenValues.add(option.value);
+        return true;
       });
-  };
+  }, [reactions, reactionActions]);
 
-  const canAddLink = () => {
-    return (triggers.filter(t => t.actionId).length + reactions.filter(r => r.actionId).length) >= 2;
-  };
+  const canAddLink = React.useMemo(() => {
+    const configuredTriggers = triggers.filter(t => t.actionId).length;
+    const configuredReactions = reactions.filter(r => r.actionId).length;
+    return configuredTriggers > 0 && configuredReactions > 0;
+  }, [triggers, reactions]);
 
   return (
     <Paper p="xl" radius="md" withBorder mt="xl">
@@ -92,7 +105,7 @@ export function LinksStep({ triggers, reactions, links, actionTriggers, reaction
           </Text>
         </div>
 
-        {!canAddLink() && (
+        {!canAddLink && (
           <Alert
             icon={<IconAlertCircle size={16} />}
             title="Not enough actions"
@@ -103,7 +116,7 @@ export function LinksStep({ triggers, reactions, links, actionTriggers, reaction
           </Alert>
         )}
 
-        {links.length === 0 && canAddLink() && (
+        {links.length === 0 && canAddLink && (
           <Alert icon={<IconLink size={16} />} color="blue">
             No links configured yet. By default, all reactions will execute after the
             trigger. Add links to create custom data flows or conditional logic.
@@ -111,8 +124,8 @@ export function LinksStep({ triggers, reactions, links, actionTriggers, reaction
         )}
 
         {links.map((link, index) => {
-          const sourceOptions = getSourceOptions();
-          const targetOptions = getTargetOptions(link.sourceId);
+          const sourceOptions = getSourceOptions;
+          const targetOptions = link.sourceId ? getTargetOptions(link.sourceId) : [];
 
           return (
             <Card key={link.id} padding="md" withBorder>
@@ -150,7 +163,7 @@ export function LinksStep({ triggers, reactions, links, actionTriggers, reaction
                   label="Target"
                   placeholder="Select target action"
                   required
-                  value={link.targetId}
+                  value={link.targetId || ''}
                   onChange={(val) => {
                     if (val) {
                       onUpdateLink(link.id, { targetId: val });
@@ -159,6 +172,7 @@ export function LinksStep({ triggers, reactions, links, actionTriggers, reaction
                   data={targetOptions}
                   description="The action that will receive data"
                   disabled={!link.sourceId}
+                  clearable
                 />
 
                 <Select
@@ -229,7 +243,7 @@ export function LinksStep({ triggers, reactions, links, actionTriggers, reaction
           variant="light"
           onClick={onAddLink}
           fullWidth
-          disabled={!canAddLink()}
+          disabled={!canAddLink}
         >
           Add a Link
         </Button>
