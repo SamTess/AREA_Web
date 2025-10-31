@@ -416,4 +416,79 @@ describe('useAreaForm', () => {
       userName: '',
     });
   });
+
+  it('should handle error when some services fail to load statuses during refresh', async () => {
+    const { result } = renderHook(() => useAreaForm());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    // Mock one service to fail
+    (getServiceConnectionStatus as jest.Mock)
+      .mockResolvedValueOnce(mockConnectionStatus)
+      .mockRejectedValueOnce(new Error('Status check failed'));
+
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    await act(async () => {
+      await result.current.refreshConnectionStatuses();
+    });
+
+    // Should have fallback status for the failed service
+    expect(result.current.serviceConnectionStatuses['slack']).toEqual({
+      serviceKey: 'slack',
+      serviceName: 'Slack',
+      iconUrl: 'slack-light.png',
+      isConnected: false,
+      connectionType: 'NONE',
+      userEmail: '',
+      userName: '',
+    });
+
+    consoleErrorSpy.mockRestore();
+  });
+
+  it('should not attempt to refresh connection statuses if no services are loaded', async () => {
+    (getServices as jest.Mock).mockResolvedValue([]);
+
+    const { result } = renderHook(() => useAreaForm());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    jest.clearAllMocks();
+
+    await act(async () => {
+      await result.current.refreshConnectionStatuses();
+    });
+
+    // Should not call getServiceConnectionStatus
+    expect(getServiceConnectionStatus).not.toHaveBeenCalled();
+  });
+
+  it('should handle partial errors when loading reaction actions', async () => {
+    (getActionsByServiceKey as jest.Mock)
+      .mockResolvedValueOnce(mockReactionActions) // First service succeeds
+      .mockRejectedValueOnce(new Error('Service unavailable')); // Second service fails
+
+    const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+    const { result } = renderHook(() => useAreaForm());
+
+    await waitFor(() => {
+      expect(result.current.loading).toBe(false);
+    });
+
+    await act(async () => {
+      await result.current.loadReactionActions(['github', 'slack']);
+    });
+
+    // Should have reactions from first service
+    expect(result.current.reactionActions).toEqual(mockReactionActions);
+    expect(consoleErrorSpy).toHaveBeenCalled();
+
+    consoleErrorSpy.mockRestore();
+  });
 });

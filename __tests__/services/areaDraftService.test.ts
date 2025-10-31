@@ -167,6 +167,29 @@ describe('areaDraftService', () => {
 
       consoleErrorSpy.mockRestore();
     });
+
+    it('should log axios error details when error response is available', async () => {
+      const axiosError = {
+        isAxiosError: true,
+        response: {
+          status: 500,
+          data: { message: 'Internal server error' },
+        },
+      };
+      (axios.get as jest.Mock).mockRejectedValue(axiosError);
+      (axios.isAxiosError as unknown as jest.Mock).mockReturnValue(true);
+
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      await expect(getUserDrafts()).rejects.toEqual(axiosError);
+      
+      // Should log all three error details
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Error getting user drafts:', axiosError);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Status:', 500);
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Data:', { message: 'Internal server error' });
+
+      consoleErrorSpy.mockRestore();
+    });
   });
 
   describe('commitDraft', () => {

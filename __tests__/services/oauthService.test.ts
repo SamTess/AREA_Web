@@ -81,6 +81,26 @@ describe('oauthService', () => {
 
       consoleErrorSpy.mockRestore();
     });
+
+    it('should handle missing provider with userAuthUrl', () => {
+      // When userAuthUrl is provided with empty provider, it should still redirect
+      initiateOAuth('', 'http://custom.url');
+
+      expect(localStorage.getItem('oauth_provider')).toBe('');
+      expect(window.location.href).toBe('http://custom.url');
+    });
+
+    it('should handle whitespace-only provider', () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation();
+
+      initiateOAuth('   ');
+
+      // Whitespace is truthy, so it shouldn't trigger the error check
+      // But toLowerCase() will convert it
+      expect(window.location.href).toBe('http://localhost:3000/api/oauth/   /authorize');
+
+      consoleErrorSpy.mockRestore();
+    });
   });
 
   describe('connectGitHubForTesting', () => {

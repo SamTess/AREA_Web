@@ -141,5 +141,38 @@ describe('serviceConnectionService', () => {
       expect(localStorage.getItem('oauth_provider')).toBe('unknown-service');
       expect(window.location.href).toBe('http://localhost:3000/api/oauth/unknown-service/authorize');
     });
+
+    it('should handle service key with mixed case', async () => {
+      await initiateServiceConnection('GITHUB');
+
+      expect(localStorage.getItem('oauth_provider')).toBe('github');
+      expect(window.location.href).toBe('http://localhost:3000/api/oauth/github/authorize');
+    });
+
+    it('should handle google service key with mixed case', async () => {
+      await initiateServiceConnection('Google');
+
+      expect(localStorage.getItem('oauth_provider')).toBe('google');
+      expect(window.location.href).toBe('http://localhost:3000/api/oauth/google/authorize');
+    });
+
+    it('should handle microsoft service key with mixed case', async () => {
+      await initiateServiceConnection('MICROSOFT');
+
+      expect(localStorage.getItem('oauth_provider')).toBe('microsoft');
+      expect(window.location.href).toBe('http://localhost:3000/api/oauth/microsoft/authorize');
+    });
+
+    it('should store oauth_link_mode flag', async () => {
+      await initiateServiceConnection('github');
+
+      expect(localStorage.getItem('oauth_link_mode')).toBe('true');
+    });
+
+    it('should set correct oauth URL for different providers', async () => {
+      await initiateServiceConnection('slack');
+
+      expect(window.location.href).toBe('http://localhost:3000/api/oauth/slack/authorize');
+    });
   });
 });
