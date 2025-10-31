@@ -12,6 +12,10 @@ const customJestConfig = {
   testEnvironmentOptions: {
     customExportConditions: [''],
   },
+  testIgnorePatterns: [
+    '<rootDir>/__tests__/helpers/test-utils.tsx',
+    'node_modules/',
+  ],
   moduleNameMapper: {
     '^@mantine/charts$': '<rootDir>/__mocks__/@mantine/charts.js',
   },

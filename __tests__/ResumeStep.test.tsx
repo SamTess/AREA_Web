@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen } from './test-utils';
+import { render, screen } from './helpers/test-utils';
 import { ResumeStep } from '../src/components/ui/area-simple-steps/ResumeStep';
 import type { BackendService, Action } from '@/types';
 

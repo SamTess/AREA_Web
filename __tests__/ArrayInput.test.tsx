@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, screen, fireEvent } from './test-utils';
+import { render, screen, fireEvent } from './helpers/test-utils';
 import { ArrayInput } from '../src/components/ui/area-simple-steps/ArrayInput';
 import type { FieldData } from '@/types';
 
