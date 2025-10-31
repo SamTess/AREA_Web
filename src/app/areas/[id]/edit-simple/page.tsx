@@ -33,6 +33,7 @@ interface LinkData {
   targetId: string;
   linkType: 'chain' | 'conditional' | 'parallel' | 'sequential';
   mapping?: Record<string, string>;
+  order: number;
 }
 
 export default function EditSimpleAreaPage() {

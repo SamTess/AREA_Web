@@ -29,6 +29,7 @@ interface LinkData {
   targetId: string;
   linkType: 'chain' | 'conditional' | 'parallel' | 'sequential';
   mapping?: Record<string, string>;
+  order: number;
 }
 
 interface SimpleDraft {
@@ -74,6 +75,10 @@ export default function CreateSimpleAreaPage() {
             const savedAt = new Date(draft.savedAt);
             const now = new Date();
             if (now.getTime() - savedAt.getTime() < DRAFT_EXPIRY_MS) {
+              const migratedLinks = (draft.links || []).map((link, index) => ({
+                ...link,
+                order: link.order !== undefined ? link.order : index,
+              }));
               setInitialData({
                 areaName: draft.areaName,
                 areaDescription: draft.areaDescription,
@@ -83,7 +88,7 @@ export default function CreateSimpleAreaPage() {
                 reactions: draft.reactions || [
                   { id: 'reaction-initial', service: null, actionId: null, params: {} }
                 ],
-                links: draft.links || [],
+                links: migratedLinks,
               });
             } else {
               localStorage.removeItem(draftKey);
@@ -151,6 +156,8 @@ export default function CreateSimpleAreaPage() {
       onSubmit={handleSubmit}
       onClearDraft={handleClearDraft}
       hasDraft={hasDraft}
+      currentUserId={currentUserId}
+      draftKey={currentUserId ? getDraftKey(currentUserId) : undefined}
     />
   );
 }

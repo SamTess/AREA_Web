@@ -29,6 +29,7 @@ import { initiateServiceConnection } from '@/services/serviceConnectionService';
 import { NameStep, TriggersStep, ReactionsStep, LinksStep, ResumeStep } from '@/components/ui/area-simple-steps';
 import { ArrayInput } from '@/components/ui/area-simple-steps/ArrayInput';
 import { useAreaForm } from '@/hooks/useAreaForm';
+import { useDraftSaver } from '@/hooks/useDraftSaver';
 
 interface TriggerData {
   id: string;
@@ -51,11 +52,14 @@ interface LinkData {
   targetId: string;
   linkType: 'chain' | 'conditional' | 'parallel' | 'sequential';
   mapping?: Record<string, string>;
+  order: number;
 }
 
 interface SimpleAreaFormProps {
   mode: 'create' | 'edit';
   areaId?: string;
+  currentUserId?: string | null;
+  draftKey?: string;
   initialData?: {
     areaName: string;
     areaDescription: string;
@@ -71,6 +75,8 @@ interface SimpleAreaFormProps {
 export function SimpleAreaForm({
   mode,
   areaId,
+  currentUserId,
+  draftKey,
   initialData,
   onSubmit,
   onClearDraft,
@@ -105,6 +111,90 @@ export function SimpleAreaForm({
     loadTriggerActions,
     loadReactionActions,
   } = useAreaForm();
+
+  const draftData = useMemo(() => ({
+    areaName,
+    areaDescription,
+    triggers,
+    reactions,
+    links,
+    activeStep,
+  }), [areaName, areaDescription, triggers, reactions, links, activeStep]);
+
+  useDraftSaver(
+    mode === 'create' ? (currentUserId || null) : null,
+    draftKey || '',
+    draftData
+  );
+
+  const sortedLinks = useMemo(() => {
+    if (links.length === 0) return [];
+
+    const linkMap = new Map<string, LinkData>();
+    const dependencyGraph = new Map<string, Set<string>>(); // linkId -> set of linkIds it depends on
+    links.forEach(link => {
+      linkMap.set(link.id, link);
+      if (!dependencyGraph.has(link.id)) {
+        dependencyGraph.set(link.id, new Set());
+      }
+    });
+    links.forEach(linkA => {
+      links.forEach(linkB => {
+        if (linkA.id !== linkB.id && linkA.sourceId === linkB.targetId) {
+          dependencyGraph.get(linkA.id)?.add(linkB.id);
+        }
+      });
+    });
+    const sorted: LinkData[] = [];
+    const inDegree = new Map<string, number>();
+    links.forEach(link => {
+      inDegree.set(link.id, dependencyGraph.get(link.id)?.size || 0);
+    });
+    const queue: string[] = [];
+    inDegree.forEach((degree, linkId) => {
+      if (degree === 0) {
+        queue.push(linkId);
+      }
+    });
+    queue.sort((a, b) => {
+      const linkA = linkMap.get(a);
+      const linkB = linkMap.get(b);
+      return (linkA?.order ?? 0) - (linkB?.order ?? 0);
+    });
+    while (queue.length > 0) {
+      const currentId = queue.shift()!;
+      const currentLink = linkMap.get(currentId);
+      if (currentLink) {
+        sorted.push(currentLink);
+      }
+      links.forEach(link => {
+        if (dependencyGraph.get(link.id)?.has(currentId)) {
+          const newDegree = (inDegree.get(link.id) || 0) - 1;
+          inDegree.set(link.id, newDegree);
+          if (newDegree === 0) {
+            // Add to queue, maintaining creation order for ties
+            const insertIndex = queue.findIndex(id => {
+              const qLink = linkMap.get(id);
+              const currentLinkData = linkMap.get(link.id);
+              return (qLink?.order ?? 0) > (currentLinkData?.order ?? 0);
+            });
+            if (insertIndex === -1) {
+              queue.push(link.id);
+            } else {
+              queue.splice(insertIndex, 0, link.id);
+            }
+          }
+        }
+      });
+    }
+    if (sorted.length < links.length) {
+      const remainingLinks = links.filter(link => !sorted.find(s => s.id === link.id));
+      remainingLinks.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+      sorted.push(...remainingLinks);
+    }
+
+    return sorted;
+  }, [links]);
 
   useEffect(() => {
     const servicesToLoad = triggers
@@ -165,6 +255,7 @@ export function SimpleAreaForm({
 
   const addLink = () => {
     const newId = `link-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    const maxOrder = links.length > 0 ? Math.max(...links.map(l => l.order)) : -1;
     setLinks([
       ...links,
       {
@@ -172,6 +263,7 @@ export function SimpleAreaForm({
         sourceId: '',
         targetId: '',
         linkType: 'chain',
+        order: maxOrder + 1,
       },
     ]);
   };
@@ -225,6 +317,39 @@ export function SimpleAreaForm({
     setError(null);
 
     try {
+      const triggerIdToIndex = new Map<string, number>();
+      triggers.forEach((trigger, index) => {
+        triggerIdToIndex.set(trigger.id, index);
+      });
+
+      const reactionIdToIndex = new Map<string, number>();
+      reactions.forEach((reaction, index) => {
+        reactionIdToIndex.set(reaction.id, index);
+      });
+      const connections = sortedLinks.map((link) => {
+        let sourceServiceId = '';
+        let targetServiceId = '';
+        if (triggerIdToIndex.has(link.sourceId)) {
+          sourceServiceId = `action_${triggerIdToIndex.get(link.sourceId)}`;
+        } else if (reactionIdToIndex.has(link.sourceId)) {
+          sourceServiceId = `reaction_${reactionIdToIndex.get(link.sourceId)}`;
+        }
+        if (triggerIdToIndex.has(link.targetId)) {
+          targetServiceId = `action_${triggerIdToIndex.get(link.targetId)}`;
+        } else if (reactionIdToIndex.has(link.targetId)) {
+          targetServiceId = `reaction_${reactionIdToIndex.get(link.targetId)}`;
+        }
+
+        return {
+          sourceServiceId,
+          targetServiceId,
+          linkType: link.linkType,
+          mapping: link.mapping || {},
+          condition: {},
+          order: link.order,
+        };
+      });
+
       const payload: CreateAreaPayload = {
         name: areaName,
         description: areaDescription || undefined,
@@ -242,31 +367,33 @@ export function SimpleAreaForm({
           parameters: reaction.params,
           order: index + 1,
         })),
-        links: links.length > 0 ? links.map((link, index) => {
+        links: sortedLinks.map((link) => {
           let sourceActionDefinitionId: string | undefined;
-          if (link.sourceId === 'trigger') {
-            sourceActionDefinitionId = triggers[0]?.actionId || undefined;
+          let targetActionDefinitionId: string | undefined;
+          const sourceTrigger = triggers.find(t => t.id === link.sourceId);
+          if (sourceTrigger) {
+            sourceActionDefinitionId = sourceTrigger.actionId || undefined;
           } else {
-            const trigger = triggers.find(t => t.id === link.sourceId);
-            if (trigger) {
-              sourceActionDefinitionId = trigger.actionId || undefined;
-            } else {
-              const reaction = reactions.find(r => r.id === link.sourceId);
-              sourceActionDefinitionId = reaction?.actionId || undefined;
-            }
+            const sourceReaction = reactions.find(r => r.id === link.sourceId);
+            sourceActionDefinitionId = sourceReaction?.actionId || undefined;
           }
-
-          const targetReaction = reactions.find(r => r.id === link.targetId);
-          const targetActionDefinitionId = targetReaction?.actionId || undefined;
+          const targetTrigger = triggers.find(t => t.id === link.targetId);
+          if (targetTrigger) {
+            targetActionDefinitionId = targetTrigger.actionId || undefined;
+          } else {
+            const targetReaction = reactions.find(r => r.id === link.targetId);
+            targetActionDefinitionId = targetReaction?.actionId || undefined;
+          }
 
           return {
             sourceActionDefinitionId: sourceActionDefinitionId!,
             targetActionDefinitionId: targetActionDefinitionId!,
-            mapping: link.mapping,
-            order: index + 1,
+            mapping: link.mapping || {},
+            condition: {},
+            order: link.order,
           };
-        }) : [],
-        connections: [],
+        }),
+        connections,
       };
 
       await onSubmit(payload);
@@ -545,7 +672,7 @@ export function SimpleAreaForm({
             <LinksStep
               triggers={triggers}
               reactions={reactions}
-              links={links}
+              links={sortedLinks}
               actionTriggers={actionTriggers}
               reactionActions={reactionActions}
               onAddLink={addLink}
@@ -560,7 +687,7 @@ export function SimpleAreaForm({
               areaDescription={areaDescription}
               triggers={triggers}
               reactions={reactions}
-              links={links}
+              links={sortedLinks}
               services={services}
               actionTriggers={actionTriggers}
               reactionActions={reactionActions}
