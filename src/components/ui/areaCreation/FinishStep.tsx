@@ -36,11 +36,6 @@ export default function FinishStep({ service }: FinishStepProps) {
         }
     };
 
-    const handleTest = async () => {
-        console.log('Testing service configuration:', service);
-        // TODO: Implémenter le test de l'action/réaction
-    };
-
     return (
         <Stack gap="md">
             <Text size="sm">
@@ -77,14 +72,6 @@ export default function FinishStep({ service }: FinishStepProps) {
                     flex={1}
                 >
                     {createStatus === 'success' ? 'Created' : 'Create Service'}
-                </Button>
-                <Button
-                    variant="outline"
-                    onClick={handleTest}
-                    disabled={isCreating || createStatus !== 'success'}
-                    flex={1}
-                >
-                    Test Service
                 </Button>
             </div>
         </Stack>
