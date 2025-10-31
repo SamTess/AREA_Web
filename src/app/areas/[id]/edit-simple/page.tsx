@@ -91,13 +91,10 @@ export default function EditSimpleAreaPage() {
   } = useAreaForm();
 
   useEffect(() => {
-    // Load trigger actions for all triggers with a service selected
     const servicesToLoad = triggers
       .filter(t => t.service && !t.actionId)
       .map(t => t.service as string);
-    
     const uniqueServices = [...new Set(servicesToLoad)];
-    
     uniqueServices.forEach(service => {
       loadTriggerActions(service);
     });
@@ -228,7 +225,6 @@ export default function EditSimpleAreaPage() {
   const removeReaction = (id: string) => {
     if (reactions.length > 1) {
       setReactions(reactions.filter(r => r.id !== id));
-      // Remove any links associated with this reaction
       setLinks(prevLinks => prevLinks.filter(l => l.sourceId !== id && l.targetId !== id));
     }
   };
@@ -276,7 +272,6 @@ export default function EditSimpleAreaPage() {
       return;
     }
 
-    // Validate links
     const invalidLinks = links.filter(l => !l.sourceId || !l.targetId);
     if (invalidLinks.length > 0) {
       setError('All links must have a source and target selected.');
@@ -305,10 +300,7 @@ export default function EditSimpleAreaPage() {
           order: index + 1,
         })),
         links: links.map((link, index) => {
-          // Convert temporary IDs to actual action definition IDs
           let sourceActionDefinitionId: string;
-          
-          // Find source - could be a trigger or reaction
           const triggerSource = triggers.find(t => t.id === link.sourceId);
           if (triggerSource?.actionId) {
             sourceActionDefinitionId = triggerSource.actionId;
@@ -353,7 +345,6 @@ export default function EditSimpleAreaPage() {
       case 2:
         return reactions.every(r => r.service && r.actionId);
       case 3:
-        // Links are optional, but if they exist, they must be valid
         return links.every(l => l.sourceId && l.targetId);
       default:
         return false;
@@ -524,7 +515,6 @@ export default function EditSimpleAreaPage() {
               onRemoveTrigger={(triggerId) => {
                 if (triggers.length > 1) {
                   setTriggers(triggers.filter(t => t.id !== triggerId));
-                  // Remove any links associated with this trigger
                   setLinks(prevLinks => prevLinks.filter(l => l.sourceId !== triggerId));
                 }
               }}
