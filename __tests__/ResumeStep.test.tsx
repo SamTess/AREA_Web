@@ -1,30 +1,24 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { MantineProvider } from '@mantine/core';
+import { render, screen } from './test-utils';
 import { ResumeStep } from '../src/components/ui/area-simple-steps/ResumeStep';
 import type { BackendService, Action } from '@/types';
 
-const renderWithProvider = (component: React.ReactElement) => {
-  return render(<MantineProvider>{component}</MantineProvider>);
-};
-
 const mockServices: BackendService[] = [
-  { key: 'github', name: 'GitHub', description: 'GitHub service' },
-  { key: 'discord', name: 'Discord', description: 'Discord service' },
+  { id: '1', key: 'github', name: 'GitHub', auth: 'OAUTH2', isActive: true },
+  { id: '2', key: 'discord', name: 'Discord', auth: 'APIKEY', isActive: true },
 ];
 
 const mockActionTriggers: Action[] = [
-  { id: '1', name: 'Push', description: 'Trigger on push', fields: [] },
+  { id: '1', serviceId: '1', serviceKey: 'github', serviceName: 'GitHub', key: 'push', name: 'Push', description: 'Trigger on push', inputSchema: { type: 'object', properties: {} }, outputSchema: {}, isEventCapable: true, isExecutable: true, version: 1 },
 ];
 
 const mockReactionActions: Action[] = [
-  { id: '2', name: 'Send Message', description: 'Send message', fields: [] },
+  { id: '2', serviceId: '2', serviceKey: 'discord', serviceName: 'Discord', key: 'send_message', name: 'Send Message', description: 'Send message', inputSchema: { type: 'object', properties: {} }, outputSchema: {}, isEventCapable: false, isExecutable: true, version: 1 },
 ];
 
 describe('ResumeStep', () => {
   it('should display AREA name', () => {
-    renderWithProvider(
+    render(
       <ResumeStep
         areaName="Test AREA"
         areaDescription=""
@@ -42,7 +36,7 @@ describe('ResumeStep', () => {
   });
 
   it('should display description when provided', () => {
-    renderWithProvider(
+    render(
       <ResumeStep
         areaName="Test AREA"
         areaDescription="Test Description"
@@ -60,7 +54,7 @@ describe('ResumeStep', () => {
   });
 
   it('should not display description when empty', () => {
-    const { container } = renderWithProvider(
+    const { container } = render(
       <ResumeStep
         areaName="Test AREA"
         areaDescription=""
@@ -75,13 +69,13 @@ describe('ResumeStep', () => {
     );
 
     const descriptionElements = Array.from(container.querySelectorAll('*')).filter(
-      el => el.textContent === 'Description'
+      (el: Element) => el.textContent === 'Description'
     );
     expect(descriptionElements.length).toBe(0);
   });
 
   it('should display trigger service name', () => {
-    renderWithProvider(
+    render(
       <ResumeStep
         areaName="Test AREA"
         areaDescription=""
@@ -99,7 +93,7 @@ describe('ResumeStep', () => {
   });
 
   it('should display trigger event name', () => {
-    renderWithProvider(
+    render(
       <ResumeStep
         areaName="Test AREA"
         areaDescription=""
@@ -117,7 +111,7 @@ describe('ResumeStep', () => {
   });
 
   it('should display number of configured trigger parameters', () => {
-    renderWithProvider(
+    render(
       <ResumeStep
         areaName="Test AREA"
         areaDescription=""
@@ -139,7 +133,7 @@ describe('ResumeStep', () => {
       { id: '1', service: 'discord', actionId: '2', params: {} },
     ];
 
-    renderWithProvider(
+    render(
       <ResumeStep
         areaName="Test AREA"
         areaDescription=""
@@ -161,7 +155,7 @@ describe('ResumeStep', () => {
       { id: '1', service: 'discord', actionId: '2', params: {} },
     ];
 
-    renderWithProvider(
+    render(
       <ResumeStep
         areaName="Test AREA"
         areaDescription=""
@@ -184,7 +178,7 @@ describe('ResumeStep', () => {
       { id: '2', service: 'github', actionId: '2', params: {} },
     ];
 
-    renderWithProvider(
+    render(
       <ResumeStep
         areaName="Test AREA"
         areaDescription=""
@@ -206,7 +200,7 @@ describe('ResumeStep', () => {
       { id: '1', service: 'discord', actionId: '2', params: { channel: 'general', message: 'test' } },
     ];
 
-    renderWithProvider(
+    render(
       <ResumeStep
         areaName="Test AREA"
         areaDescription=""
@@ -224,7 +218,7 @@ describe('ResumeStep', () => {
   });
 
   it('should display summary heading', () => {
-    renderWithProvider(
+    render(
       <ResumeStep
         areaName="Test AREA"
         areaDescription=""

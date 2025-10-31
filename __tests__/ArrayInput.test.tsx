@@ -1,13 +1,7 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { MantineProvider } from '@mantine/core';
+import { render, screen, fireEvent } from './test-utils';
 import { ArrayInput } from '../src/components/ui/area-simple-steps/ArrayInput';
 import type { FieldData } from '@/types';
-
-const renderWithProvider = (component: React.ReactElement) => {
-  return render(<MantineProvider>{component}</MantineProvider>);
-};
 
 const mockField: FieldData = {
   name: 'tags',
@@ -25,7 +19,7 @@ describe('ArrayInput', () => {
   });
 
   it('should render field name', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
     );
 
@@ -33,7 +27,7 @@ describe('ArrayInput', () => {
   });
 
   it('should show mandatory indicator for required fields', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
     );
 
@@ -42,7 +36,7 @@ describe('ArrayInput', () => {
   });
 
   it('should display field description', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
     );
 
@@ -50,7 +44,7 @@ describe('ArrayInput', () => {
   });
 
   it('should show placeholder text when array is empty', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
     );
 
@@ -58,7 +52,7 @@ describe('ArrayInput', () => {
   });
 
   it('should display array items as pills', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={['tag1', 'tag2']} onChange={mockOnChange} />
     );
 
@@ -67,7 +61,7 @@ describe('ArrayInput', () => {
   });
 
   it('should add item when Add button clicked', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
     );
 
@@ -81,7 +75,7 @@ describe('ArrayInput', () => {
   });
 
   it('should add item when Enter pressed', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
     );
 
@@ -93,7 +87,7 @@ describe('ArrayInput', () => {
   });
 
   it('should add item to existing array', () => {
-    renderWithProvider(
+    render(
       <ArrayInput
         field={mockField}
         value={['existing']}
@@ -111,7 +105,7 @@ describe('ArrayInput', () => {
   });
 
   it('should trim whitespace when adding item', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
     );
 
@@ -125,7 +119,7 @@ describe('ArrayInput', () => {
   });
 
   it('should not add empty items', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
     );
 
@@ -134,7 +128,7 @@ describe('ArrayInput', () => {
   });
 
   it('should disable Add button when input is empty', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
     );
 
@@ -151,7 +145,7 @@ describe('ArrayInput', () => {
   });
 
   it('should remove item when remove button clicked', () => {
-    const { container } = renderWithProvider(
+    const { container } = render(
       <ArrayInput
         field={mockField}
         value={['tag1', 'tag2']}
@@ -167,7 +161,7 @@ describe('ArrayInput', () => {
   });
 
   it('should clear input after adding item', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
     );
 
@@ -181,7 +175,7 @@ describe('ArrayInput', () => {
   });
 
   it('should handle non-array initial value', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={undefined} onChange={mockOnChange} />
     );
 
@@ -195,7 +189,7 @@ describe('ArrayInput', () => {
       mandatory: true,
     };
 
-    renderWithProvider(
+    render(
       <ArrayInput
         field={fieldWithoutDescription}
         value={[]}
@@ -207,7 +201,7 @@ describe('ArrayInput', () => {
   });
 
   it('should not add item when Enter pressed with only whitespace', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
     );
 
@@ -219,7 +213,7 @@ describe('ArrayInput', () => {
   });
 
   it('should not add item when other key pressed', () => {
-    renderWithProvider(
+    render(
       <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
     );
 

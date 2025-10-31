@@ -1,12 +1,6 @@
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { MantineProvider } from '@mantine/core';
+import { render, screen, fireEvent } from './test-utils';
 import { NameStep } from '../src/components/ui/area-simple-steps/NameStep';
-
-const renderWithProvider = (component: React.ReactElement) => {
-  return render(<MantineProvider>{component}</MantineProvider>);
-};
 
 describe('NameStep', () => {
   const mockOnNameChange = jest.fn();
@@ -17,7 +11,7 @@ describe('NameStep', () => {
   });
 
   it('should render name and description inputs', () => {
-    renderWithProvider(
+    render(
       <NameStep
         areaName=""
         areaDescription=""
@@ -31,7 +25,7 @@ describe('NameStep', () => {
   });
 
   it('should call onNameChange when name input changes', () => {
-    renderWithProvider(
+    render(
       <NameStep
         areaName=""
         areaDescription=""
@@ -48,7 +42,7 @@ describe('NameStep', () => {
   });
 
   it('should call onDescriptionChange when description input changes', () => {
-    renderWithProvider(
+    render(
       <NameStep
         areaName=""
         areaDescription=""
@@ -65,7 +59,7 @@ describe('NameStep', () => {
   });
 
   it('should display provided area name', () => {
-    renderWithProvider(
+    render(
       <NameStep
         areaName="My Area"
         areaDescription=""
@@ -79,7 +73,7 @@ describe('NameStep', () => {
   });
 
   it('should display provided description', () => {
-    renderWithProvider(
+    render(
       <NameStep
         areaName=""
         areaDescription="My Description"
@@ -93,7 +87,7 @@ describe('NameStep', () => {
   });
 
   it('should render with both name and description', () => {
-    renderWithProvider(
+    render(
       <NameStep
         areaName="Test Area"
         areaDescription="Test Description"
@@ -110,7 +104,7 @@ describe('NameStep', () => {
   });
 
   it('should handle empty initial values', () => {
-    renderWithProvider(
+    render(
       <NameStep
         areaName=""
         areaDescription=""
