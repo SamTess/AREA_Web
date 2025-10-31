@@ -223,39 +223,41 @@ export function TriggersStep({ services, serviceConnectionStatuses, triggers, ac
                       <Alert color="blue">Loading available triggers...</Alert>
                     ) : (
                       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                        {triggerActionsForService.map((triggerAction) => (
-                          <Card
-                            key={triggerAction.id}
-                            padding="md"
-                            radius="md"
-                            withBorder
-                            style={{
-                              cursor: 'pointer',
-                              borderColor:
-                                trigger.actionId === triggerAction.id ? '#228be6' : undefined,
-                              borderWidth: trigger.actionId === triggerAction.id ? 2 : 1,
-                            }}
-                            onClick={() => onTriggerActionChange(trigger.id, triggerAction.id)}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={`Select trigger ${triggerAction.name}`}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                onTriggerActionChange(trigger.id, triggerAction.id);
-                              }
-                            }}
-                          >
-                            <Group justify="space-between" mb="xs">
-                              <Text fw={500}>{triggerAction.name}</Text>
-                              {trigger.actionId === triggerAction.id && (
-                                <Badge color="blue">Selected</Badge>
-                              )}
-                            </Group>
-                            <Text size="sm" c="dimmed">
-                              {triggerAction.description || 'No description'}
-                            </Text>
-                          </Card>
-                        ))}
+                        {triggerActionsForService.map((triggerAction) => {
+                          const isSelected = trigger.actionId === triggerAction.id;
+                          return (
+                            <Card
+                              key={triggerAction.id}
+                              padding="md"
+                              radius="md"
+                              withBorder
+                              style={{
+                                cursor: 'pointer',
+                                borderColor: isSelected ? '#228be6' : undefined,
+                                borderWidth: isSelected ? 2 : 1,
+                              }}
+                              onClick={() => onTriggerActionChange(trigger.id, triggerAction.id)}
+                              role="button"
+                              tabIndex={0}
+                              aria-label={`Select trigger ${triggerAction.name}`}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  onTriggerActionChange(trigger.id, triggerAction.id);
+                                }
+                              }}
+                            >
+                              <Group justify="space-between" mb="xs">
+                                <Text fw={500}>{triggerAction.name}</Text>
+                                {isSelected && (
+                                  <Badge color="blue">Selected</Badge>
+                                )}
+                              </Group>
+                              <Text size="sm" c="dimmed">
+                                {triggerAction.description || 'No description'}
+                              </Text>
+                            </Card>
+                          );
+                        })}
                       </SimpleGrid>
                     )}
                   </div>

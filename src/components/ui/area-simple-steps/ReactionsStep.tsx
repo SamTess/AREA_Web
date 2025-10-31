@@ -144,39 +144,41 @@ export function ReactionsStep({
                       <Alert color="blue">Loading available actions...</Alert>
                     ) : (
                       <SimpleGrid cols={{ base: 1, sm: 2 }} spacing="md">
-                        {reactionActionsForService.map((action) => (
-                          <Card
-                            key={action.id}
-                            padding="md"
-                            radius="md"
-                            withBorder
-                            style={{
-                              cursor: 'pointer',
-                              borderColor:
-                                reaction.actionId === action.id ? '#228be6' : undefined,
-                              borderWidth: reaction.actionId === action.id ? 2 : 1,
-                            }}
-                            onClick={() => onReactionActionChange(reaction.id, action.id)}
-                            role="button"
-                            tabIndex={0}
-                            aria-label={`Select action ${action.name}`}
-                            onKeyDown={(e) => {
-                              if (e.key === 'Enter' || e.key === ' ') {
-                                onReactionActionChange(reaction.id, action.id);
-                              }
-                            }}
-                          >
-                            <Group justify="space-between" mb="xs">
-                              <Text fw={500}>{action.name}</Text>
-                              {reaction.actionId === action.id && (
-                                <Badge color="blue">Selected</Badge>
-                              )}
-                            </Group>
-                            <Text size="sm" c="dimmed">
-                              {action.description || 'No description'}
-                            </Text>
-                          </Card>
-                        ))}
+                        {reactionActionsForService.map((action) => {
+                          const isSelected = reaction.actionId === action.id;
+                          return (
+                            <Card
+                              key={action.id}
+                              padding="md"
+                              radius="md"
+                              withBorder
+                              style={{
+                                cursor: 'pointer',
+                                borderColor: isSelected ? '#228be6' : undefined,
+                                borderWidth: isSelected ? 2 : 1,
+                              }}
+                              onClick={() => onReactionActionChange(reaction.id, action.id)}
+                              role="button"
+                              tabIndex={0}
+                              aria-label={`Select action ${action.name}`}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' || e.key === ' ') {
+                                  onReactionActionChange(reaction.id, action.id);
+                                }
+                              }}
+                            >
+                              <Group justify="space-between" mb="xs">
+                                <Text fw={500}>{action.name}</Text>
+                                {isSelected && (
+                                  <Badge color="blue">Selected</Badge>
+                                )}
+                              </Group>
+                              <Text size="sm" c="dimmed">
+                                {action.description || 'No description'}
+                              </Text>
+                            </Card>
+                          );
+                        })}
                       </SimpleGrid>
                     )}
                   </div>
