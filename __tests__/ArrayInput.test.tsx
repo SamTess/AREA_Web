@@ -205,4 +205,28 @@ describe('ArrayInput', () => {
 
     expect(screen.queryByText('Add tags')).not.toBeInTheDocument();
   });
+
+  it('should not add item when Enter pressed with only whitespace', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
+    );
+
+    const input = screen.getByPlaceholderText('Enter a tag');
+    fireEvent.change(input, { target: { value: '   ' } });
+    fireEvent.keyDown(input, { key: 'Enter', code: 'Enter' });
+
+    expect(mockOnChange).not.toHaveBeenCalled();
+  });
+
+  it('should not add item when other key pressed', () => {
+    renderWithProvider(
+      <ArrayInput field={mockField} value={[]} onChange={mockOnChange} />
+    );
+
+    const input = screen.getByPlaceholderText('Enter a tag');
+    fireEvent.change(input, { target: { value: 'test' } });
+    fireEvent.keyDown(input, { key: 'ArrowUp', code: 'ArrowUp' });
+
+    expect(mockOnChange).not.toHaveBeenCalled();
+  });
 });
