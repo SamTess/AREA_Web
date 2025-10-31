@@ -105,7 +105,6 @@ export default function EditSimpleAreaPage() {
           });
         }
 
-        // Load reactions with full service information
         const loadedReactions: ReactionData[] = [];
         if (area.reactions && area.reactions.length > 0) {
           for (const [index, reaction] of area.reactions.entries()) {
