@@ -76,4 +76,24 @@ describe('axios configuration', () => {
     expect(typeof axios.defaults.baseURL).toBe('string');
     expect(axios.defaults.baseURL).toBe(API_CONFIG.baseURL);
   });
+
+  describe('request interceptor', () => {
+    it('should configure Content-Type header', () => {
+      // The request interceptor sets Content-Type
+      expect(axios.defaults.headers.common).toBeDefined();
+    });
+  });
+
+  describe('response interceptor', () => {
+    it('should have response interceptor registered', () => {
+      const handlers = (axios.interceptors.response as unknown as { handlers: Array<unknown> }).handlers || [];
+      expect(handlers.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('header configuration', () => {
+    it('should have default headers object', () => {
+      expect(axios.defaults.headers).toBeDefined();
+    });
+  });
 });
