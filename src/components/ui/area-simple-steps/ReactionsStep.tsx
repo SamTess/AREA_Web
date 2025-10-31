@@ -70,8 +70,7 @@ export function ReactionsStep({
         {reactions.map((reaction, index) => {
           const reactionActionsForService = reaction.service
             ? reactionActions.filter((a) => {
-                const serviceActions = services.find((s) => s.key === reaction.service);
-                return serviceActions && a.isExecutable;
+                return a.serviceKey === reaction.service && a.isExecutable;
               })
             : [];
 

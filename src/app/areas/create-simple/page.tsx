@@ -26,9 +26,9 @@ import {
   CreateAreaPayload,
   getActionFieldsFromActionDefinition,
 } from '@/services/areasService';
-import type { FieldData } from '@/types';
+import type { FieldData, ActivationConfig } from '@/types';
 import { initiateServiceConnection } from '@/services/serviceConnectionService';
-import { NameStep, TriggerStep, ReactionsStep, ResumeStep } from '@/components/ui/area-simple-steps';
+import { NameStep, TriggersStep, ReactionsStep, LinksStep, ResumeStep } from '@/components/ui/area-simple-steps';
 import { ArrayInput } from '@/components/ui/area-simple-steps/ArrayInput';
 import { useAreaForm } from '@/hooks/useAreaForm';
 import { useDraftSaver } from '@/hooks/useDraftSaver';
@@ -40,13 +40,28 @@ interface ReactionData {
   params: Record<string, unknown>;
 }
 
+interface TriggerData {
+  id: string;
+  service: string | null;
+  actionId: string | null;
+  params: Record<string, unknown>;
+  activationConfig?: ActivationConfig;
+}
+
+interface LinkData {
+  id: string;
+  sourceId: string;
+  targetId: string;
+  linkType: 'chain' | 'conditional' | 'parallel' | 'sequential';
+  mapping?: Record<string, string>;
+}
+
 interface SimpleDraft {
   areaName: string;
   areaDescription: string;
-  selectedTriggerService: string | null;
-  selectedTrigger: string | null;
-  triggerParams: Record<string, unknown>;
+  triggers: TriggerData[];
   reactions: ReactionData[];
+  links: LinkData[];
   activeStep: number;
   savedAt: string;
 }
@@ -65,12 +80,13 @@ export default function CreateSimpleAreaPage() {
 
   const [areaName, setAreaName] = useState('');
   const [areaDescription, setAreaDescription] = useState('');
-  const [selectedTriggerService, setSelectedTriggerService] = useState<string | null>(null);
-  const [selectedTrigger, setSelectedTrigger] = useState<string | null>(null);
-  const [triggerParams, setTriggerParams] = useState<Record<string, unknown>>({});
+  const [triggers, setTriggers] = useState<TriggerData[]>([
+    { id: '1', service: null, actionId: null, params: {}, activationConfig: { type: 'webhook' } }
+  ]);
   const [reactions, setReactions] = useState<ReactionData[]>([
     { id: '1', service: null, actionId: null, params: {} }
   ]);
+  const [links, setLinks] = useState<LinkData[]>([]);
 
   const {
     services,
@@ -85,12 +101,11 @@ export default function CreateSimpleAreaPage() {
   const draftData = useMemo(() => ({
     areaName,
     areaDescription,
-    selectedTriggerService,
-    selectedTrigger,
-    triggerParams,
+    triggers,
     reactions,
+    links,
     activeStep,
-  }), [areaName, areaDescription, selectedTriggerService, selectedTrigger, triggerParams, reactions, activeStep]);
+  }), [areaName, areaDescription, triggers, reactions, links, activeStep]);
 
   const { clearDraft } = useDraftSaver(
     currentUserId,
@@ -99,10 +114,17 @@ export default function CreateSimpleAreaPage() {
   );
 
   useEffect(() => {
-    if (selectedTriggerService) {
-      loadTriggerActions(selectedTriggerService);
-    }
-  }, [selectedTriggerService, loadTriggerActions]);
+    // Load trigger actions for all triggers with a service selected
+    const servicesToLoad = triggers
+      .filter(t => t.service && !t.actionId)
+      .map(t => t.service as string);
+    
+    const uniqueServices = [...new Set(servicesToLoad)];
+    
+    uniqueServices.forEach(service => {
+      loadTriggerActions(service);
+    });
+  }, [triggers, loadTriggerActions]);
 
   const reactionServiceKeys = useMemo(() => {
     return reactions
@@ -142,10 +164,9 @@ export default function CreateSimpleAreaPage() {
           if (now.getTime() - savedAt.getTime() < DRAFT_EXPIRY_MS) {
             setAreaName(draft.areaName);
             setAreaDescription(draft.areaDescription);
-            setSelectedTriggerService(draft.selectedTriggerService);
-            setSelectedTrigger(draft.selectedTrigger);
-            setTriggerParams(draft.triggerParams);
+            setTriggers(draft.triggers || [{ id: '1', service: null, actionId: null, params: {}, activationConfig: { type: 'webhook' } }]);
             setReactions(draft.reactions);
+            setLinks(draft.links || []);
             setActiveStep(draft.activeStep);
           } else {
             localStorage.removeItem(draftKey);
@@ -161,6 +182,24 @@ export default function CreateSimpleAreaPage() {
     loadDraft();
   }, [currentUserId]);
 
+  const addTrigger = () => {
+    setTriggers([...triggers, {
+      id: Date.now().toString(),
+      service: null,
+      actionId: null,
+      params: {},
+      activationConfig: { type: 'webhook' }
+    }]);
+  };
+
+  const removeTrigger = (id: string) => {
+    if (triggers.length > 1) {
+      setTriggers(triggers.filter(t => t.id !== id));
+      // Remove any links associated with this trigger
+      setLinks(prevLinks => prevLinks.filter(l => l.sourceId !== id && l.sourceId !== 'trigger'));
+    }
+  };
+
   const addReaction = () => {
     setReactions([...reactions, {
       id: Date.now().toString(),
@@ -173,17 +212,40 @@ export default function CreateSimpleAreaPage() {
   const removeReaction = (id: string) => {
     if (reactions.length > 1) {
       setReactions(reactions.filter(r => r.id !== id));
+      // Remove any links associated with this reaction
+      setLinks(prevLinks => prevLinks.filter(l => l.sourceId !== id && l.targetId !== id));
     }
+  };
+
+  const addLink = () => {
+    setLinks([
+      ...links,
+      {
+        id: Date.now().toString(),
+        sourceId: '',
+        targetId: '',
+        linkType: 'chain',
+      },
+    ]);
+  };
+
+  const removeLink = (linkId: string) => {
+    setLinks(links.filter(l => l.id !== linkId));
+  };
+
+  const updateLink = (linkId: string, updates: Partial<LinkData>) => {
+    setLinks(prevLinks =>
+      prevLinks.map(l => (l.id === linkId ? { ...l, ...updates } : l))
+    );
   };
 
   const handleClearDraft = () => {
     clearDraft();
     setAreaName('');
     setAreaDescription('');
-    setSelectedTriggerService(null);
-    setSelectedTrigger(null);
-    setTriggerParams({});
+    setTriggers([{ id: '1', service: null, actionId: null, params: {}, activationConfig: { type: 'webhook' } }]);
     setReactions([{ id: '1', service: null, actionId: null, params: {} }]);
+    setLinks([]);
     setActiveStep(0);
   };
 
@@ -197,14 +259,27 @@ export default function CreateSimpleAreaPage() {
   };
 
   const handleCreateArea = async () => {
-    if (!areaName || !selectedTrigger) {
+    if (!areaName) {
       setError('Please fill in all required fields.');
+      return;
+    }
+
+    const invalidTriggers = triggers.filter(t => !t.service || !t.actionId);
+    if (invalidTriggers.length > 0) {
+      setError('All triggers must have a service and an event selected.');
       return;
     }
 
     const invalidReactions = reactions.filter(r => !r.service || !r.actionId);
     if (invalidReactions.length > 0) {
       setError('All reactions must have a service and an action selected.');
+      return;
+    }
+
+    // Validate links
+    const invalidLinks = links.filter(l => !l.sourceId || !l.targetId);
+    if (invalidLinks.length > 0) {
+      setError('All links must have a source and target selected.');
       return;
     }
 
@@ -215,14 +290,13 @@ export default function CreateSimpleAreaPage() {
       const payload: CreateAreaPayload = {
         name: areaName,
         description: areaDescription || undefined,
-        actions: [
-          {
-            actionDefinitionId: selectedTrigger,
-            name: `Trigger - ${areaName}`,
-            description: 'Trigger action',
-            parameters: triggerParams,
-          },
-        ],
+        actions: triggers.map((trigger, index) => ({
+          actionDefinitionId: trigger.actionId!,
+          name: `Trigger ${index + 1} - ${areaName}`,
+          description: `Trigger action ${index + 1}`,
+          parameters: trigger.params,
+          activationConfig: trigger.activationConfig as unknown as Record<string, unknown>,
+        })),
         reactions: reactions.map((reaction, index) => ({
           actionDefinitionId: reaction.actionId!,
           name: `Reaction ${index + 1} - ${areaName}`,
@@ -230,7 +304,35 @@ export default function CreateSimpleAreaPage() {
           parameters: reaction.params,
           order: index + 1,
         })),
-        links: [],
+        links: links.map((link, index) => {
+          // Convert temporary IDs to actual action definition IDs
+          let sourceActionDefinitionId: string | undefined;
+          
+          if (link.sourceId === 'trigger') {
+            // Use the first trigger as default for backward compatibility
+            sourceActionDefinitionId = triggers[0]?.actionId || undefined;
+          } else {
+            // Check if it's a trigger ID
+            const trigger = triggers.find(t => t.id === link.sourceId);
+            if (trigger) {
+              sourceActionDefinitionId = trigger.actionId || undefined;
+            } else {
+              // It's a reaction ID
+              const reaction = reactions.find(r => r.id === link.sourceId);
+              sourceActionDefinitionId = reaction?.actionId || undefined;
+            }
+          }
+
+          const targetReaction = reactions.find(r => r.id === link.targetId);
+          const targetActionDefinitionId = targetReaction?.actionId || undefined;
+
+          return {
+            sourceActionDefinitionId: sourceActionDefinitionId!,
+            targetActionDefinitionId: targetActionDefinitionId!,
+            mapping: link.mapping,
+            order: index + 1,
+          };
+        }),
         connections: [],
       };
 
@@ -257,9 +359,12 @@ export default function CreateSimpleAreaPage() {
       case 0:
         return areaName.trim().length > 0;
       case 1:
-        return selectedTriggerService && selectedTrigger;
+        return triggers.every(t => t.service && t.actionId);
       case 2:
         return reactions.every(r => r.service && r.actionId);
+      case 3:
+        // Links are optional, but if they exist, they must be valid
+        return links.every(l => l.sourceId && l.targetId);
       default:
         return false;
     }
@@ -345,7 +450,7 @@ export default function CreateSimpleAreaPage() {
               </Text>
             </div>
             <Group>
-              {(areaName || areaDescription || selectedTriggerService) && (
+              {(areaName || areaDescription || triggers.some(t => t.service)) && (
                 <Button
                   variant="subtle"
                   color="gray"
@@ -407,31 +512,44 @@ export default function CreateSimpleAreaPage() {
           </Stepper.Step>
 
           <Stepper.Step
-            label="Trigger"
+            label="Triggers"
             description="When something happens"
           >
-            <TriggerStep
+            <TriggersStep
               services={services}
               serviceConnectionStatuses={serviceConnectionStatuses}
-              selectedTriggerService={selectedTriggerService}
-              selectedTrigger={selectedTrigger}
+              triggers={triggers}
               actionTriggers={actionTriggers}
-              triggerParams={triggerParams}
-              onTriggerServiceChange={(val) => {
-                setSelectedTriggerService(val);
-                setSelectedTrigger(null);
-                setTriggerParams({});
+              onTriggerServiceChange={(triggerId, service) => {
+                setTriggers(prev => prev.map(t =>
+                  t.id === triggerId
+                    ? { ...t, service, actionId: null, params: {} }
+                    : t
+                ));
               }}
-              onTriggerChange={(triggerId) => {
-                setSelectedTrigger(triggerId);
-                setTriggerParams({});
+              onTriggerActionChange={(triggerId, actionId) => {
+                setTriggers(prev => prev.map(t =>
+                  t.id === triggerId
+                    ? { ...t, actionId, params: {} }
+                    : t
+                ));
               }}
-              onTriggerParamChange={(paramName, value) => {
-                setTriggerParams({
-                  ...triggerParams,
-                  [paramName]: value,
-                });
+              onTriggerParamChange={(triggerId, paramName, value) => {
+                setTriggers(prev => prev.map(t =>
+                  t.id === triggerId
+                    ? { ...t, params: { ...t.params, [paramName]: value } }
+                    : t
+                ));
               }}
+              onTriggerActivationConfigChange={(triggerId, config) => {
+                setTriggers(prev => prev.map(t =>
+                  t.id === triggerId
+                    ? { ...t, activationConfig: config }
+                    : t
+                ));
+              }}
+              onAddTrigger={addTrigger}
+              onRemoveTrigger={removeTrigger}
               onConnectService={handleConnectService}
               renderParameterField={renderParameterField}
               getActionFields={(actionId) => {
@@ -482,14 +600,29 @@ export default function CreateSimpleAreaPage() {
             />
           </Stepper.Step>
 
+          <Stepper.Step
+            label="Links"
+            description="Connect actions (optional)"
+          >
+            <LinksStep
+              triggers={triggers}
+              reactions={reactions}
+              links={links}
+              actionTriggers={actionTriggers}
+              reactionActions={reactionActions}
+              onAddLink={addLink}
+              onRemoveLink={removeLink}
+              onUpdateLink={updateLink}
+            />
+          </Stepper.Step>
+
           <Stepper.Completed>
             <ResumeStep
               areaName={areaName}
               areaDescription={areaDescription}
-              selectedTriggerService={selectedTriggerService}
-              selectedTrigger={selectedTrigger}
-              triggerParams={triggerParams}
+              triggers={triggers}
               reactions={reactions}
+              links={links}
               services={services}
               actionTriggers={actionTriggers}
               reactionActions={reactionActions}
@@ -507,7 +640,7 @@ export default function CreateSimpleAreaPage() {
               Previous
             </Button>
           )}
-          {activeStep < 3 && (
+          {activeStep < 4 && (
             <Button
               rightSection={<IconArrowRight size={18} />}
               onClick={() => setActiveStep(activeStep + 1)}
@@ -517,7 +650,7 @@ export default function CreateSimpleAreaPage() {
               Next
             </Button>
           )}
-          {activeStep === 3 && (
+          {activeStep === 4 && (
             <Button
               onClick={handleCreateArea}
               loading={loading || servicesLoading}

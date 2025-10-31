@@ -30,17 +30,33 @@ import {
   getAreaById,
   getActionsByServiceKey,
 } from '@/services/areasService';
-import type { FieldData } from '@/types';
+import type { FieldData, ActivationConfig } from '@/types';
 import { initiateServiceConnection } from '@/services/serviceConnectionService';
-import { NameStep, TriggerStep, ReactionsStep, ResumeStep } from '@/components/ui/area-simple-steps';
+import { NameStep, TriggersStep, ReactionsStep, LinksStep, ResumeStep } from '@/components/ui/area-simple-steps';
 import { ArrayInput } from '@/components/ui/area-simple-steps/ArrayInput';
 import { useAreaForm } from '@/hooks/useAreaForm';
+
+interface TriggerData {
+  id: string;
+  service: string | null;
+  actionId: string | null;
+  params: Record<string, unknown>;
+  activationConfig?: ActivationConfig;
+}
 
 interface ReactionData {
   id: string;
   service: string | null;
   actionId: string | null;
   params: Record<string, unknown>;
+}
+
+interface LinkData {
+  id: string;
+  sourceId: string;
+  targetId: string;
+  linkType: 'chain' | 'conditional' | 'parallel' | 'sequential';
+  mapping?: Record<string, string>;
 }
 
 export default function EditSimpleAreaPage() {
@@ -56,12 +72,13 @@ export default function EditSimpleAreaPage() {
 
   const [areaName, setAreaName] = useState('');
   const [areaDescription, setAreaDescription] = useState('');
-  const [selectedTriggerService, setSelectedTriggerService] = useState<string | null>(null);
-  const [selectedTrigger, setSelectedTrigger] = useState<string | null>(null);
-  const [triggerParams, setTriggerParams] = useState<Record<string, unknown>>({});
+  const [triggers, setTriggers] = useState<TriggerData[]>([
+    { id: '1', service: null, actionId: null, params: {}, activationConfig: { type: 'webhook' } }
+  ]);
   const [reactions, setReactions] = useState<ReactionData[]>([
     { id: '1', service: null, actionId: null, params: {} }
   ]);
+  const [links, setLinks] = useState<LinkData[]>([]);
 
   const {
     services,
@@ -74,10 +91,17 @@ export default function EditSimpleAreaPage() {
   } = useAreaForm();
 
   useEffect(() => {
-    if (selectedTriggerService) {
-      loadTriggerActions(selectedTriggerService);
-    }
-  }, [selectedTriggerService, loadTriggerActions]);
+    // Load trigger actions for all triggers with a service selected
+    const servicesToLoad = triggers
+      .filter(t => t.service && !t.actionId)
+      .map(t => t.service as string);
+    
+    const uniqueServices = [...new Set(servicesToLoad)];
+    
+    uniqueServices.forEach(service => {
+      loadTriggerActions(service);
+    });
+  }, [triggers, loadTriggerActions]);
 
   const reactionServiceKeys = useMemo(() => {
     return reactions
@@ -123,10 +147,14 @@ export default function EditSimpleAreaPage() {
         setAreaDescription(area.description || '');
 
         if (area.actions && area.actions.length > 0) {
-          const trigger = area.actions[0];
-          setSelectedTrigger(trigger.actionDefinitionId);
-          setTriggerParams(trigger.parameters || {});
-
+          const loadedTriggers: TriggerData[] = area.actions.map((action, index) => ({
+            id: action.id || `trigger-${index}`,
+            service: null,
+            actionId: action.actionDefinitionId,
+            params: action.parameters || {},
+            activationConfig: action.activationConfig || { type: 'webhook' },
+          }));
+          setTriggers(loadedTriggers);
         }
 
         if (area.reactions && area.reactions.length > 0) {
@@ -152,26 +180,7 @@ export default function EditSimpleAreaPage() {
     }
   }, [areaId]);
 
-  useEffect(() => {
-    const determineServiceFromTrigger = async () => {
-      if (selectedTrigger && services.length > 0 && !selectedTriggerService) {
-        for (const service of services) {
-          try {
-            const actions = await getActionsByServiceKey(service.key);
-            const matchingAction = actions.find(a => a.id === selectedTrigger);
-            if (matchingAction) {
-              setSelectedTriggerService(service.key);
-              break;
-            }
-          } catch (err) {
-            console.error(`Failed to load actions for ${service.key}:`, err);
-          }
-        }
-      }
-    };
 
-    determineServiceFromTrigger();
-  }, [selectedTrigger, services, selectedTriggerService]);
 
   useEffect(() => {
     const determineServicesFromReactions = async () => {
@@ -219,7 +228,31 @@ export default function EditSimpleAreaPage() {
   const removeReaction = (id: string) => {
     if (reactions.length > 1) {
       setReactions(reactions.filter(r => r.id !== id));
+      // Remove any links associated with this reaction
+      setLinks(prevLinks => prevLinks.filter(l => l.sourceId !== id && l.targetId !== id));
     }
+  };
+
+  const addLink = () => {
+    setLinks([
+      ...links,
+      {
+        id: Date.now().toString(),
+        sourceId: '',
+        targetId: '',
+        linkType: 'chain',
+      },
+    ]);
+  };
+
+  const removeLink = (linkId: string) => {
+    setLinks(links.filter(l => l.id !== linkId));
+  };
+
+  const updateLink = (linkId: string, updates: Partial<LinkData>) => {
+    setLinks(prevLinks =>
+      prevLinks.map(l => (l.id === linkId ? { ...l, ...updates } : l))
+    );
   };
 
   const handleConnectService = async (serviceKey: string) => {
@@ -232,7 +265,7 @@ export default function EditSimpleAreaPage() {
   };
 
   const handleUpdateArea = async () => {
-    if (!areaName || !selectedTrigger) {
+    if (!areaName || triggers.length === 0 || triggers.some(t => !t.actionId)) {
       setError('Please fill in all required fields.');
       return;
     }
@@ -243,6 +276,13 @@ export default function EditSimpleAreaPage() {
       return;
     }
 
+    // Validate links
+    const invalidLinks = links.filter(l => !l.sourceId || !l.targetId);
+    if (invalidLinks.length > 0) {
+      setError('All links must have a source and target selected.');
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -250,14 +290,13 @@ export default function EditSimpleAreaPage() {
       const payload: CreateAreaPayload = {
         name: areaName,
         description: areaDescription || undefined,
-        actions: [
-          {
-            actionDefinitionId: selectedTrigger,
-            name: `Trigger - ${areaName}`,
-            description: 'Trigger action',
-            parameters: triggerParams,
-          },
-        ],
+        actions: triggers.map((trigger, index) => ({
+          actionDefinitionId: trigger.actionId!,
+          name: `Trigger ${index + 1} - ${areaName}`,
+          description: 'Trigger action',
+          parameters: trigger.params,
+          activationConfig: trigger.activationConfig as unknown as Record<string, unknown>,
+        })),
         reactions: reactions.map((reaction, index) => ({
           actionDefinitionId: reaction.actionId!,
           name: `Reaction ${index + 1} - ${areaName}`,
@@ -265,7 +304,30 @@ export default function EditSimpleAreaPage() {
           parameters: reaction.params,
           order: index + 1,
         })),
-        links: [],
+        links: links.map((link, index) => {
+          // Convert temporary IDs to actual action definition IDs
+          let sourceActionDefinitionId: string;
+          
+          // Find source - could be a trigger or reaction
+          const triggerSource = triggers.find(t => t.id === link.sourceId);
+          if (triggerSource?.actionId) {
+            sourceActionDefinitionId = triggerSource.actionId;
+          } else {
+            const reactionSource = reactions.find(r => r.id === link.sourceId);
+            sourceActionDefinitionId = reactionSource?.actionId || '';
+          }
+
+          const targetActionDefinitionId = reactions.find(
+            r => r.id === link.targetId
+          )?.actionId;
+
+          return {
+            sourceActionDefinitionId: sourceActionDefinitionId!,
+            targetActionDefinitionId: targetActionDefinitionId!,
+            mapping: link.mapping,
+            order: index + 1,
+          };
+        }),
         connections: [],
       };
 
@@ -287,9 +349,12 @@ export default function EditSimpleAreaPage() {
       case 0:
         return areaName.trim().length > 0;
       case 1:
-        return selectedTriggerService && selectedTrigger;
+        return triggers.length > 0 && triggers.every(t => t.service && t.actionId);
       case 2:
         return reactions.every(r => r.service && r.actionId);
+      case 3:
+        // Links are optional, but if they exist, they must be valid
+        return links.every(l => l.sourceId && l.targetId);
       default:
         return false;
     }
@@ -442,27 +507,54 @@ export default function EditSimpleAreaPage() {
             label="Trigger"
             description="When something happens"
           >
-            <TriggerStep
+            <TriggersStep
               services={services}
               serviceConnectionStatuses={serviceConnectionStatuses}
-              selectedTriggerService={selectedTriggerService}
-              selectedTrigger={selectedTrigger}
+              triggers={triggers}
               actionTriggers={actionTriggers}
-              triggerParams={triggerParams}
-              onTriggerServiceChange={(val) => {
-                setSelectedTriggerService(val);
-                setSelectedTrigger(null);
-                setTriggerParams({});
+              onAddTrigger={() => {
+                setTriggers([...triggers, {
+                  id: Date.now().toString(),
+                  service: null,
+                  actionId: null,
+                  params: {},
+                  activationConfig: { type: 'webhook' },
+                }]);
               }}
-              onTriggerChange={(triggerId) => {
-                setSelectedTrigger(triggerId);
-                setTriggerParams({});
+              onRemoveTrigger={(triggerId) => {
+                if (triggers.length > 1) {
+                  setTriggers(triggers.filter(t => t.id !== triggerId));
+                  // Remove any links associated with this trigger
+                  setLinks(prevLinks => prevLinks.filter(l => l.sourceId !== triggerId));
+                }
               }}
-              onTriggerParamChange={(paramName, value) => {
-                setTriggerParams({
-                  ...triggerParams,
-                  [paramName]: value,
-                });
+              onTriggerServiceChange={(triggerId, service) => {
+                setTriggers(prev => prev.map(t =>
+                  t.id === triggerId
+                    ? { ...t, service, actionId: null, params: {} }
+                    : t
+                ));
+              }}
+              onTriggerActionChange={(triggerId, actionId) => {
+                setTriggers(prev => prev.map(t =>
+                  t.id === triggerId
+                    ? { ...t, actionId, params: {} }
+                    : t
+                ));
+              }}
+              onTriggerParamChange={(triggerId, paramName, value) => {
+                setTriggers(prev => prev.map(t =>
+                  t.id === triggerId
+                    ? { ...t, params: { ...t.params, [paramName]: value } }
+                    : t
+                ));
+              }}
+              onTriggerActivationConfigChange={(triggerId, activationConfig) => {
+                setTriggers(prev => prev.map(t =>
+                  t.id === triggerId
+                    ? { ...t, activationConfig }
+                    : t
+                ));
               }}
               onConnectService={handleConnectService}
               renderParameterField={renderParameterField}
@@ -514,14 +606,29 @@ export default function EditSimpleAreaPage() {
             />
           </Stepper.Step>
 
+          <Stepper.Step
+            label="Links"
+            description="Connect actions (optional)"
+          >
+            <LinksStep
+              triggers={triggers}
+              reactions={reactions}
+              links={links}
+              actionTriggers={actionTriggers}
+              reactionActions={reactionActions}
+              onAddLink={addLink}
+              onRemoveLink={removeLink}
+              onUpdateLink={updateLink}
+            />
+          </Stepper.Step>
+
           <Stepper.Completed>
             <ResumeStep
               areaName={areaName}
               areaDescription={areaDescription}
-              selectedTriggerService={selectedTriggerService}
-              selectedTrigger={selectedTrigger}
-              triggerParams={triggerParams}
+              triggers={triggers}
               reactions={reactions}
+              links={links}
               services={services}
               actionTriggers={actionTriggers}
               reactionActions={reactionActions}
@@ -539,7 +646,7 @@ export default function EditSimpleAreaPage() {
               Previous
             </Button>
           )}
-          {activeStep < 3 && (
+          {activeStep < 4 && (
             <Button
               rightSection={<IconArrowRight size={18} />}
               onClick={() => setActiveStep(activeStep + 1)}
@@ -549,7 +656,7 @@ export default function EditSimpleAreaPage() {
               Next
             </Button>
           )}
-          {activeStep === 3 && (
+          {activeStep === 4 && (
             <Button
               onClick={handleUpdateArea}
               loading={loading || servicesLoading}

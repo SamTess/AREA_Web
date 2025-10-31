@@ -1,4 +1,5 @@
 export { NameStep } from './NameStep';
-export { TriggerStep } from './TriggerStep';
+export { TriggersStep } from './TriggersStep';
 export { ReactionsStep } from './ReactionsStep';
+export { LinksStep } from './LinksStep';
 export { ResumeStep } from './ResumeStep';
