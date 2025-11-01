@@ -21,6 +21,7 @@ const eslintConfig = [
       "coverage/**",
       "cypress/videos/**",
       "cypress/screenshots/**",
+      "__tests__/**",
     ],
   },
 ];
