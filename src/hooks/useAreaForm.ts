@@ -11,8 +11,9 @@ export function useAreaForm() {
   const [loading, setLoading] = useState(false);
 
   const loadingServices = useRef(false);
-  const loadingTriggers = useRef<string | null>(null);
+  const loadingTriggers = useRef<Set<string>>(new Set());
   const loadingReactions = useRef<Set<string>>(new Set());
+  const loadedTriggerServices = useRef<Set<string>>(new Set());
 
   const loadServices = useCallback(async () => {
     if (loadingServices.current) return;
@@ -53,17 +54,25 @@ export function useAreaForm() {
   }, []);
 
   const loadTriggerActions = useCallback(async (serviceKey: string) => {
-    if (loadingTriggers.current === serviceKey) return;
-    loadingTriggers.current = serviceKey;
+    if (loadedTriggerServices.current.has(serviceKey) || loadingTriggers.current.has(serviceKey)) {
+      return;
+    }
+    loadingTriggers.current.add(serviceKey);
 
     try {
       const actions = await getActionsByServiceKey(serviceKey);
-      setActionTriggers(actions.filter(a => a.isEventCapable));
+      const newActions = actions.filter(a => a.isEventCapable);
+      setActionTriggers(prev => {
+        const existingIds = new Set(prev.map(a => a.id));
+        const uniqueNewActions = newActions.filter(a => !existingIds.has(a.id));
+        return [...prev, ...uniqueNewActions];
+      });
+      loadedTriggerServices.current.add(serviceKey);
     } catch (err) {
       console.error('Failed to load trigger actions:', err);
       throw err;
     } finally {
-      loadingTriggers.current = null;
+      loadingTriggers.current.delete(serviceKey);
     }
   }, []);
 

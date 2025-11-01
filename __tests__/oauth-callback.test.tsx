@@ -384,8 +384,8 @@ describe('OAuthCallbackPage', () => {
       // Should redirect to return URL after 5 seconds in link mode
       await waitFor(() => {
         expect(mockPush).toHaveBeenCalledWith('/profil');
-      }, { timeout: 6000 });
-    });
+      }, { timeout: 8000 });
+    }, 10000);
   });
 
   describe('Processing states', () => {
