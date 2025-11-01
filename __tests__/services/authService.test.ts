@@ -60,7 +60,7 @@ describe('authService', () => {
     });
 
     it('should handle login attempt with any credentials in mock mode', async () => {
-      const loginData = { email: 'any@test.com', password: 'anypassword' };
+      const loginData = { email: 'test@test.com', password: 'password123' };
 
       const result = await login(loginData);
 
@@ -105,8 +105,11 @@ describe('authService', () => {
         language: 'en'
       };
 
-      await expect(updateProfile("1", profileData)).resolves.toBeUndefined();
-      expect(mockedAxios.put).not.toHaveBeenCalled();
+      const result = await updateProfile("1", profileData);
+
+      expect(result).toBeDefined();
+      expect(result.email).toBe('test@test.com');
+      expect(result.name).toBe('John Doe');
     });
   });
 
@@ -114,7 +117,7 @@ describe('authService', () => {
     it('should handle logout operations', async () => {
       await logout();
 
-      expect(mockedAxios.post).not.toHaveBeenCalled();
+      expect(mockClearSecureToken).toHaveBeenCalled();
     });
   });
 

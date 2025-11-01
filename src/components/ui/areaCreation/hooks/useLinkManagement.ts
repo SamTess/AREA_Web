@@ -19,7 +19,7 @@ export function useLinkManagement(
     const service = services.find(s => s.id === serviceId);
     if (!service) return false;
     return service.state === ServiceState.Success ||
-            (service.actionDefinitionId &&
+            !!(service.actionDefinitionId &&
             service.serviceName &&
             service.event);
   }, [services]);

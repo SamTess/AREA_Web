@@ -373,12 +373,18 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
       serviceIdToTypeMap.set(service.id, 'action');
       serviceIdToActionIndexMap.set(service.id, actionIndex);
       console.log(`Mapped service ${service.id} to action_${actionIndex}`);
+      const cleanedParameters = { ...(service.fields || {}) };
+      delete cleanedParameters._chainTargets;
+      delete cleanedParameters._chainSourceId;
+      delete cleanedParameters._chainMapping;
+      delete cleanedParameters._chainSource;
+      delete cleanedParameters._hasChainTarget;
 
       actions.push({
         actionDefinitionId: service.actionDefinitionId || '',
         name: service.event || service.cardName || 'Unnamed Action',
         description: `Action for ${service.serviceName}`,
-        parameters: service.fields || {},
+        parameters: cleanedParameters,
         activationConfig: actionActivationConfig ? {
           type: actionActivationConfig.type,
           ...(actionActivationConfig.cron_expression && { cron_expression: actionActivationConfig.cron_expression }),
@@ -403,11 +409,19 @@ const transformServiceDataToPayload = async (services: ServiceData[], areaName: 
       serviceIdToReactionIndexMap.set(service.id, reactionIndex);
       console.log(`Mapped service ${service.id} to reaction_${reactionIndex}`);
 
+      // Clean internal editor metadata from parameters
+      const cleanedParameters = { ...(service.fields || {}) };
+      delete cleanedParameters._chainTargets;
+      delete cleanedParameters._chainSourceId;
+      delete cleanedParameters._chainMapping;
+      delete cleanedParameters._chainSource;
+      delete cleanedParameters._hasChainTarget;
+
       reactions.push({
         actionDefinitionId: service.actionDefinitionId || '',
         name: service.event || service.cardName || 'Unnamed Reaction',
         description: `Reaction for ${service.serviceName}`,
-        parameters: service.fields || {},
+        parameters: cleanedParameters,
         mapping: {},
         condition: {},
         order: reactions.length,
@@ -622,11 +636,9 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
             setAreaName(area.name);
             setAreaDescription(area.description);
             const transformedServices = await transformBackendDataToServiceData(area);
-            setServicesState(transformedServices);
-            const extractedConnections = extractConnectionsFromServices(transformedServices);
-            setConnections(extractedConnections);
             if (area.links && area.links.length > 0) {
               const transformedConnections: ConnectionData[] = [];
+              const serviceTargets = new Map<string, string[]>(); // sourceId -> targetIds[]
               area.links.forEach((link, index) => {
                 const sourceService = transformedServices.find(s => s.id === link.sourceActionInstanceId);
                 const targetService = transformedServices.find(s => s.id === link.targetActionInstanceId);
@@ -651,14 +663,33 @@ export function useAreaEditor(areaId?: string, draftId?: string) {
                   };
 
                   transformedConnections.push(connection);
+                  if (!serviceTargets.has(link.sourceActionInstanceId)) {
+                    serviceTargets.set(link.sourceActionInstanceId, []);
+                  }
+                  serviceTargets.get(link.sourceActionInstanceId)!.push(link.targetActionInstanceId);
                 } else {
                   console.warn('Could not find services for link:', link);
+                }
+              });
+              transformedServices.forEach(service => {
+                const targets = serviceTargets.get(service.id);
+                if (targets && targets.length > 0) {
+                  const fields = service.fields as Record<string, unknown>;
+                  fields._chainTargets = targets;
+                  fields._hasChainTarget = true;
                 }
               });
               setConnections(transformedConnections);
             } else {
               console.log('No links found in area data');
+              transformedServices.forEach(service => {
+                const fields = service.fields as Record<string, unknown>;
+                delete fields._chainTargets;
+                delete fields._hasChainTarget;
+              });
+              setConnections([]);
             }
+            setServicesState(transformedServices);
           }
         } catch (error) {
           console.error('Error loading area data:', error);

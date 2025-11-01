@@ -46,20 +46,30 @@ export interface BackendAction {
   id: string;
   actionDefinitionId: string;
   name: string;
+  actionKey: string;
+  description: string;
   parameters: Record<string, unknown>;
   activationConfig: ActivationConfig;
+  serviceKey: string;
+  serviceId: string;
+  serviceName: string;
 }
 
 export interface BackendReaction {
   id: string;
   actionDefinitionId: string;
   name: string;
+  actionKey: string;
+  description: string;
   parameters: Record<string, unknown>;
   mapping?: Record<string, string>;
   condition?: ConditionGroup;
   order: number;
   continue_on_error: boolean;
   activationConfig?: ActivationConfig;
+  serviceKey: string;
+  serviceId: string;
+  serviceName: string;
 }
 
 export interface ActionDefinitionResponse {

@@ -36,7 +36,13 @@ function getStrength(password: string) {
 export function PasswordStrength({ value, onChange, onKeyDown, error }: { value?: string; onChange?: (value: string) => void; onKeyDown?: (event: React.KeyboardEvent) => void; error?: ReactNode }) {
   const [internalValue, setInternalValue] = useInputState('');
   const currentValue = value !== undefined ? value : internalValue;
-  const handleChange = onChange || setInternalValue;
+  const handleChange = (newValue: string) => {
+    if (onChange) {
+      onChange(newValue);
+    } else {
+      setInternalValue(newValue);
+    }
+  };
   const strength = getStrength(currentValue);
   const checks = requirements.map((requirement, index) => (
     <PasswordRequirement key={index} label={requirement.label} meets={requirement.re.test(currentValue)} />

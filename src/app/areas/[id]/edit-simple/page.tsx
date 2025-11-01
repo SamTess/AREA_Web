@@ -8,7 +8,6 @@ import {
   updateAreaComplete,
   CreateAreaPayload,
   getAreaById,
-  getActionDefinitionById,
 } from '@/services/areasService';
 import { SimpleAreaForm } from '@/components/ui/area-simple-steps';
 import type { ActivationConfig } from '@/types';
@@ -73,25 +72,13 @@ export default function EditSimpleAreaPage() {
         const loadedTriggers: TriggerData[] = [];
         if (area.actions && area.actions.length > 0) {
           for (const [index, action] of area.actions.entries()) {
-            try {
-              const actionDef = await getActionDefinitionById(action.actionDefinitionId);
-              loadedTriggers.push({
-                id: action.id || `trigger-${index}`,
-                service: actionDef.serviceKey || null,
-                actionId: action.actionDefinitionId,
-                params: action.parameters || {},
-                activationConfig: action.activationConfig || { type: 'webhook' },
-              });
-            } catch (error) {
-              console.error(`Failed to load action definition for trigger ${index}:`, error);
-              loadedTriggers.push({
-                id: action.id || `trigger-${index}`,
-                service: null,
-                actionId: action.actionDefinitionId,
-                params: action.parameters || {},
-                activationConfig: action.activationConfig || { type: 'webhook' },
-              });
-            }
+            loadedTriggers.push({
+              id: action.id || `trigger-${index}`,
+              service: action.serviceKey || null,
+              actionId: action.actionDefinitionId,
+              params: action.parameters || {},
+              activationConfig: action.activationConfig || { type: 'webhook' },
+            });
           }
         }
 
@@ -108,23 +95,12 @@ export default function EditSimpleAreaPage() {
         const loadedReactions: ReactionData[] = [];
         if (area.reactions && area.reactions.length > 0) {
           for (const [index, reaction] of area.reactions.entries()) {
-            try {
-              const actionDef = await getActionDefinitionById(reaction.actionDefinitionId);
-              loadedReactions.push({
-                id: reaction.id || `reaction-${index}`,
-                service: actionDef.serviceKey || null,
-                actionId: reaction.actionDefinitionId,
-                params: reaction.parameters || {},
-              });
-            } catch (error) {
-              console.error(`Failed to load action definition for reaction ${index}:`, error);
-              loadedReactions.push({
-                id: reaction.id || `reaction-${index}`,
-                service: null,
-                actionId: reaction.actionDefinitionId,
-                params: reaction.parameters || {},
-              });
-            }
+            loadedReactions.push({
+              id: reaction.id || `reaction-${index}`,
+              service: reaction.serviceKey || null,
+              actionId: reaction.actionDefinitionId,
+              params: reaction.parameters || {},
+            });
           }
         }
 

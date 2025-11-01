@@ -325,6 +325,7 @@ export default function ProfilPage() {
         ref={fileInputRef}
         style={{ display: 'none' }}
         accept="image/*"
+        data-testid="avatar-input"
         onChange={(e) => {
           const file = e.target.files?.[0];
           if (file) {

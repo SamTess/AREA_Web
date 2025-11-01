@@ -246,15 +246,6 @@ export function useDraftManager({
           console.error('Error loading draft data:', error);
         }
       } else if (areaId && !isNewArea) {
-        try {
-          const editDraft = await getEditDraft(areaId);
-          if (editDraft) {
-            await loadDraftFromData(editDraft);
-            setHasShownModal(true);
-          }
-        } catch (error) {
-          console.error('Error loading edit draft:', error);
-        }
       } else if (isNewArea && !areaId && !hasShownModal) {
         try {
           const drafts = await getUserDrafts();
