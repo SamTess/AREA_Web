@@ -40,7 +40,7 @@ export function TriggersStep({ services, serviceConnectionStatuses, triggers, ac
     return status?.isConnected === true;
   };
 
-  const renderActivationConfigEditor = (trigger: TriggerData, index: number) => {
+  const renderActivationConfigEditor = (trigger: TriggerData) => {
     const config = trigger.activationConfig || { type: 'webhook' };
 
     return (
@@ -275,7 +275,7 @@ export function TriggersStep({ services, serviceConnectionStatuses, triggers, ac
                       labelPosition="left"
                       my="md"
                     />
-                    {renderActivationConfigEditor(trigger, index)}
+                    {renderActivationConfigEditor(trigger)}
                   </>
                 )}
 

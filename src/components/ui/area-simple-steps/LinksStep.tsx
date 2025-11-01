@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Paper, Stack, Text, Card, Group, Badge, Button, Select, ActionIcon, Alert, Divider } from '@mantine/core';
+import { Paper, Stack, Text, Card, Group, Button, Select, ActionIcon, Alert, Divider } from '@mantine/core';
 import { IconPlus, IconTrash, IconLink, IconAlertCircle } from '@tabler/icons-react';
 import type { Action } from '@/types';
 

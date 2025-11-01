@@ -20,13 +20,8 @@ describe('Area Creation Flow', () => {
   it('should display create area button on dashboard', () => {
     cy.visit('/dashboard')
     
-    // Look for create/add button
-    cy.get('button, a').then($actions => {
-      const hasCreate = Array.from($actions).some(el =>
-        /create|add|new|plus/i.test(el.textContent || el.getAttribute('aria-label') || '')
-      )
-      cy.get('body').should('be.visible')
-    })
+    // Verify dashboard loads
+    cy.get('body').should('be.visible')
   })
 
   it('should display areas list for creation context', () => {
@@ -57,10 +52,8 @@ describe('Area Creation Flow', () => {
   it('should display area management tabs', () => {
     cy.visit('/dashboard')
     
-    // Check for tabs
-    cy.get('[role="tab"], button').then($tabs => {
-      cy.get('body').should('be.visible')
-    })
+    // Verify dashboard loads
+    cy.get('body').should('be.visible')
   })
 
   it('should handle area list pagination', () => {

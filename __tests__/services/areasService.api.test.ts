@@ -405,12 +405,11 @@ describe('areasService with real API responses', () => {
       const mockCards: ServiceData[] = [
         {
           id: 'card-1',
-          areaId: 'area-1',
           serviceName: 'GitHub',
           serviceKey: 'github',
           cardName: 'Push Trigger',
           event: 'push',
-          state: 'success' as const,
+          state: ServiceState.Success,
           logo: 'https://example.com/github.png',
           actionId: 1,
           serviceId: '1',

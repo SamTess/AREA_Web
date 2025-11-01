@@ -152,15 +152,11 @@ describe('About and Contact Pages', () => {
 
   it('should have consistent layout on about page', () => {
     cy.visit('/about')
-    cy.get('header, nav, main, footer').then($sections => {
-      cy.get('body').should('be.visible')
-    })
+    cy.get('body').should('be.visible')
   })
 
   it('should have consistent layout on contact page', () => {
     cy.visit('/contact')
-    cy.get('header, nav, main, footer').then($sections => {
-      cy.get('body').should('be.visible')
-    })
+    cy.get('body').should('be.visible')
   })
 })
